@@ -588,7 +588,7 @@
 
         <div id="agentError"
           class="hidden mt-4 text-sm text-red-300 bg-red-950/30 border border-red-500/30 rounded-xl p-3">
-          Unable to load Master Agent details. Check REF in URL or /data/masterAgents.json.
+          Unable to load Master Agent details. Check REF in URL or the Master Agent database.
         </div>
       </div>
     </div>
@@ -797,7 +797,8 @@
     // -------- Language switch ----------
     function setLang(lang) {
       document.querySelectorAll('[data-ms]').forEach(el => {
-        el.innerHTML = el.getAttribute('data-' + lang);
+        const v = el.getAttribute('data-' + lang);
+        if (v !== null) el.innerHTML = v;
       });
       document.documentElement.lang = lang;
 
@@ -974,13 +975,22 @@
       }
     });
 
-    // -------- Master Agent Loader ----------
+    // -------- Master Agent Loader (FIXED) ----------
     const DEFAULT_CHECKOUT_URL = "https://checkout.xendit.co/od/qarilivelite"; // fallback (if no ref)
     const DEFAULT_WA_URL = "https://wa.me/60"; // fallback minimal
 
     function getRefFromUrl() {
       const params = new URLSearchParams(window.location.search);
       return (params.get("ref") || params.get("REF") || "").trim();
+    }
+
+    function normalizeWa(input) {
+      const raw = (input || "").trim();
+      if (!raw) return "";
+      if (raw.startsWith("https://wa.me/") || raw.startsWith("http://wa.me/")) return raw;
+      const digits = raw.replace(/[^\d]/g, "");
+      if (!digits) return "";
+      return "https://wa.me/" + digits;
     }
 
     function setAgentUI(agent, ref) {
@@ -1002,27 +1012,26 @@
 
         if (checkoutBtn) checkoutBtn.href = DEFAULT_CHECKOUT_URL;
         if (whatsappBtn) whatsappBtn.href = DEFAULT_WA_URL;
-
         if (agentWhatsappBtn) agentWhatsappBtn.href = DEFAULT_WA_URL;
-
-        // still scrolls to checkout
         if (agentCheckoutBtn) agentCheckoutBtn.href = "#checkout";
         return;
       }
 
-      if (agentName) agentName.textContent = agent.name || "Master Agent";
-      if (agentCode) agentCode.textContent = agent.code || ref || "—";
-
-      // ✅ Use master agent’s payment link
+      // supports multiple field names from your DB
+      const name = agent.full_name || agent.name || "Master Agent";
+      const code = agent.ma_code || agent.code || ref || "—";
       const co = agent.checkout_url || DEFAULT_CHECKOUT_URL;
+
+      const wa = normalizeWa(agent.whatsapp_url || agent.whatsapp) || DEFAULT_WA_URL;
+
+      if (agentName) agentName.textContent = name;
+      if (agentCode) agentCode.textContent = code;
+
       if (checkoutBtn) checkoutBtn.href = co;
 
-      // ✅ Use master agent’s WhatsApp link
-      const wa = agent.whatsapp || DEFAULT_WA_URL;
       if (whatsappBtn) whatsappBtn.href = wa;
       if (agentWhatsappBtn) agentWhatsappBtn.href = wa;
 
-      // CTA to checkout
       if (agentCheckoutBtn) agentCheckoutBtn.href = "#checkout";
     }
 
@@ -1030,44 +1039,32 @@
       const ref = getRefFromUrl();
       const errorBox = document.getElementById("agentError");
 
-      // Always show the badge
-      document.getElementById("refBadge").textContent = ref || "—";
+      const rb = document.getElementById("refBadge");
+      if (rb) rb.textContent = ref || "—";
 
       // If no ref, just fallback silently (still usable)
       if (!ref) {
+        if (errorBox) errorBox.classList.add("hidden");
         setAgentUI(null, "");
         return;
       }
 
       try {
-        async function loadMA(ref) {
-          const r = await fetch("/.netlify/functions/ma-get?ref=" + encodeURIComponent(ref));
-          const j = await r.json();
-          if (!r.ok || !j.ok) throw new Error(j?.error || "Not found");
-          return j.data;
-        }
+        const r = await fetch("/.netlify/functions/ma-get?ref=" + encodeURIComponent(ref));
+        const j = await r.json().catch(() => ({}));
 
-
-        // Match by "code" (your JSON uses 'code')
-        const found = agents.find(a => String(a.code || "").toUpperCase() === String(ref).toUpperCase());
-
-        if (!found) {
-          if (errorBox) {
-            errorBox.classList.remove("hidden");
-            errorBox.textContent = "Master Agent not found for REF: " + ref + ". Check code in /data/masterAgents.json.";
-          }
-          setAgentUI(null, ref);
-          return;
+        if (!r.ok || !j.ok || !j.data) {
+          throw new Error(j?.error || "Not found");
         }
 
         if (errorBox) errorBox.classList.add("hidden");
-        setAgentUI(found, ref);
+        setAgentUI(j.data, ref);
 
       } catch (err) {
         console.error(err);
         if (errorBox) {
           errorBox.classList.remove("hidden");
-          errorBox.textContent = "Unable to load Master Agent details. Check REF in URL or /data/masterAgents.json.";
+          errorBox.textContent = "Unable to load Master Agent details. Check REF in URL or the Master Agent database.";
         }
         setAgentUI(null, ref);
       }
