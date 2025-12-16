@@ -1,46 +1,32 @@
-// netlify/functions/ma-payout-get.js
-const { createClient } = require("@supabase/supabase-js");
-const jwt = require("jsonwebtoken");
+import { neon } from "@netlify/neon";
+import jwt from "jsonwebtoken";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
-// Verify Netlify Identity JWT (basic decode; signature validation optional here)
-function getUserIdFromAuthHeader(authHeader) {
-  if (!authHeader) return null;
-  const token = authHeader.replace("Bearer ", "").trim();
+function getUserId(event) {
+  const auth = event.headers.authorization || event.headers.Authorization || "";
+  const token = auth.replace("Bearer ", "").trim();
   if (!token) return null;
-
-  // Netlify Identity JWT contains "sub" = user id
   const decoded = jwt.decode(token);
   return decoded?.sub || null;
 }
 
-exports.handler = async (event) => {
+export async function handler(event) {
   try {
-    const userId = getUserIdFromAuthHeader(event.headers.authorization);
+    const userId = getUserId(event);
     if (!userId) {
       return { statusCode: 401, body: JSON.stringify({ ok: false, error: "Unauthorized" }) };
     }
 
-    const { data, error } = await supabase
-      .from("ma_payout")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
+    const sql = neon();
 
-    if (error) throw error;
+    const rows = await sql`
+      SELECT user_id, full_name, whatsapp, bank_name, bank_account_name, bank_account_number, updated_at
+      FROM ma_payout
+      WHERE user_id = ${userId}
+      LIMIT 1;
+    `;
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ ok: true, data: data || null }),
-    };
+    return { statusCode: 200, body: JSON.stringify({ ok: true, data: rows[0] || null }) };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ ok: false, error: err?.message || "Server error" }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ ok: false, error: err.message }) };
   }
-};
+}

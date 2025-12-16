@@ -1,55 +1,55 @@
-// netlify/functions/ma-payout-set.js
-const { createClient } = require("@supabase/supabase-js");
-const jwt = require("jsonwebtoken");
+import { neon } from "@netlify/neon";
+import jwt from "jsonwebtoken";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
-function getUserIdFromAuthHeader(authHeader) {
-  if (!authHeader) return null;
-  const token = authHeader.replace("Bearer ", "").trim();
+function getUserId(event) {
+  const auth = event.headers.authorization || event.headers.Authorization || "";
+  const token = auth.replace("Bearer ", "").trim();
   if (!token) return null;
+
+  // We only decode to get "sub" (Netlify Identity user id)
   const decoded = jwt.decode(token);
   return decoded?.sub || null;
 }
 
-exports.handler = async (event) => {
+export async function handler(event) {
   try {
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: JSON.stringify({ ok: false, error: "Method not allowed" }) };
     }
 
-    const userId = getUserIdFromAuthHeader(event.headers.authorization);
+    const userId = getUserId(event);
     if (!userId) {
       return { statusCode: 401, body: JSON.stringify({ ok: false, error: "Unauthorized" }) };
     }
 
     const body = JSON.parse(event.body || "{}");
 
-    // Whitelist fields (prevents someone sending weird extra fields)
-    const payload = {
-      user_id: userId,
-      full_name: (body.full_name || "").trim(),
-      whatsapp: (body.whatsapp || "").trim(),
-      bank_name: (body.bank_name || "").trim(),
-      bank_account_name: (body.bank_account_name || "").trim(),
-      bank_account_number: (body.bank_account_number || "").trim(),
-      updated_at: new Date().toISOString(),
-    };
+    const full_name = (body.full_name || "").trim();
+    const whatsapp = (body.whatsapp || "").trim();
+    const bank_name = (body.bank_name || "").trim();
+    const bank_account_name = (body.bank_account_name || "").trim();
+    const bank_account_number = (body.bank_account_number || "").trim();
 
-    const { error } = await supabase
-      .from("ma_payout")
-      .upsert(payload, { onConflict: "user_id" });
+    const sql = neon();
 
-    if (error) throw error;
+    await sql`
+      INSERT INTO ma_payout (
+        user_id, full_name, whatsapp, bank_name, bank_account_name, bank_account_number, updated_at
+      )
+      VALUES (
+        ${userId}, ${full_name}, ${whatsapp}, ${bank_name}, ${bank_account_name}, ${bank_account_number}, NOW()
+      )
+      ON CONFLICT (user_id) DO UPDATE SET
+        full_name = EXCLUDED.full_name,
+        whatsapp = EXCLUDED.whatsapp,
+        bank_name = EXCLUDED.bank_name,
+        bank_account_name = EXCLUDED.bank_account_name,
+        bank_account_number = EXCLUDED.bank_account_number,
+        updated_at = NOW();
+    `;
 
     return { statusCode: 200, body: JSON.stringify({ ok: true }) };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ ok: false, error: err?.message || "Server error" }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ ok: false, error: err.message }) };
   }
-};
+}

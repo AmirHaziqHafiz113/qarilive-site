@@ -3,7 +3,8 @@
   "private": true,
   "dependencies": {
     "@netlify/blobs": "^8.0.0",
-    "@netlify/neon": "^0.1.0"
+    "@netlify/neon": "^0.1.0",
+    "jsonwebtoken": "^9.0.3"
   },
   "version": "1.0.0",
   "description": "QariLive website",
