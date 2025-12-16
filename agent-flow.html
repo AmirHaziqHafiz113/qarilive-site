@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master Agent Purchase & Commission Flow</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: '#c9a14a',
+            'gold-soft': '#f5e6b3',
+            blackish: '#050505',
+            darkish: '#0b0b0b'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            playfair: ['Playfair Display', 'serif']
+          },
+          boxShadow: {
+            goldGlow: '0 0 34px rgba(201,161,74,.22)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body{ background: radial-gradient(circle at top, #121212, #000 70%); }
+  </style>
+</head>
+
+<body class="m-0 font-inter text-white/90">
+
+  <!-- TOP BAR -->
+  <header class="sticky top-0 z-50 backdrop-blur bg-black/55 border-b border-gold/15">
+    <div class="px-[6%] md:px-[8%] py-3 flex items-center justify-between gap-3">
+      <a href="index.html" class="no-underline flex items-center gap-2">
+        <span class="font-playfair text-gold-soft text-lg md:text-xl">QariLive™</span>
+        <span class="hidden sm:inline-block text-xs text-white/45">Operations</span>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <a href="index.html#checkout"
+           class="px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+          Back to Site
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="px-[6%] md:px-[8%] pt-10 pb-6">
+    <div class="max-w-[1100px] mx-auto">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-black/30 shadow-[0_0_18px_rgba(201,161,74,.10)]">
+        <span class="w-2 h-2 rounded-full bg-gold"></span>
+        <span class="text-gold-soft text-xs">Master Agent / Agent Commission Process</span>
+      </div>
+
+      <h1 class="mt-4 font-playfair text-gold-soft text-[2.1rem] md:text-[2.8rem] leading-tight">
+        Purchase & Commission Flow
+      </h1>
+
+      <p class="mt-2 text-white/70 max-w-[900px]">
+        A cleaner, step-by-step flow (from customer purchase → admin confirmation → commission payout).
+      </p>
+    </div>
+  </section>
+
+  <!-- PARTICIPANTS + FILTER -->
+  <section class="px-[6%] md:px-[8%] pb-6">
+    <div class="max-w-[1100px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+      <!-- Participants -->
+      <div class="lg:col-span-8 rounded-2xl border border-gold/15 bg-black/30 p-5">
+        <div class="text-xs uppercase tracking-wider text-white/45">Participants</div>
+        <div class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="rounded-xl border border-gold/15 bg-black/30 p-3">
+            <div class="text-[11px] text-white/45">Role</div>
+            <div class="mt-1 font-semibold text-gold-soft">Customer</div>
+          </div>
+          <div class="rounded-xl border border-gold/15 bg-black/30 p-3">
+            <div class="text-[11px] text-white/45">Role</div>
+            <div class="mt-1 font-semibold text-gold-soft">Agent</div>
+          </div>
+          <div class="rounded-xl border border-gold/15 bg-black/30 p-3">
+            <div class="text-[11px] text-white/45">Role</div>
+            <div class="mt-1 font-semibold text-gold-soft">Master Agent</div>
+          </div>
+          <div class="rounded-xl border border-gold/15 bg-black/30 p-3">
+            <div class="text-[11px] text-white/45">Role</div>
+            <div class="mt-1 font-semibold text-gold-soft">Admin</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <div class="lg:col-span-4 rounded-2xl border border-gold/15 bg-black/30 p-5">
+        <div class="text-xs uppercase tracking-wider text-white/45">Highlight steps</div>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button class="filterBtn px-3 py-2 rounded-full border border-gold/25 text-sm text-gold-soft bg-black/30 hover:border-gold/60 hover:bg-black/40 transition"
+                  data-role="all">
+            Show All
+          </button>
+          <button class="filterBtn px-3 py-2 rounded-full border border-gold/20 text-sm text-white/80 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition"
+                  data-role="customer">
+            Customer
+          </button>
+          <button class="filterBtn px-3 py-2 rounded-full border border-gold/20 text-sm text-white/80 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition"
+                  data-role="agent">
+            Agent
+          </button>
+          <button class="filterBtn px-3 py-2 rounded-full border border-gold/20 text-sm text-white/80 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition"
+                  data-role="master">
+            Master Agent
+          </button>
+          <button class="filterBtn px-3 py-2 rounded-full border border-gold/20 text-sm text-white/80 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition"
+                  data-role="admin">
+            Admin
+          </button>
+        </div>
+
+        <p class="mt-3 text-xs text-white/45">
+          Tip: click a role to fade the rest. This makes the flow easier to explain.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- MAIN FLOW (TIMELINE) -->
+  <section class="px-[6%] md:px-[8%] pb-[90px]">
+    <div class="max-w-[1100px] mx-auto">
+
+      <div class="rounded-[18px] border border-[rgba(201,161,74,.22)] bg-[linear-gradient(180deg,#101010,#060606)] shadow-[0_0_25px_rgba(0,0,0,.6)] p-5 md:p-7">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="font-playfair text-gold-soft text-[1.5rem] md:text-[1.85rem]">Flow Steps</h2>
+          <div class="hidden md:flex items-center gap-2 text-xs text-white/45">
+            <span class="inline-block w-2 h-2 rounded-full bg-gold"></span>
+            <span>Each card shows who is involved + what happens</span>
+          </div>
+        </div>
+
+        <!-- Timeline wrapper -->
+        <div class="mt-6 relative">
+          <!-- vertical line -->
+          <div class="absolute left-4 sm:left-5 top-0 bottom-0 w-px bg-gold/20"></div>
+
+          <!-- STEP 1 -->
+          <div class="flowStep relative pl-12 sm:pl-14 py-4" data-roles="customer">
+            <div class="absolute left-2.5 sm:left-3 top-7 w-5 h-5 rounded-full bg-black border border-gold/60 shadow-goldGlow"></div>
+            <div class="rounded-2xl border border-gold/15 bg-black/30 p-5">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <span class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">Step 1</span>
+                  <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Customer</span>
+                </div>
+              </div>
+              <div class="mt-3 font-semibold text-gold-soft">Customer starts the purchase</div>
+              <div class="mt-1 text-sm text-white/75">
+                Customer is interested and is ready to buy via an Agent/Master Agent referral.
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2 -->
+          <div class="flowStep relative pl-12 sm:pl-14 py-4" data-roles="customer master">
+            <div class="absolute left-2.5 sm:left-3 top-7 w-5 h-5 rounded-full bg-black border border-gold/60 shadow-goldGlow"></div>
+            <div class="rounded-2xl border border-gold/15 bg-black/30 p-5">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">Step 2</span>
+                  <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Customer</span>
+                  <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Master Agent</span>
+                  <span class="px-2.5 py-1 rounded-full text-xs border border-gold/20 text-white/70 bg-black/20">WhatsApp / QR</span>
+                </div>
+              </div>
+              <div class="mt-3 font-semibold text-gold-soft">Customer opens the Master Agent page</div>
+              <div class="mt-1 text-sm text-white/75">
+                Customer clicks a WhatsApp link to the Master Agent page or scans a QR code that leads to it.
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3 -->
+          <div class="flowStep relative pl-12 sm:pl-14 py-4" data-roles="customer master">
+            <div class="absolute left-2.5 sm:left-3 top-7 w-5 h-5 rounded-full bg-black border border-gold/60 shadow-goldGlow"></div>
+            <div class="rounded-2xl border border-gold/15 bg-black/30 p-5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">Step 3</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Customer</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Master Agent</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/20 text-white/70 bg-black/20">Xendit Checkout</span>
+              </div>
+              <div class="mt-3 font-semibold text-gold-soft">Customer pays via Master Agent Xendit page</div>
+              <div class="mt-1 text-sm text-white/75">
+                Payment is completed on the Master Agent’s checkout page (this ties the sale to the Master Agent).
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 4 -->
+          <div class="flowStep relative pl-12 sm:pl-14 py-4" data-roles="agent customer">
+            <div class="absolute left-2.5 sm:left-3 top-7 w-5 h-5 rounded-full bg-black border border-gold/60 shadow-goldGlow"></div>
+            <div class="rounded-2xl border border-gold/15 bg-black/30 p-5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">Step 4</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Agent</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Customer</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/20 text-white/70 bg-black/20">Screenshot Proof</span>
+              </div>
+              <div class="mt-3 font-semibold text-gold-soft">Agent requests purchase screenshot</div>
+              <div class="mt-1 text-sm text-white/75">
+                Agent asks customer for the payment screenshot to redeem the “2 Years Free Content” benefit.
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 5 -->
+          <div class="flowStep relative pl-12 sm:pl-14 py-4" data-roles="agent admin master">
+            <div class="absolute left-2.5 sm:left-3 top-7 w-5 h-5 rounded-full bg-black border border-gold/60 shadow-goldGlow"></div>
+            <div class="rounded-2xl border border-gold/15 bg-black/30 p-5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">Step 5</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Agent</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Admin</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Master Agent</span>
+              </div>
+              <div class="mt-3 font-semibold text-gold-soft">Agent sends proof + Master Agent reference to Admin</div>
+              <div class="mt-1 text-sm text-white/75">
+                Agent forwards the screenshot to Admin and includes the Master Agent reference code so commissions can be calculated correctly.
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 6 -->
+          <div class="flowStep relative pl-12 sm:pl-14 py-4" data-roles="admin">
+            <div class="absolute left-2.5 sm:left-3 top-7 w-5 h-5 rounded-full bg-black border border-gold/60 shadow-goldGlow"></div>
+            <div class="rounded-2xl border border-gold/15 bg-black/30 p-5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">Step 6</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Admin</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/20 text-white/70 bg-black/20">Transaction Check</span>
+              </div>
+              <div class="mt-3 font-semibold text-gold-soft">Admin verifies and confirms purchase</div>
+              <div class="mt-1 text-sm text-white/75">
+                Admin checks the transaction (e.g., Xendit transaction ID/amount) and confirms it is valid before payout.
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 7 -->
+          <div class="flowStep relative pl-12 sm:pl-14 py-4" data-roles="admin master">
+            <div class="absolute left-2.5 sm:left-3 top-7 w-5 h-5 rounded-full bg-black border border-gold/60 shadow-goldGlow"></div>
+            <div class="rounded-2xl border border-gold/15 bg-black/30 p-5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">Step 7</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Admin</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Master Agent</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/20 text-white/70 bg-black/20">Bank Transfer</span>
+              </div>
+              <div class="mt-3 font-semibold text-gold-soft">Admin transfers Master Agent commission</div>
+              <div class="mt-1 text-sm text-white/75">
+                Admin pays the Master Agent commission based on the confirmed transaction and reference.
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 8 -->
+          <div class="flowStep relative pl-12 sm:pl-14 py-4" data-roles="admin agent">
+            <div class="absolute left-2.5 sm:left-3 top-7 w-5 h-5 rounded-full bg-black border border-gold/60 shadow-goldGlow"></div>
+            <div class="rounded-2xl border border-gold/15 bg-black/30 p-5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">Step 8</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Admin</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">Agent</span>
+                <span class="px-2.5 py-1 rounded-full text-xs border border-gold/20 text-white/70 bg-black/20">Bank Transfer</span>
+              </div>
+              <div class="mt-3 font-semibold text-gold-soft">Admin transfers Agent commission</div>
+              <div class="mt-1 text-sm text-white/75">
+                Admin pays the Agent commission after the purchase is confirmed.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Minimal notes (not clutter) -->
+      <div class="mt-6 rounded-2xl border border-gold/15 bg-black/30 p-5">
+        <div class="text-sm font-semibold text-gold-soft">Minimal checks (recommended)</div>
+        <div class="mt-2 text-sm text-white/70 flex flex-col gap-2">
+          <div>• Keep a unique Master Agent reference code to avoid payout disputes.</div>
+          <div>• Admin should verify transaction ID + amount before any transfer.</div>
+          <div>• Store screenshot + reference code for audit.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="border-t border-gold/15 bg-black/60 px-[6%] md:px-[8%] py-10 text-center">
+    <small class="text-white/45">© 2025 IT People Sdn Bhd • QariLive Operations</small>
+  </footer>
+
+  <script>
+    const btns = document.querySelectorAll(".filterBtn");
+    const steps = document.querySelectorAll(".flowStep");
+
+    function setActiveBtn(activeRole){
+      btns.forEach(b => {
+        const isActive = b.dataset.role === activeRole;
+        b.classList.toggle("text-gold-soft", isActive);
+        b.classList.toggle("border-gold/60", isActive);
+        b.classList.toggle("bg-black/40", isActive);
+
+        if(!isActive){
+          b.classList.add("text-white/80","border-gold/20","bg-black/20");
+          b.classList.remove("text-gold-soft","border-gold/60","bg-black/40");
+        } else {
+          b.classList.remove("text-white/80","border-gold/20","bg-black/20");
+        }
+      });
+    }
+
+    function applyFilter(role){
+      steps.forEach(s => {
+        const roles = (s.dataset.roles || "").split(" ").filter(Boolean);
+        const match = (role === "all") || roles.includes(role);
+
+        s.classList.toggle("opacity-35", !match);
+        s.classList.toggle("pointer-events-none", !match);
+        s.classList.toggle("blur-[0.3px]", !match);
+      });
+      setActiveBtn(role);
+    }
+
+    btns.forEach(b => b.addEventListener("click", () => applyFilter(b.dataset.role)));
+
+    // default
+    applyFilter("all");
+  </script>
+
+</body>
+</html>

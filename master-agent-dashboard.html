@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Master Agent Dashboard | QariLive</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Netlify Identity Widget -->
+    <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: '#c9a14a',
+                        'gold-soft': '#f5e6b3',
+                        blackish: '#050505',
+                        darkish: '#0b0b0b'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                        playfair: ['Playfair Display', 'serif']
+                    },
+                    boxShadow: {
+                        goldGlow: '0 0 34px rgba(201,161,74,.22)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background:
+                radial-gradient(900px 420px at 15% 0%, rgba(201, 161, 74, .18), transparent 55%),
+                radial-gradient(900px 520px at 85% 10%, rgba(245, 230, 179, .10), transparent 60%),
+                radial-gradient(circle at top, #121212, #000 70%);
+        }
+
+        .glass {
+            background: rgba(0, 0, 0, .38);
+            border: 1px solid rgba(201, 161, 74, .16);
+            backdrop-filter: blur(10px);
+        }
+
+        .soft-border {
+            border: 1px solid rgba(255, 255, 255, .10);
+        }
+
+        .focus-gold:focus {
+            outline: none;
+            border-color: rgba(201, 161, 74, .65);
+            box-shadow: 0 0 0 4px rgba(201, 161, 74, .12);
+        }
+
+        .chip {
+            border: 1px solid rgba(201, 161, 74, .25);
+            background: rgba(0, 0, 0, .25);
+        }
+    </style>
+</head>
+
+<body class="m-0 font-inter text-white/90 min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-50 border-b border-gold/15 bg-black/55 backdrop-blur">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center justify-between gap-3">
+                <a href="index.html" class="flex items-center gap-3 min-w-0 no-underline">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] grid place-items-center shadow-goldGlow">
+                        <span class="font-playfair text-black text-sm">Q</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="font-playfair text-gold-soft text-lg leading-tight truncate">QariLive™</div>
+                        <div class="text-xs text-white/45 truncate">Master Agent Dashboard</div>
+                    </div>
+                </a>
+
+                <div class="flex items-center gap-2">
+                    <a href="index.html"
+                        class="hidden sm:inline-flex px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                        Back to Site
+                    </a>
+
+                    <button id="btnLogout"
+                        class="px-4 py-2 rounded-full font-semibold soft-border text-white/85 bg-black/25 hover:border-gold/60 hover:bg-black/40 transition">
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile only back button -->
+            <div class="sm:hidden mt-3">
+                <a href="index.html"
+                    class="w-full inline-flex justify-center px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                    Back to Site
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1 max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+
+        <!-- TOP SUMMARY -->
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+            <div>
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass shadow-[0_0_18px_rgba(201,161,74,.10)]">
+                    <span class="w-2 h-2 rounded-full bg-gold"></span>
+                    <span class="text-gold-soft text-xs">Master Agent</span>
+                </div>
+
+                <h1 class="mt-3 font-playfair text-gold-soft text-3xl sm:text-[2.2rem] leading-tight">
+                    Welcome, <span id="txtName" class="text-white/90">—</span>
+                </h1>
+                <p class="mt-1 text-white/65 text-sm sm:text-base">
+                    Share your link, and send customers to your special landing page (auto ties to your checkout).
+                </p>
+            </div>
+
+            <div class="glass rounded-2xl px-4 py-3">
+                <div class="text-[11px] text-white/45 uppercase tracking-wider">Signed in as</div>
+                <div class="mt-1 text-sm text-white/85" id="txtEmail">—</div>
+                <div class="mt-1 text-xs text-white/55">Role: <span id="txtRole" class="text-white/75">—</span></div>
+            </div>
+        </div>
+
+        <!-- ALERT -->
+        <div id="alertBox" class="hidden mt-6 rounded-2xl glass p-4 text-sm text-white/85"></div>
+
+        <!-- GRID -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT -->
+            <section class="lg:col-span-7 space-y-6">
+
+                <!-- REF + LINK -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass rounded-2xl p-5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="text-[11px] text-white/45 uppercase tracking-wider">Master Agent REF</div>
+                                <div id="txtMACode" class="mt-2 text-2xl font-semibold text-gold-soft">—</div>
+                                <div class="mt-1 text-xs text-white/45">Used in your landing link: <span
+                                        class="text-white/70">?ref=MA001</span></div>
+                            </div>
+                            <button id="copyCode"
+                                class="shrink-0 px-3 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass rounded-2xl p-5">
+                        <div class="text-[11px] text-white/45 uppercase tracking-wider">Special Landing Page Link</div>
+                        <a id="txtLink" href="#" target="_blank"
+                            class="mt-2 block text-sm text-white/85 underline underline-offset-4 break-all">
+                            —
+                        </a>
+
+                        <div class="mt-4 grid grid-cols-2 gap-3">
+                            <button id="copyLink"
+                                class="px-3 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm">
+                                Copy
+                            </button>
+                            <a id="btnOpenLink" href="#" target="_blank"
+                                class="inline-flex justify-center items-center px-3 py-2 rounded-xl font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition text-sm">
+                                Open
+                            </a>
+                            <button id="btnShareWA"
+                                class="px-3 py-2 rounded-xl font-semibold soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm col-span-2">
+                                Share on WhatsApp
+                            </button>
+                        </div>
+
+                        <div class="mt-3 text-[11px] text-white/45">
+                            Tip: The landing page reads <span class="text-white/70">ref</span> from URL and loads your
+                            details from <span class="text-white/70">/data/masterAgents.json</span>.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBMIT PURCHASE SHORTCUT -->
+                <div class="glass rounded-2xl p-6">
+                    <h2 class="font-playfair text-gold-soft text-2xl">Submit Customer Purchase</h2>
+                    <p class="mt-1 text-sm text-white/60">
+                        After customer pays, submit their details + screenshot so Admin can verify and approve.
+                    </p>
+
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a id="btnSubmitPurchase" href="agent-upload.html"
+                            class="inline-flex justify-center items-center px-4 py-3 rounded-xl font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                            Open Submission Page
+                        </a>
+
+                        <button id="btnShareSubmitLink"
+                            class="inline-flex justify-center items-center px-4 py-3 rounded-xl font-semibold soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
+                            Share Submission Link (WhatsApp)
+                        </button>
+                    </div>
+
+                    <div class="mt-3 text-[11px] text-white/45">
+                        If your real submission page filename is different, change it in the code:
+                        <span class="text-white/70">agent-upload.html</span>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- RIGHT: PROFILE -->
+            <section class="lg:col-span-5">
+                <div class="glass rounded-2xl p-6 sm:p-7 shadow-[0_0_25px_rgba(0,0,0,.6)]">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="font-playfair text-gold-soft text-2xl">Profile & Payout</h2>
+                            <p class="mt-1 text-sm text-white/55">
+                                Name/WhatsApp saved in <span class="text-white/75">Identity metadata</span>.
+                                Bank details saved securely in <span class="text-white/75">Netlify Functions</span>.
+                            </p>
+                        </div>
+                        <div class="text-[11px] text-white/40 text-right">
+                            WhatsApp: 6012xxxxxxx<br />Bank: keep accurate
+                        </div>
+                    </div>
+
+                    <form id="profileForm" class="mt-6 space-y-5">
+
+                        <div>
+                            <label class="text-xs text-white/60">Full Name</label>
+                            <input id="full_name"
+                                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                                placeholder="Your full name" />
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-white/60">WhatsApp Number</label>
+                            <input id="whatsapp" inputmode="numeric"
+                                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                                placeholder="60123456789" />
+                            <div class="mt-1 text-[11px] text-white/45">No “+”, no spaces.</div>
+                        </div>
+
+                        <div class="pt-2 border-t border-white/10"></div>
+
+                        <div>
+                            <label class="text-xs text-white/60">Bank Name</label>
+                            <input id="bank_name"
+                                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                                placeholder="Maybank / CIMB / etc" />
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-white/60">Account Holder Name</label>
+                            <input id="bank_holder"
+                                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                                placeholder="Name as per bank" />
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-white/60">Account Number</label>
+                            <input id="bank_account"
+                                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                                placeholder="Full account number" />
+                            <div class="mt-1 text-[11px] text-white/45">
+                                We will mask it after loading. To change, type the full number again.
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnSaveProfile"
+                            class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                            Save Profile
+                        </button>
+
+                        <div class="text-xs text-white/45">
+                            Password reset is available from the login page.
+                        </div>
+                    </form>
+
+                    <div class="mt-6 rounded-2xl soft-border bg-black/20 p-5">
+                        <div class="font-semibold text-gold-soft">Referral Checklist</div>
+                        <ul class="mt-2 space-y-1 text-sm text-white/70">
+                            <li>• Copy your REF code</li>
+                            <li>• Share your special landing link</li>
+                            <li>• Customer opens the link (URL has ?ref=XXXX)</li>
+                            <li>• Landing page loads your checkout</li>
+                            <li>• You submit proof to Admin for payout</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-gold/15 bg-black/60">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
+            <small class="text-white/45">© 2025 IT People Sdn Bhd • QariLive Operations</small>
+        </div>
+    </footer>
+
+    <script>
+        const $ = (id) => document.getElementById(id);
+
+        // ---- UI Alerts ----
+        const alertBox = $("alertBox");
+        function showAlert(msg, type = "info") {
+            alertBox.classList.remove("hidden");
+            alertBox.textContent = msg;
+            alertBox.classList.remove("border-red-500/25", "bg-red-500/10", "border-gold/20", "bg-black/30");
+            if (type === "error") {
+                alertBox.classList.add("border-red-500/25", "bg-red-500/10");
+            } else {
+                alertBox.classList.add("border-gold/20", "bg-black/30");
+            }
+        }
+        function hideAlert() { alertBox.classList.add("hidden"); alertBox.textContent = ""; }
+
+        function safeRedirect(url) { window.location.href = url; }
+
+        // ---- Identity Helper ----
+        function waitForIdentity() {
+            return new Promise((resolve) => {
+                const tick = () => {
+                    if (window.netlifyIdentity) return resolve(window.netlifyIdentity);
+                    setTimeout(tick, 50);
+                };
+                tick();
+            });
+        }
+
+        // ---- Config ----
+        const SITE_BASE = window.location.origin + "/";     // no hardcoded domain
+        const LANDING_PATH = "master-agent-landing.html";   // your landing page
+        const LOGIN_PAGE = "index.html";             // your login/register page
+        const SUBMIT_PAGE = "agent-upload.html";            // your submission page
+
+        function buildReferralLink(maCode) {
+            return SITE_BASE + LANDING_PATH + "?ref=" + encodeURIComponent(maCode || "");
+        }
+
+        function copyToClipboard(text) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                showAlert("Copied to clipboard.");
+                setTimeout(hideAlert, 1200);
+            }).catch(() => showAlert("Copy failed. Please copy manually.", "error"));
+        }
+
+        function openWhatsAppWithText(text) {
+            window.open("https://wa.me/?text=" + encodeURIComponent(text || ""), "_blank");
+        }
+
+        // ---- MA Code: MA### (matches your JSON style) ----
+        function pad3(n) { return String(n).padStart(3, "0"); }
+        function hashToNumber(str) {
+            let h = 0;
+            for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+            return h;
+        }
+        function generateMACode(email) {
+            const num = hashToNumber((email || "").toLowerCase()) % 1000;
+            return "MA" + pad3(num);
+        }
+
+        async function ensureMACode(identity) {
+            let u = identity.currentUser();
+            if (!u) return null;
+
+            const meta = u.user_metadata || {};
+            let maCode = (meta.ma_code || "").toUpperCase().trim();
+
+            // Accept MA### OR MA0## etc
+            const ok = /^MA\d{3}$/.test(maCode);
+            if (!ok) {
+                maCode = generateMACode(u.email);
+                await u.update({ data: { ...meta, role: meta.role || "master_agent", ma_code: maCode } });
+                u = identity.currentUser();
+            }
+            return maCode;
+        }
+
+        // ---- Auth header for Netlify Functions ----
+        async function getAuthHeader(identity) {
+            const u = identity.currentUser();
+            if (!u) return {};
+            const jwt = await u.jwt(); // ✅ important
+            return { "Authorization": "Bearer " + jwt };
+        }
+
+        // ---- Secure payout: load/save via functions ----
+        let lastRealBankAccount = ""; // used to avoid sending masked value
+
+        function maskAccount(acc) {
+            if (!acc) return "";
+            const s = String(acc);
+            if (s.length <= 4) return "****";
+            return "**** **** " + s.slice(-4);
+        }
+
+        async function loadPayoutDetails(identity) {
+            try {
+                const auth = await getAuthHeader(identity);
+                const res = await fetch("/.netlify/functions/get-payout", {
+                    method: "GET",
+                    headers: { ...auth }
+                });
+                if (!res.ok) return;
+
+                const data = await res.json();
+                $("bank_name").value = data.bank_name || "";
+                $("bank_holder").value = data.bank_holder || "";
+
+                lastRealBankAccount = data.bank_account || "";
+                $("bank_account").value = lastRealBankAccount ? maskAccount(lastRealBankAccount) : "";
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function resolveBankAccountToSave() {
+            const val = ($("bank_account").value || "").trim();
+            // If user didn't retype and it's masked, keep previous real value
+            if (val.includes("*")) return lastRealBankAccount || "";
+            return val;
+        }
+
+        async function savePayoutDetails(identity) {
+            const auth = await getAuthHeader(identity);
+
+            const payload = {
+                bank_name: ($("bank_name").value || "").trim(),
+                bank_holder: ($("bank_holder").value || "").trim(),
+                bank_account: resolveBankAccountToSave()
+            };
+
+            const res = await fetch("/.netlify/functions/save-payout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...auth
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const txt = await res.text().catch(() => "");
+                throw new Error(txt || "Failed to save payout details.");
+            }
+
+            // refresh masked display locally
+            lastRealBankAccount = payload.bank_account;
+            $("bank_account").value = lastRealBankAccount ? maskAccount(lastRealBankAccount) : "";
+        }
+
+        // ---- Identity metadata save ----
+        async function saveUserMetadata(identity, patch) {
+            const u = identity.currentUser();
+            if (!u) { safeRedirect(LOGIN_PAGE); return; }
+            const currentMeta = u.user_metadata || {};
+            await u.update({ data: { ...currentMeta, ...patch } });
+        }
+
+        async function loadUser(identity) {
+            identity.init();
+
+            let user = identity.currentUser();
+            if (!user) {
+                safeRedirect(LOGIN_PAGE);
+                return null;
+            }
+
+            const maCode = await ensureMACode(identity);
+            user = identity.currentUser();
+
+            const email = user.email || "—";
+            const meta = user.user_metadata || {};
+            const fullName = meta.full_name || (email.includes("@") ? email.split("@")[0] : "Master Agent");
+            const role = meta.role || "master_agent";
+
+            $("txtName").textContent = fullName;
+            $("txtEmail").textContent = email;
+            $("txtRole").textContent = role;
+            $("txtMACode").textContent = maCode || "—";
+
+            // referral link
+            const referralLink = buildReferralLink(maCode);
+            $("txtLink").textContent = referralLink;
+            $("txtLink").href = referralLink;
+            $("btnOpenLink").href = referralLink;
+
+            // fill form fields (non-sensitive)
+            $("full_name").value = meta.full_name || "";
+            $("whatsapp").value = meta.whatsapp || "";
+
+            // payout details (secure)
+            await loadPayoutDetails(identity);
+
+            // buttons
+            $("copyCode").onclick = () => copyToClipboard(maCode);
+            $("copyLink").onclick = () => copyToClipboard(referralLink);
+
+            $("btnShareWA").onclick = () => {
+                const text =
+                    "Hi! I’m a QariLive Master Agent (" + maCode + ").\n" +
+                    "Here’s my official purchase link:\n" + referralLink;
+                openWhatsAppWithText(text);
+            };
+
+            $("btnShareSubmitLink").onclick = () => {
+                openWhatsAppWithText("Submit customer purchase here:\n" + (SITE_BASE + SUBMIT_PAGE));
+            };
+
+            return user;
+        }
+
+        async function savePublicMasterAgent(identity, payload) {
+            const u = identity.currentUser();
+            if (!u) throw new Error("Not logged in.");
+
+            // Get JWT token to authenticate
+            const token = u.token?.access_token;
+            if (!token) throw new Error("Missing login token. Please logout and login again.");
+
+            const res = await fetch("/.netlify/functions/ma-save", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                    "authorization": "Bearer " + token
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const out = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(out?.error || "Failed to publish master agent profile.");
+            return out;
+        }
+
+        await savePublicMasterAgent(identity, {
+            ma_code: $("txtMACode").textContent.trim(),
+            full_name: $("full_name").value.trim(),
+            whatsapp: $("whatsapp").value.trim(),
+            checkout_url: $("checkout_url").value.trim()
+        });
+
+
+        async function main() {
+            const identity = await waitForIdentity();
+            const user = await loadUser(identity);
+            if (!user) return;
+
+            // Logout
+            $("btnLogout").addEventListener("click", async () => {
+                try { await identity.logout(); }
+                finally { safeRedirect(LOGIN_PAGE); }
+            });
+
+            // Save Profile + Payout
+            $("profileForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                hideAlert();
+
+                const btn = $("btnSaveProfile");
+                const oldText = btn.textContent;
+                btn.disabled = true;
+                btn.textContent = "Saving...";
+
+                try {
+                    // 1) safe metadata
+                    await saveUserMetadata(identity, {
+                        full_name: ($("full_name").value || "").trim(),
+                        whatsapp: ($("whatsapp").value || "").trim(),
+                    });
+
+                    // 2) bank details (secure function)
+                    await savePayoutDetails(identity);
+
+                    showAlert("Profile & payout details saved.");
+                    setTimeout(hideAlert, 1200);
+
+                    // refresh top welcome name
+                    const u = identity.currentUser();
+                    const m = u?.user_metadata || {};
+                    $("txtName").textContent = m.full_name || $("txtName").textContent;
+
+                } catch (err) {
+                    console.error(err);
+                    showAlert(err?.message || "Save failed.", "error");
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = oldText;
+                }
+            });
+        }
+
+        main();
+    </script>
+</body>
+
+</html>

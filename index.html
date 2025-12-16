@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>QariLive | Live Qari & Global Azan</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: '#c9a14a',
+            'gold-soft': '#f5e6b3',
+            blackish: '#050505',
+            darkish: '#0b0b0b'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            playfair: ['Playfair Display', 'serif']
+          },
+          boxShadow: {
+            goldGlow: '0 0 35px rgba(201,161,74,.45)'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="m-0 font-inter bg-[radial-gradient(circle_at_top,#111,#000)] text-[#eee] leading-[1.75]">
+
+  <!-- NAVBAR -->
+  <header class="fixed top-0 left-0 right-0 z-[9998] backdrop-blur bg-black/55 border-b border-gold/20">
+    <nav class="px-[6%] md:px-[8%] py-3 flex items-center justify-between gap-3">
+
+      <!-- Brand -->
+      <a href="#" class="flex items-center gap-2 no-underline shrink-0">
+        <span class="font-playfair text-gold-soft text-lg md:text-xl">QariLive™</span>
+        <span class="hidden md:inline-block text-xs text-white/50">Live Qari • Global Azan</span>
+      </a>
+
+      <!-- Desktop Links -->
+      <div class="hidden lg:flex items-center gap-2">
+        <a href="#clock-preview"
+          class="px-3 py-1.5 rounded-full border border-gold/25 text-gold-soft text-sm no-underline hover:border-gold/70 hover:bg-black/40 transition"
+          data-ms="Preview" data-en="Preview">Preview</a>
+
+        <a href="#youtube"
+          class="px-3 py-1.5 rounded-full border border-gold/25 text-gold-soft text-sm no-underline hover:border-gold/70 hover:bg-black/40 transition"
+          data-ms="Video" data-en="Video">Video</a>
+
+        <a href="#checkout"
+          class="px-3 py-1.5 rounded-full border border-gold/25 text-gold-soft text-sm no-underline hover:border-gold/70 hover:bg-black/40 transition"
+          data-ms="Beli" data-en="Buy">Beli</a>
+
+        <!-- ONLY ONE CTA: Sign Up -->
+        <a href="master-agent-auth.html#signup"
+          class="px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition"
+          data-ms="Daftar" data-en="Sign Up">Daftar</a>
+        <!-- Desktop language switch -->
+        <div class="flex items-center gap-1 rounded-full border border-gold/25 bg-black/30 p-1 mr-1">
+          <button type="button" id="btnBMDesktop"
+            class="px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition">
+            BM
+          </button>
+          <button type="button" id="btnENDesktop"
+            class="px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition">
+            EN
+          </button>
+        </div>
+
+        <!-- Qari (external) -->
+        <a href="https://qarilive-form.netlify.app" target="_blank" rel="noopener"
+          class="ml-1 px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#e0c37a,#c9a14a)] shadow-goldGlow hover:opacity-90 transition"
+          data-ms="Qari" data-en="Qari">Qari</a>
+
+      </div>
+
+      <!-- Mobile Right -->
+      <div class="flex items-center gap-2 lg:hidden">
+        <!-- Mobile language switch (moved into navbar so it won’t cover menu items) -->
+        <div class="flex items-center gap-1 rounded-full border border-gold/25 bg-black/30 p-1">
+          <button type="button" id="btnBM"
+            class="px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition">
+            BM
+          </button>
+          <button type="button" id="btnEN"
+            class="px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition">
+            EN
+          </button>
+        </div>
+
+        <button id="navToggle" type="button" aria-label="Open menu" aria-expanded="false"
+          class="w-10 h-10 rounded-full border border-gold/25 bg-black/30 hover:border-gold/70 hover:bg-black/50 transition flex items-center justify-center">
+          <span class="sr-only">Menu</span>
+          <div class="space-y-1.5">
+            <span class="block w-5 h-[2px] bg-gold-soft"></span>
+            <span class="block w-5 h-[2px] bg-gold-soft"></span>
+            <span class="block w-5 h-[2px] bg-gold-soft"></span>
+          </div>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileMenu" class="lg:hidden hidden border-t border-gold/15 bg-black/70 backdrop-blur">
+      <div class="px-[6%] md:px-[8%] py-4 flex flex-col gap-2">
+
+        <a href="#clock-preview"
+          class="px-4 py-3 rounded-xl border border-gold/20 text-gold-soft text-sm no-underline hover:border-gold/70 hover:bg-black/40 transition"
+          data-ms="Preview" data-en="Preview">Preview</a>
+
+        <a href="#youtube"
+          class="px-4 py-3 rounded-xl border border-gold/20 text-gold-soft text-sm no-underline hover:border-gold/70 hover:bg-black/40 transition"
+          data-ms="Video" data-en="Video">Video</a>
+
+        <a href="#checkout"
+          class="px-4 py-3 rounded-xl border border-gold/20 text-gold-soft text-sm no-underline hover:border-gold/70 hover:bg-black/40 transition"
+          data-ms="Beli" data-en="Buy">Beli</a>
+
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <!-- ONLY ONE CTA: Sign Up -->
+          <a href="master-agent-auth.html#signup"
+            class="col-span-2 px-4 py-3 rounded-xl font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition text-center"
+            data-ms="Daftar" data-en="Sign Up">Daftar</a>
+        </div>
+
+        <a href="https://qarilive-form.netlify.app" target="_blank" rel="noopener"
+          class="mt-1 px-4 py-3 rounded-xl font-semibold text-black no-underline bg-[linear-gradient(135deg,#e0c37a,#c9a14a)] shadow-goldGlow hover:opacity-90 transition text-center"
+          data-ms="Qari" data-en="Qari">Qari</a>
+
+        <p class="text-xs text-white/45 mt-2">
+          Tip: menu will auto-close after you tap a link.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section
+    class="min-h-screen flex items-center justify-center text-center relative bg-no-repeat bg-cover bg-[position:center_top] md:bg-center px-[6%] md:px-[8%] py-[70px] md:py-[90px] pt-28"
+    style="background-image: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.88) 55%, rgba(0,0,0,0.95) 100%), url('images/hero-gold-wave.png');">
+
+    <div aria-hidden="true"
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(201,161,74,0.15),transparent_55%)]">
+    </div>
+
+    <div class="relative">
+      <span class="inline-block px-[14px] py-[6px] border border-gold rounded-full text-[.8rem] text-gold-soft m-[6px]"
+        data-ms="Live Qari • Azan Global • Waktu Solat Tepat" data-en="Live Qari • Global Azan • Precise Prayer Times">
+      </span>
+
+      <h1 class="font-playfair text-gold-soft text-[2.3rem] md:text-[3.3rem]">
+        QariLive™
+      </h1>
+
+      <p class="max-w-[900px] mx-auto my-[25px] text-[1rem] md:text-[1.15rem]"
+        data-ms="Bacaan Al-Quran <span class='text-gold'>secara live 24 jam</span> oleh qari terpilih dari seluruh dunia, digabungkan dengan laungan azan global, ketepatan waktu solat berasaskan teknologi pintar, serta sesi pendedahan Bahasa Arab secara audio."
+        data-en="Live <span class='text-gold'>24-hour Quran recitation</span> by selected qaris from around the world, combined with global azan, precise prayer times powered by smart technology, and guided Arabic language listening sessions delivered in an audio-based format.">
+      </p>
+
+      <a href="#checkout"
+        class="inline-block mt-[30px] px-[40px] py-[18px] rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90"
+        data-ms="Miliki QariLive Lite" data-en="Get QariLive Lite">
+      </a>
+    </div>
+  </section>
+
+  <!-- CLOCK PREVIEW CTA -->
+  <section id="clock-preview" class="px-[6%] md:px-[8%] py-[70px] md:py-[90px]">
+    <div
+      class="bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] text-center">
+
+      <span class="inline-block px-[14px] py-[6px] border border-gold rounded-full text-[.8rem] text-gold-soft m-[6px]"
+        data-ms="Mod Ujian • Preview Azan Clock" data-en="Test Mode • Azan Clock Preview">
+      </span>
+
+      <h2 class="font-playfair text-gold-soft text-[2.0rem] md:text-[2.4rem] mt-4"
+        data-ms="Uji Paparan Jam Azan (Preview)" data-en="Test the Azan Clock Display (Preview)">
+      </h2>
+
+      <p class="max-w-[900px] mx-auto mt-4 text-white/80"
+        data-ms="Guna halaman preview untuk menguji paparan jam, lokasi (GPS/IP), waktu solat, dan mode split + stream sebelum live deployment."
+        data-en="Use the preview page to test the clock UI, location (GPS/IP), prayer times, and split + stream modes before live deployment.">
+      </p>
+
+      <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="preview.html"
+          class="inline-block px-[40px] py-[18px] rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90"
+          data-ms="Buka Preview Jam" data-en="Open Clock Preview">
+        </a>
+      </div>
+
+      <p class="mt-4 text-xs text-white/50" data-ms="Nota: Akses GPS memerlukan HTTPS atau localhost."
+        data-en="Note: GPS access requires HTTPS or localhost.">
+      </p>
+    </div>
+  </section>
+
+  <!-- WHAT IS -->
+  <section class="px-[6%] md:px-[8%] py-[70px] md:py-[90px]">
+    <h2 class="font-playfair text-gold-soft text-[2.4rem] mb-[25px]" data-ms="Apa itu QariLive?"
+      data-en="What is QariLive?"></h2>
+
+    <div
+      class="relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] mt-[25px] shadow-[0_0_25px_rgba(0,0,0,.6)]"
+      data-ms="QariLive menampilkan bacaan Al-Quran secara Live 24 jam sebagai satu bentuk khidmat dakwah dan penyampaian ilmu kepada para pendengar di seluruh dunia. Bacaan ini disampaikan dengan penuh adab, keikhlasan dan pematuhan tajwid oleh Qari terpilih. Ketepatan waktu solat pula ditentukan melalui teknologi GPS dan alamat IP, memastikan pengumuman waktu solat dan laungan azan yang tepat mengikut lokasi pengguna, dengan variasi azan dari pelbagai negara. Selain itu, QariLive turut menyediakan sesi kelas Bahasa Arab secara dalam talian. Melalui sesi pengajaran ini, para Qari menerima saguhati dan upah mengajar secara sah dan beretika. Dari sudut teknologi, QariLive menggabungkan penstriman langsung, sistem penjadualan pintar dan platform pembelajaran digital yang bersepadu."
+      data-en="QariLive delivers continuous 24-hour Live Quran recitation as a form of service and da’wah to listeners worldwide, performed with proper adab, sincerity, and strict adherence to tajwid. Prayer times are calculated with high accuracy using a combination of GPS technology and IP-based location detection, ensuring precise prayer time announcements and timely azan. Each day, users experience azan recitations by selected Qaris from different countries, reflecting the rich diversity of the Muslim world. In addition, QariLive offers online Arabic language classes conducted by the same Qaris. Compensation is ethically structured around Arabic language teaching sessions, while Quran recitation remains a service to the community. Technologically, QariLive integrates live streaming, intelligent scheduling, and a global digital learning platform into a seamless experience.">
+
+      <div aria-hidden="true"
+        class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+      </div>
+    </div>
+
+    <h3 class="font-playfair text-gold-soft text-[1.35rem] mt-[35px]" data-ms="Keunikan Produk Kami"
+      data-en="Our Product Uniqueness"></h3>
+
+    <div class="grid gap-[25px] mt-[25px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+
+      <div
+        class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]"
+        data-ms="Live Qari 24 jam" data-en="24-hour Live Qari">
+        <div aria-hidden="true"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+        </div>
+      </div>
+
+      <div
+        class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]"
+        data-ms="Ketepatan waktu solat GPS & IP" data-en="GPS & IP-based prayer time accuracy">
+        <div aria-hidden="true"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+        </div>
+      </div>
+
+      <div
+        class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]"
+        data-ms="Azan global oleh qari terpilih" data-en="Global azan by selected qaris">
+        <div aria-hidden="true"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+        </div>
+      </div>
+
+      <div
+        class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]"
+        data-ms="Kelas Bahasa Arab & Al-Quran" data-en="Online Arabic & Quran classes">
+        <div aria-hidden="true"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PRODUCT GALLERY -->
+  <section
+    class="text-center px-[6%] md:px-[8%] py-[60px] md:py-[80px] bg-[radial-gradient(circle_at_center,rgba(201,161,74,.08),transparent_60%)]">
+    <div class="max-w-[1100px] mx-auto">
+
+      <span class="inline-block px-[14px] py-[6px] border border-gold rounded-full text-[.8rem] text-gold-soft m-[6px]"
+        data-ms="Galeri Produk" data-en="Product Gallery"></span>
+
+      <h2 class="font-playfair text-gold-soft text-[2.0rem] md:text-[2.4rem] mt-3"
+        data-ms="Lihat Rekabentuk QariLive Lite" data-en="Explore the QariLive Lite Design"></h2>
+
+      <p class="max-w-[900px] mx-auto mt-4 text-white/80" data-ms="" data-en=""></p>
+
+      <div
+        class="mt-8 bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[14px] sm:p-[18px] shadow-[0_0_25px_rgba(0,0,0,.6)]">
+        <div class="relative overflow-hidden rounded-[14px] border border-gold/20 bg-black/40
+                    h-[240px] sm:h-[320px] md:h-[420px] lg:h-[520px]">
+          <img id="sliderMain" src="images/qarilive-device.png" alt="QariLive Lite Gallery" class="absolute inset-0 w-full h-full object-contain p-3 sm:p-4
+                   transition-opacity duration-500 opacity-100" />
+
+          <button type="button" onclick="sliderPrev()"
+            class="hidden md:flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 border border-gold/30 text-gold-soft hover:border-gold/70 hover:bg-black/70 transition"
+            aria-label="Previous">
+            ‹
+          </button>
+          <button type="button" onclick="sliderNext()"
+            class="hidden md:flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 border border-gold/30 text-gold-soft hover:border-gold/70 hover:bg-black/70 transition"
+            aria-label="Next">
+            ›
+          </button>
+
+          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+            <button type="button" class="sliderDot w-2.5 h-2.5 rounded-full bg-white/30 border border-gold/25"
+              onclick="sliderGo(0)" aria-label="Slide 1"></button>
+            <button type="button" class="sliderDot w-2.5 h-2.5 rounded-full bg-white/30 border border-gold/25"
+              onclick="sliderGo(1)" aria-label="Slide 2"></button>
+            <button type="button" class="sliderDot w-2.5 h-2.5 rounded-full bg-white/30 border border-gold/25"
+              onclick="sliderGo(2)" aria-label="Slide 3"></button>
+            <button type="button" class="sliderDot w-2.5 h-2.5 rounded-full bg-white/30 border border-gold/25"
+              onclick="sliderGo(3)" aria-label="Slide 4"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button type="button" onclick="sliderGo(0)"
+          class="group bg-black/30 border border-gold/25 rounded-xl p-2 hover:border-gold/70 transition">
+          <div class="w-full h-[92px] sm:h-[98px] rounded-lg bg-black/40 overflow-hidden">
+            <img src="images/qarilive-device.png" alt="Gallery 1"
+              class="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition" />
+          </div>
+        </button>
+
+        <button type="button" onclick="sliderGo(1)"
+          class="group bg-black/30 border border-gold/25 rounded-xl p-2 hover:border-gold/70 transition">
+          <div class="w-full h-[92px] sm:h-[98px] rounded-lg bg-black/40 overflow-hidden">
+            <img src="images/qarilive-device2.jpg" alt="Gallery 2"
+              class="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition" />
+          </div>
+        </button>
+
+        <button type="button" onclick="sliderGo(2)"
+          class="group bg-black/30 border border-gold/25 rounded-xl p-2 hover:border-gold/70 transition">
+          <div class="w-full h-[92px] sm:h-[98px] rounded-lg bg-black/40 overflow-hidden">
+            <img src="images/qarilive-device3.jpg" alt="Gallery 3"
+              class="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition" />
+          </div>
+        </button>
+
+        <button type="button" onclick="sliderGo(3)"
+          class="group bg-black/30 border border-gold/25 rounded-xl p-2 hover:border-gold/70 transition">
+          <div class="w-full h-[92px] sm:h-[98px] rounded-lg bg-black/40 overflow-hidden">
+            <img src="images/qarilive-device4.jpg" alt="Gallery 4"
+              class="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition" />
+          </div>
+        </button>
+      </div>
+
+      <p class="mt-3 text-xs text-white/50" data-ms="" data-en=""></p>
+
+    </div>
+  </section>
+
+  <!-- YOUTUBE SECTION (NOT MUTED) -->
+  <section id="youtube" class="px-[6%] md:px-[8%] py-[60px] md:py-[80px]">
+    <div
+      class="bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)]">
+
+      <div class="text-center">
+        <span
+          class="inline-block px-[14px] py-[6px] border border-gold rounded-full text-[.8rem] text-gold-soft m-[6px]"
+          data-ms="Video Penerangan" data-en="Explainer Video"></span>
+
+        <h2 class="font-playfair text-gold-soft text-[2.0rem] md:text-[2.4rem] mt-3" data-ms="Tonton Demo QariLive Lite"
+          data-en="Watch the QariLive Lite Demo"></h2>
+
+        <p class="max-w-[900px] mx-auto mt-4 text-white/80"
+          data-ms="Video akan cuba auto-play dengan audio. Jika browser block, klik butang “Play with sound”."
+          data-en="The video will try to autoplay with sound. If the browser blocks it, click “Play with sound”."></p>
+      </div>
+
+      <div class="mt-8 relative w-full overflow-hidden rounded-[16px] border border-gold/25 bg-black"
+        style="padding-top:56.25%;">
+        <div id="ytPlayerWrap" class="absolute inset-0">
+          <div id="ytPlayer" class="w-full h-full"></div>
+
+          <div id="ytPlayOverlay" class="absolute inset-0 flex items-end justify-center p-4 pointer-events-none">
+            <button id="ytPlayBtn" type="button"
+              class="pointer-events-auto mb-2 px-5 py-2 rounded-full font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90">
+              ▶ Play with sound
+            </button>
+          </div>
+        </div>
+
+        <div id="ytFallback" class="hidden absolute inset-0 w-full h-full flex items-center justify-center p-6">
+          <div class="max-w-[640px] text-center bg-black/60 border border-gold/25 rounded-2xl p-6">
+            <div class="text-gold-soft font-semibold text-lg" data-ms="Embed YouTube disekat untuk video ini."
+              data-en="YouTube embed is blocked for this video."></div>
+            <div class="mt-2 text-white/80 text-sm"
+              data-ms="Ini bukan masalah code. Ia setting video (owner disable embed / restriction). Klik butang bawah untuk buka di YouTube."
+              data-en="This isn’t a code issue. It’s the video setting (owner disabled embed / restriction). Click below to open on YouTube.">
+            </div>
+
+            <a id="ytOpenBtn" href="https://youtu.be/1d4v1qAcbhs" target="_blank" rel="noopener"
+              class="inline-block mt-5 px-[34px] py-[14px] rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90"
+              data-ms="Buka di YouTube" data-en="Open on YouTube"></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 text-center">
+        <a href="https://youtu.be/1d4v1qAcbhs" target="_blank" rel="noopener"
+          class="inline-block px-[34px] py-[14px] rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90"
+          data-ms="Buka di YouTube" data-en="Open on YouTube"></a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ABOUT US -->
+  <section id="about-us" class="px-[6%] md:px-[8%] py-[70px] md:py-[90px]">
+    <h2 class="font-playfair text-gold-soft text-[2.4rem] mb-[25px]" data-ms="Tentang Kami" data-en="About Us"></h2>
+
+    <div
+      class="bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[26px] md:p-[30px] mt-[25px] shadow-[0_0_25px_rgba(0,0,0,.6)]">
+
+      <div class="grid gap-8 lg:grid-cols-12">
+        <div class="lg:col-span-8 text-left">
+          <div class="space-y-6 leading-relaxed text-white/85">
+
+            <p data-ms="<b>IT People Sdn Bhd</b> ialah sebuah syarikat berteraskan teknologi yang berpusat di <b>Cyberjaya, Selangor, Malaysia</b> — hab digital dan inovasi utama negara. Kami komited dalam membangunkan penyelesaian digital berimpak tinggi yang memperkasa individu, organisasi dan komuniti melalui teknologi."
+              data-en="<b>IT People Sdn Bhd</b> is a technology-driven company based in <b>Cyberjaya, Selangor, Malaysia</b>, the nation’s leading digital and innovation hub. We are dedicated to building impactful digital solutions that empower individuals, organisations, and communities through technology.">
+            </p>
+
+            <p data-ms="Kepakaran teras kami terletak pada pembangunan <b>platform digital, sistem berasaskan awan (cloud), serta ekosistem teknologi yang boleh diskalakan</b> bagi menghubungkan bakat dengan peluang dunia sebenar. Salah satu inisiatif utama kami ialah <b>WeOneWork.com</b>, sebuah platform gig dan freelancing yang dibangunkan untuk menyokong pelajar universiti, graduan baharu dan golongan profesional muda memperoleh pengalaman kerja praktikal sambil menjana pendapatan melalui projek digital dan jarak jauh."
+              data-en="Our core expertise lies in the development of <b>digital platforms, cloud-based systems, and scalable technology ecosystems</b> designed to connect talent with real-world opportunities. One of our flagship initiatives is <b>WeOneWork.com</b>, a gig and freelancing platform created to support university students, fresh graduates, and young professionals in gaining practical work experience while earning income through digital and remote projects.">
+            </p>
+
+            <p data-ms="<b>WeOneWork.com</b> direka sebagai sebuah ekosistem gig yang komprehensif, menawarkan akses kepada projek freelance, penilaian kemahiran, pensijilan digital, alat pembinaan CV serta program latihan industri jarak jauh yang selari dengan keperluan industri semasa. Melalui platform ini, IT People Sdn Bhd secara aktif menyokong pembangunan tenaga kerja digital dan menyumbang kepada pertumbuhan ekonomi digital di Malaysia dan peringkat antarabangsa."
+              data-en="<b>WeOneWork.com</b> is designed as a comprehensive gig ecosystem, offering access to freelance projects, skill assessments, digital certifications, CV-building tools, and remote internship programmes aligned with current industry needs. Through this platform, IT People Sdn Bhd actively supports digital workforce development and contributes to the growth of the digital economy in Malaysia and beyond.">
+            </p>
+
+            <p data-ms="Selain platform gig, IT People Sdn Bhd turut membangunkan produk teknologi inovatif dan perkhidmatan digital yang menggabungkan <b>teknologi canggih, kandungan berkualiti tinggi dan pengalaman pengguna premium</b>. Penyelesaian kami merangkumi bidang pendidikan digital, penyampaian kandungan, peranti pintar serta aplikasi teknologi baharu, dengan penekanan kuat terhadap kebolehgunaan, kebolehskalaan dan impak dunia sebenar."
+              data-en="In addition to gig platforms, IT People Sdn Bhd develops innovative technology products and digital services that combine <b>advanced technology, high-quality content, and premium user experiences</b>. Our solutions span areas such as digital education, content delivery, smart devices, and emerging technology applications, all guided by a strong focus on usability, scalability, and real-world impact.">
+            </p>
+
+            <p data-ms="Di IT People Sdn Bhd, kami percaya teknologi bukan sekadar untuk berfungsi — ia harus <b>mencipta peluang, memperkasa pertumbuhan dan memberikan nilai yang bermakna</b>. Pasukan kami komited terhadap inovasi berterusan serta kerjasama strategik merentasi industri dan rantau bagi membangunkan ekosistem digital yang mampan."
+              data-en="At IT People Sdn Bhd, we believe technology should do more than function—it should <b>create opportunities, enable growth, and deliver meaningful value</b>. Our team is committed to continuous innovation and collaboration with partners across industries and regions to build sustainable digital ecosystems.">
+            </p>
+
+          </div>
+        </div>
+
+        <aside class="lg:col-span-4">
+          <div class="sticky top-28 space-y-4">
+            <div class="rounded-2xl border border-gold/20 bg-black/30 p-5">
+              <div class="text-xs uppercase tracking-wider text-white/50 mb-2" data-ms="Ringkas" data-en="At a glance">
+              </div>
+              <ul class="space-y-3 text-sm text-white/80">
+                <li>
+                  <span class="text-gold-soft font-semibold" data-ms="Berpusat:" data-en="Based in:"></span>
+                  <span data-ms="Cyberjaya, Selangor" data-en="Cyberjaya, Selangor"></span>
+                </li>
+                <li>
+                  <span class="text-gold-soft font-semibold" data-ms="Fokus:" data-en="Focus:"></span>
+                  <span data-ms="Platform digital & ekosistem scalable"
+                    data-en="Digital platforms & scalable ecosystems"></span>
+                </li>
+                <li>
+                  <span class="text-gold-soft font-semibold" data-ms="Inisiatif:" data-en="Initiative:"></span>
+                  <span data-ms="WeOneWork.com" data-en="WeOneWork.com"></span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="rounded-2xl border border-gold/20 bg-black/30 p-5">
+              <div class="text-xs uppercase tracking-wider text-white/50 mb-2" data-ms="Media & Updates"
+                data-en="Media & Updates"></div>
+
+              <p class="text-sm text-white/75" data-ms="Untuk liputan media dan kemas kini:"
+                data-en="For media coverage and updates:"></p>
+
+              <a href="https://weonework.com/media/" target="_blank" rel="noopener"
+                class="inline-block mt-3 px-4 py-2 rounded-full border border-gold/25 text-gold-soft text-sm no-underline hover:border-gold/70 hover:bg-black/40 transition">
+                weonework.com/media
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- QARI -->
+  <section class="px-[6%] md:px-[8%] py-[70px] md:py-[90px]">
+    <h2 class="font-playfair text-gold-soft text-[2.4rem] mb-[25px]" data-ms="Qari dalam Program QariLive"
+      data-en="Qaris in the QariLive Program"></h2>
+
+    <div class="grid gap-[25px] mt-[25px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+
+      <div
+        class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]"
+        data-ms="Qari muda bertauliah" data-en="Certified young qaris">
+        <div aria-hidden="true"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+        </div>
+      </div>
+
+      <div
+        class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]"
+        data-ms="Dari pelbagai negara" data-en="From multiple countries">
+        <div aria-hidden="true"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+        </div>
+      </div>
+
+      <div
+        class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]"
+        data-ms="Pendapatan beretika" data-en="Ethical income opportunities">
+        <div aria-hidden="true"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+        </div>
+      </div>
+
+      <div
+        class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]"
+        data-ms="Sokong pendidikan & keluarga" data-en="Supporting education & families">
+        <div aria-hidden="true"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section class="px-[6%] md:px-[8%] py-[70px] md:py-[90px]">
+
+    <h2 class="font-playfair text-gold-soft text-[2.4rem] mb-[25px]" data-ms="Kebaikan Mendengar Al-Quran"
+      data-en="Benefits of Listening to the Qur’an"></h2>
+
+    <div
+      class="bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] mt-[25px] shadow-[0_0_25px_rgba(0,0,0,.6)] leading-relaxed"
+      data-ms='
+      <p>
+        Mendengar Al-Quran menenangkan jiwa, menyuburkan iman, membawa pahala dan menjadi penawar rohani
+        bagi hati yang gelisah. Al-Quran bukan sekadar bacaan, tetapi petunjuk hidup yang diturunkan
+        sebagai rahmat untuk seluruh manusia, khususnya umat Islam.
+      </p>
+
+      <blockquote class="mt-4 italic text-gold-soft border-l-2 border-gold-soft pl-4">
+        “Kami turunkan daripada Al-Quran itu sesuatu yang menjadi penawar dan rahmat bagi orang-orang
+        yang beriman.”
+        <br><span class="text-sm opacity-80">(Surah Al-Isra’, 17:82)</span>
+      </blockquote>
+    ' data-en='
+      <p>
+        Listening to the Qur’an brings tranquility to the heart, strengthens faith, earns spiritual
+        reward, and serves as a healing remedy for restless souls. The Qur’an is not merely a
+        recitation, but a divine guidance revealed as a mercy for all humanity, especially for Muslims.
+      </p>
+
+      <blockquote class="mt-4 italic text-gold-soft border-l-2 border-gold-soft pl-4">
+        “And We send down of the Qur’an that which is a healing and a mercy for the believers.”
+        <br><span class="text-sm opacity-80">(Surah Al-Isra’, 17:82)</span>
+      </blockquote>
+    '>
+    </div>
+
+  </section>
+
+  <!-- CHECKOUT (REPLACED) -->
+  <section id="checkout" class="px-[6%] md:px-[8%] py-[70px] md:py-[90px]">
+    <div class="flex justify-center">
+
+      <div class="w-full max-w-[720px] text-center rounded-[22px] border border-[rgba(201,161,74,.35)]
+                  bg-[radial-gradient(circle_at_top,rgba(201,161,74,.12),transparent_55%),linear-gradient(180deg,#0b0b0b,#050505)]
+                  px-10 py-[55px] shadow-[0_0_45px_rgba(0,0,0,.8),inset_0_0_30px_rgba(201,161,74,.08)]
+                  max-md:px-7 max-md:py-11">
+
+        <h2 class="font-playfair text-gold-soft text-[2.4rem] mb-[15px] max-md:text-[2rem]"
+          data-ms="Beli Sekarang – QariLive Lite" data-en="Buy Now – QariLive Lite">
+        </h2>
+
+        <div class="inline-block px-[18px] py-2 rounded-full border border-gold text-gold-soft text-[.85rem] mb-[25px]
+                    shadow-[0_0_18px_rgba(201,161,74,.35)]" data-ms="🔥 Promosi Terhad" data-en="🔥 Limited Offer">
+        </div>
+
+        <div class="text-[#888] line-through text-[1rem]">RM1,800</div>
+        <div class="font-playfair text-gold text-[3.2rem] my-2 mb-[18px] max-md:text-[2.6rem]">RM1,500</div>
+
+        <div class="text-[.95rem] text-[#ddd] mb-[30px]" data-ms="Harga Pengenalan • Terhad untuk tempoh tertentu"
+          data-en="Intro Price • Limited time only">
+        </div>
+
+        <ul class="list-none p-0 m-0 mb-[35px] text-left max-w-[420px] mx-auto">
+          <li class="my-3 text-[1rem]">
+            <span class="text-gold font-semibold mr-[10px]">✓</span>
+            <span data-ms="1 Tahun Pakej Media" data-en="1 Year Media Package"></span>
+          </li>
+          <li class="my-3 text-[1rem]">
+            <span class="text-gold font-semibold mr-[10px]">✓</span>
+            <span data-ms="Percuma 2 Tahun Langganan" data-en="Free 2-Year Subscription"></span>
+          </li>
+          <li class="my-3 text-[1rem]">
+            <span class="text-gold font-semibold mr-[10px]">✓</span>
+            <span data-ms="Waranti Rasmi 1 Tahun" data-en="1-Year Official Warranty"></span>
+          </li>
+        </ul>
+
+        <a href="https://checkout.xendit.co/od/qarilivelite" target="_blank" rel="noopener" class="inline-block no-underline font-semibold text-black text-[1.05rem]
+                  px-9 py-[18px] rounded-full
+                  bg-[linear-gradient(135deg,#e0c37a,#c9a14a)]
+                  shadow-[0_0_35px_rgba(201,161,74,.55)]
+                  transition-transform duration-300 ease-out
+                  hover:scale-[1.04] hover:shadow-[0_0_55px_rgba(201,161,74,.85)]"
+          data-ms="Checkout Secure dengan Xendit" data-en="Secure Checkout with Xendit">
+        </a>
+
+        <div class="mt-[22px] text-[.85rem] text-[#bbb]"
+          data-ms="🔒 Secure Payment • 🇲🇾 Diproses di Malaysia • 🛡️ Waranti Rasmi"
+          data-en="🔒 Secure Payment • 🇲🇾 Processed in Malaysia • 🛡️ Official Warranty">
+        </div>
+
+        <div class="mt-3 text-[.8rem] text-[#777]" data-ms="Diproses oleh IT People Sdn Bhd"
+          data-en="Processed by IT People Sdn Bhd">
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SPECS -->
+  <section id="specs" class="px-[6%] md:px-[8%] py-[70px] md:py-[90px]">
+    <h2 class="font-playfair text-gold-soft text-[2.4rem] mb-[25px]">QariLive Lite – Specifications</h2>
+
+    <div
+      class="bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] mt-[25px] shadow-[0_0_25px_rgba(0,0,0,.6)]">
+      <div class="grid gap-[25px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+
+        <div
+          class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]">
+          10” LCD Touch Screen
+          <div aria-hidden="true"
+            class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+          </div>
+        </div>
+
+        <div
+          class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]">
+          Quad-core ARM Cortex-A53
+          <div aria-hidden="true"
+            class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+          </div>
+        </div>
+
+        <div
+          class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]">
+          512MB RAM • 64GB Storage
+          <div aria-hidden="true"
+            class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+          </div>
+        </div>
+
+        <div
+          class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]">
+          Wi-Fi • Bluetooth • GPS
+          <div aria-hidden="true"
+            class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+          </div>
+        </div>
+
+        <div
+          class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]">
+          AC 100–240V Power
+          <div aria-hidden="true"
+            class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+          </div>
+        </div>
+
+        <div
+          class="group relative overflow-hidden bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] shadow-[0_0_25px_rgba(0,0,0,.6)] transition-all duration-300 md:hover:-translate-y-[6px] md:hover:border-[rgba(201,161,74,.9)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,.9),0_0_25px_rgba(201,161,74,.35)]">
+          Black & Gold • 800g
+          <div aria-hidden="true"
+            class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[linear-gradient(120deg,transparent_30%,rgba(201,161,74,.08),transparent_70%)]">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="text-center mt-[30px]">
+        <a href="qarilive-lite-brochure.pdf" target="_blank"
+          class="inline-block px-[40px] py-[18px] rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90">
+          Download Product Brochure (PDF)
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RESELLER -->
+  <section id="reseller" class="px-[6%] md:px-[8%] py-[70px] md:py-[90px]">
+    <h2 class="font-playfair text-gold-soft text-[2.4rem] mb-[25px]" data-ms="QariLive Reseller Inquiry"
+      data-en="QariLive Reseller Inquiry"></h2>
+
+    <div
+      class="bg-[linear-gradient(180deg,#111,#070707)] border border-[rgba(201,161,74,.28)] rounded-[18px] p-[30px] mt-[25px] shadow-[0_0_25px_rgba(0,0,0,.6)] max-w-[700px] mx-auto">
+
+      <p class="max-w-[900px]" data-ms="Berminat menjadi reseller? Tinggalkan maklumat anda."
+        data-en="Interested in becoming a reseller? Leave your details below."></p>
+
+      <form name="QariLive Reseller Inquiry" method="POST" data-netlify="true" class="mt-6">
+        <input type="hidden" name="form-name" value="QariLive Reseller Inquiry">
+
+        <input type="text" name="name" placeholder="Name" required
+          class="w-full bg-black/40 border border-gold/40 rounded-xl px-4 py-3 text-gold-soft placeholder:text-gold-soft/50 focus:outline-none focus:ring-2 focus:ring-gold/60" />
+        <br><br>
+
+        <input type="tel" name="contact" placeholder="Contact Number" required
+          class="w-full bg-black/40 border border-gold/40 rounded-xl px-4 py-3 text-gold-soft placeholder:text-gold-soft/50 focus:outline-none focus:ring-2 focus:ring-gold/60" />
+        <br><br>
+
+        <input type="email" name="email" placeholder="Email" required
+          class="w-full bg-black/40 border border-gold/40 rounded-xl px-4 py-3 text-gold-soft placeholder:text-gold-soft/50 focus:outline-none focus:ring-2 focus:ring-gold/60" />
+        <br><br>
+
+        <button type="submit"
+          class="inline-block px-[40px] py-[18px] rounded-full font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90"
+          data-ms="Hantar Permohonan" data-en="Submit Inquiry"></button>
+      </form>
+
+    </div>
+  </section>
+
+  <footer class="bg-black border-t border-gold/25 px-[10%] py-[45px] text-center">
+    <small class="text-[#aaa]">© 2025 QariLive™ | IT People Sdn Bhd</small>
+  </footer>
+
+  <script>
+    // -------- Navbar (mobile) ----------
+    const navToggle = document.getElementById("navToggle");
+    const mobileMenu = document.getElementById("mobileMenu");
+
+    function closeMobileMenu() {
+      if (!mobileMenu) return;
+      mobileMenu.classList.add("hidden");
+      navToggle?.setAttribute("aria-expanded", "false");
+    }
+    function toggleMobileMenu() {
+      if (!mobileMenu) return;
+      const isHidden = mobileMenu.classList.contains("hidden");
+      mobileMenu.classList.toggle("hidden");
+      navToggle?.setAttribute("aria-expanded", isHidden ? "true" : "false");
+    }
+
+    navToggle?.addEventListener("click", toggleMobileMenu);
+
+    // auto-close menu when user taps a link
+    mobileMenu?.querySelectorAll("a").forEach(a => {
+      a.addEventListener("click", closeMobileMenu);
+    });
+
+    // close on ESC
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeMobileMenu();
+    });
+
+    // -------- Language switch ----------
+    function setLang(lang) {
+      document.querySelectorAll('[data-ms]').forEach(el => {
+        el.innerHTML = el.getAttribute('data-' + lang);
+      });
+      document.documentElement.lang = lang;
+
+      // Apply active styles to ALL language buttons (mobile + desktop)
+      const pairs = [
+        { bm: document.getElementById("btnBM"), en: document.getElementById("btnEN") },
+        { bm: document.getElementById("btnBMDesktop"), en: document.getElementById("btnENDesktop") },
+      ];
+      pairs.forEach(({ bm, en }) => {
+        if (bm && en) {
+          const active = "bg-gold/15 border border-gold/30";
+          const inactive = "bg-transparent border border-transparent";
+          bm.className = `px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition ${lang === "ms" ? active : inactive}`;
+          en.className = `px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition ${lang === "en" ? active : inactive}`;
+        }
+      });
+      
+document.getElementById("btnBM")?.addEventListener("click", () => setLang("ms"));
+document.getElementById("btnEN")?.addEventListener("click", () => setLang("en"));
+document.getElementById("btnBMDesktop")?.addEventListener("click", () => setLang("ms"));
+document.getElementById("btnENDesktop")?.addEventListener("click", () => setLang("en"));
+
+      // small visual state for buttons (mobile)
+      const bm = document.getElementById("btnBM");
+      const en = document.getElementById("btnEN");
+      if (bm && en) {
+        const active = "bg-gold/15 border border-gold/30";
+        const inactive = "bg-transparent border border-transparent";
+        bm.className = `px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition ${lang === "ms" ? active : inactive}`;
+        en.className = `px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition ${lang === "en" ? active : inactive}`;
+      }
+    }
+
+    document.getElementById("btnBM")?.addEventListener("click", () => setLang("ms"));
+    document.getElementById("btnEN")?.addEventListener("click", () => setLang("en"));
+
+    // -------- Auto Slider (4 images) ----------
+    const sliderImages = [
+      "images/qarilive-device.png",
+      "images/qarilive-device2.jpg",
+      "images/qarilive-device3.jpg",
+      "images/qarilive-device4.jpg"
+    ];
+
+    let sliderIndex = 0;
+    let sliderTimer = null;
+    const SLIDER_INTERVAL_MS = 3500;
+
+    function sliderApply(index) {
+      const img = document.getElementById("sliderMain");
+      if (!img) return;
+
+      sliderIndex = (index + sliderImages.length) % sliderImages.length;
+
+      img.classList.remove("opacity-100");
+      img.classList.add("opacity-0");
+
+      setTimeout(() => {
+        img.src = sliderImages[sliderIndex];
+
+        const reveal = () => {
+          img.classList.remove("opacity-0");
+          img.classList.add("opacity-100");
+        };
+
+        img.onload = reveal;
+        setTimeout(reveal, 120);
+      }, 220);
+
+      const dots = document.querySelectorAll(".sliderDot");
+      dots.forEach((d, i) => {
+        d.classList.toggle("bg-white/80", i === sliderIndex);
+        d.classList.toggle("bg-white/30", i !== sliderIndex);
+        d.classList.toggle("border-gold/70", i === sliderIndex);
+        d.classList.toggle("border-gold/25", i !== sliderIndex);
+      });
+    }
+
+    function sliderGo(index) { sliderApply(index); sliderRestart(); }
+    function sliderNext() { sliderApply(sliderIndex + 1); sliderRestart(); }
+    function sliderPrev() { sliderApply(sliderIndex - 1); sliderRestart(); }
+    function sliderStart() {
+      sliderStop();
+      sliderTimer = setInterval(() => sliderApply(sliderIndex + 1), SLIDER_INTERVAL_MS);
+    }
+    function sliderStop() {
+      if (sliderTimer) clearInterval(sliderTimer);
+      sliderTimer = null;
+    }
+    function sliderRestart() { sliderStart(); }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) sliderStop();
+      else sliderStart();
+    });
+
+    // -------- YouTube (NOT MUTED) ----------
+    const YT_VIDEO_ID = "1d4v1qAcbhs";
+    let ytPlayer = null;
+    let ytMountTimeout = null;
+    let ytAutoplayCheck = null;
+
+    function showYtFallback() {
+      const fb = document.getElementById("ytFallback");
+      const wrap = document.getElementById("ytPlayerWrap");
+      if (wrap) wrap.classList.add("hidden");
+      if (fb) fb.classList.remove("hidden");
+
+      clearTimeout(ytMountTimeout);
+      clearTimeout(ytAutoplayCheck);
+    }
+
+    function showPlayOverlay() {
+      const overlay = document.getElementById("ytPlayOverlay");
+      if (overlay) overlay.classList.remove("hidden");
+    }
+
+    function hidePlayOverlay() {
+      const overlay = document.getElementById("ytPlayOverlay");
+      if (overlay) overlay.classList.add("hidden");
+    }
+
+    function tryPlayWithSound() {
+      if (!ytPlayer) return;
+      try { ytPlayer.unMute(); } catch (e) { }
+      try { ytPlayer.setVolume(100); } catch (e) { }
+      try { ytPlayer.playVideo(); } catch (e) { }
+    }
+
+    function loadYouTubeApi() {
+      const s = document.createElement("script");
+      s.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(s);
+    }
+
+    window.onYouTubeIframeAPIReady = function () {
+      try {
+        ytPlayer = new YT.Player("ytPlayer", {
+          videoId: YT_VIDEO_ID,
+          host: "https://www.youtube-nocookie.com",
+          playerVars: {
+            autoplay: 1,
+            playsinline: 1,
+            rel: 0,
+            modestbranding: 1,
+            controls: 1,
+            mute: 0
+          },
+          events: {
+            onReady: () => {
+              clearTimeout(ytMountTimeout);
+
+              tryPlayWithSound();
+
+              ytAutoplayCheck = setTimeout(() => {
+                try {
+                  const state = ytPlayer.getPlayerState();
+                  if (state !== 1) showPlayOverlay();
+                  else hidePlayOverlay();
+                } catch (e) {
+                  showPlayOverlay();
+                }
+              }, 1200);
+            },
+            onStateChange: (ev) => {
+              if (ev && ev.data === 1) hidePlayOverlay();
+            },
+            onError: () => {
+              showYtFallback();
+            }
+          }
+        });
+
+        ytMountTimeout = setTimeout(() => {
+          const iframe = document.querySelector("#ytPlayer iframe");
+          if (!iframe) showYtFallback();
+        }, 4000);
+
+      } catch (e) {
+        showYtFallback();
+      }
+    };
+
+    document.addEventListener("click", (e) => {
+      if (e.target && e.target.id === "ytPlayBtn") {
+        tryPlayWithSound();
+        hidePlayOverlay();
+      }
+    });
+
+    // Init
+    document.addEventListener("DOMContentLoaded", () => {
+      setLang('ms');     // default
+      sliderApply(0);
+      sliderStart();
+      loadYouTubeApi();
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,14 @@
+[
+  {
+    "code": "MA001",
+    "name": "Master Agent Aisyah",
+    "whatsapp": "https://wa.me/60123456789?text=Hi%20I%20want%20to%20buy%20QariLive%20(REF%20MA001)",
+    "checkout_url": "https://checkout.xendit.co/your-link-for-ma001"
+  },
+  {
+    "code": "MA002",
+    "name": "Master Agent Hakim",
+    "whatsapp": "https://wa.me/60111111111?text=Hi%20I%20want%20to%20buy%20QariLive%20(REF%20MA002)",
+    "checkout_url": "https://checkout.xendit.co/your-link-for-ma002"
+  }
+]

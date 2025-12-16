@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QariLive Preview | Dual Panel Azan + Video</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { gold:'#c9a14a', 'gold-soft':'#f5e6b3' },
+          fontFamily: { inter:['Inter','sans-serif'], playfair:['Playfair Display','serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body{ background: radial-gradient(circle at top, #111, #000); }
+    .gold-glow { box-shadow: 0 0 34px rgba(201,161,74,.20); }
+    .panel-bg { background: linear-gradient(180deg, rgba(17,17,17,.55), rgba(7,7,7,.55)); }
+
+    /* Desktop kiosk */
+    body { overflow: hidden; }
+    main { height: 100vh; }
+
+    /* Tablet/Mobile scroll */
+    @media (max-width: 1024px), (orientation: portrait) {
+      html, body { height: auto !important; }
+      body { overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch; }
+      main { height: auto !important; min-height: 100vh; }
+
+      #mode-split { height: auto !important; min-height: 100vh; }
+      #mode-split > div { height: auto !important; }
+
+      #mode-split .grid{
+        grid-template-columns: 1fr !important;
+        align-content: start !important;
+      }
+      #mode-split .panel-bg{ height:auto !important; }
+      #mode-split .panel-bg .flex-1{ min-height: 260px; }
+    }
+
+    @media (max-width: 480px) {
+      #mode-split > div { padding: 12px !important; }
+    }
+  </style>
+</head>
+
+<body class="w-screen h-screen overflow-hidden font-inter text-white">
+  <main class="w-full h-full relative">
+
+    <!-- ALWAYS-ON: DUAL PANEL -->
+    <section id="mode-split" class="w-full h-full">
+      <div class="w-full h-full p-4 md:p-6">
+        <div class="w-full h-full grid gap-4 grid-cols-1 [@media(orientation:landscape)]:grid-cols-2">
+
+          <!-- LEFT: AZAN PANEL -->
+          <div class="h-full rounded-3xl border border-gold/20 panel-bg gold-glow p-5 md:p-8 flex flex-col">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="text-gold-soft/80 tracking-wide uppercase" style="font-size:clamp(12px,1.0vw,16px);">Location</div>
+                <div id="split-location" class="text-white font-semibold" style="font-size:clamp(18px,1.6vw,28px);">Locating…</div>
+              </div>
+              <div class="text-right">
+                <div class="text-gold-soft/80 tracking-wide uppercase" style="font-size:clamp(12px,1.0vw,16px);">Current Time</div>
+                <div id="split-now" class="font-playfair text-gold-soft leading-none" style="font-size:clamp(38px,3.2vw,72px);">--:--:--</div>
+                <div id="split-date" class="text-white/60 mt-2" style="font-size:clamp(12px,1.0vw,16px);">---</div>
+              </div>
+            </div>
+
+            <div class="mt-6 rounded-2xl border border-gold/20 bg-black/35 p-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-gold-soft/80 tracking-wide uppercase" style="font-size:clamp(12px,1.0vw,16px);">Next Azan</div>
+                  <div id="split-next-name" class="text-white font-semibold" style="font-size:clamp(22px,2.0vw,38px);">--</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-gold-soft/80 tracking-wide uppercase" style="font-size:clamp(12px,1.0vw,16px);">Time</div>
+                  <div id="split-next-time" class="text-white font-semibold" style="font-size:clamp(22px,2.0vw,38px);">--:--</div>
+                </div>
+              </div>
+
+              <div class="mt-5">
+                <div class="w-full h-[3px] rounded-full bg-white/10 overflow-hidden">
+                  <div id="split-progress" class="h-full w-0 bg-[linear-gradient(90deg,#c9a14a,#f5e6b3)]"></div>
+                </div>
+                <div id="split-countdown" class="mt-3 text-white/60" style="font-size:clamp(12px,1.0vw,18px);">--</div>
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <div class="text-gold-soft/80 tracking-wide uppercase mb-3" style="font-size:clamp(12px,1.0vw,16px);">Prayer Times</div>
+              <div id="split-prayer-row" class="flex flex-wrap gap-3"></div>
+            </div>
+
+            <div class="mt-auto pt-6 text-white/35 text-xs md:text-sm">
+              Always-on dual panel view.
+            </div>
+          </div>
+
+          <!-- RIGHT: VIDEO PANEL (Google Drive) -->
+          <div class="h-full rounded-3xl border border-gold/20 panel-bg gold-glow p-5 md:p-8 flex flex-col">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="text-gold-soft/80 tracking-wide uppercase" style="font-size:clamp(12px,1.0vw,16px);">Recitation Video</div>
+                <div id="qari-status" class="text-white font-semibold" style="font-size:clamp(18px,1.6vw,28px);">Playing…</div>
+                <div id="qari-sub" class="text-white/60 mt-1" style="font-size:clamp(12px,1.0vw,16px);">
+                  Video starts immediately (autoplay may depend on browser policy).
+                </div>
+              </div>
+
+              <span class="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-black/35 px-3 py-2 text-gold-soft"
+                    style="font-size:clamp(11px,.95vw,14px);">
+                <span class="h-2 w-2 rounded-full bg-red-500"></span>
+                <span>PLAYING</span>
+              </span>
+            </div>
+
+            <div class="mt-5 rounded-2xl overflow-hidden border border-gold/15 bg-black flex-1">
+              <iframe
+                id="stream-iframe"
+                class="w-full h-full"
+                src=""
+                title="QariLive Video"
+                frameborder="0"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowfullscreen></iframe>
+            </div>
+
+            <div class="mt-5 text-white/40 text-xs md:text-sm">
+              Source: Google Drive player.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // =========================
+    // CONFIG
+    // =========================
+
+    // Google Drive "preview" embed + autoplay
+    // NOTE: Autoplay can be blocked unless the browser allows it (common on Chrome without user gesture).
+    const DRIVE_FILE_ID = "11Ne06FjN8owFTRsDWIIiCApn8ZvHA3JJ";
+    const LIVE_STREAM_IFRAME_SRC = `https://drive.google.com/file/d/11Ne06FjN8owFTRsDWIIiCApn8ZvHA3JJ/preview`;
+
+    // AlAdhan method: 2=ISNA, 3=MWL, 4=Umm al-Qura, 11=Singapore, etc.
+    const PRAYER_API_METHOD = 11;
+
+    // =========================
+    // LOCATION (GPS + fallback)
+    // =========================
+    let locationStr = "Locating…";
+    let locationCoords = null; // { lat, lon }
+
+    async function initLocation() {
+      if ("geolocation" in navigator) {
+        try {
+          const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 8000,
+              maximumAge: 60000
+            });
+          });
+
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          locationCoords = { lat, lon };
+
+          // Reverse geocode via Nominatim
+          try {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
+            const res = await fetch(url, { headers: { "Accept": "application/json" } });
+            if (res.ok) {
+              const data = await res.json();
+              const a = data.address || {};
+              const city = a.city || a.town || a.village || a.suburb || a.county || "";
+              const state = a.state || a.region || "";
+              const country = a.country || "";
+              const pretty = [city, state, country].filter(Boolean).join(", ").trim();
+              locationStr = pretty || `Lat ${lat.toFixed(5)}, Lon ${lon.toFixed(5)}`;
+              return;
+            }
+          } catch (e) {}
+          locationStr = `Lat ${lat.toFixed(5)}, Lon ${lon.toFixed(5)}`;
+          return;
+        } catch (err) {}
+      }
+
+      // IP fallback
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        if (res.ok) {
+          const data = await res.json();
+          const city = data.city || "";
+          const region = data.region || "";
+          const country = data.country_name || "";
+          locationStr = [city, region, country].filter(Boolean).join(", ") || "Unknown location";
+          if (data.latitude && data.longitude) {
+            locationCoords = { lat: Number(data.latitude), lon: Number(data.longitude) };
+          }
+          return;
+        }
+      } catch (e) {}
+
+      locationStr = "Location unavailable";
+    }
+
+    // =========================
+    // PRAYER TIMES (real, based on location)
+    // =========================
+    let PRAYERS = [
+      { name: "Fajr", time: "05:00" },
+      { name: "Dhuhr", time: "12:30" },
+      { name: "Asr", time: "16:45" },
+      { name: "Maghrib", time: "19:20" },
+      { name: "Isha", time: "20:55" },
+    ];
+
+    async function fetchPrayerTimesIfPossible() {
+      if (!locationCoords) return;
+      try {
+        const { lat, lon } = locationCoords;
+        const url = `https://api.aladhan.com/v1/timings?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&method=${PRAYER_API_METHOD}`;
+        const res = await fetch(url, { headers: { "Accept": "application/json" } });
+        if (!res.ok) return;
+        const data = await res.json();
+        const t = data?.data?.timings;
+        if (!t) return;
+
+        PRAYERS = [
+          { name: "Fajr", time: (t.Fajr || "").slice(0,5) },
+          { name: "Dhuhr", time: (t.Dhuhr || "").slice(0,5) },
+          { name: "Asr", time: (t.Asr || "").slice(0,5) },
+          { name: "Maghrib", time: (t.Maghrib || "").slice(0,5) },
+          { name: "Isha", time: (t.Isha || "").slice(0,5) },
+        ].filter(p => /^\d{2}:\d{2}$/.test(p.time));
+      } catch (e) {}
+    }
+
+    // =========================
+    // HELPERS
+    // =========================
+    const pad2 = (n) => String(n).padStart(2, "0");
+    const toMinutes = (hhmm) => {
+      const [h, m] = hhmm.split(":").map(Number);
+      return h * 60 + m;
+    };
+    function getNowAbsMinutes() {
+      const d = new Date();
+      return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
+    }
+    function getNextPrayer(nowMin) {
+      for (const p of PRAYERS) {
+        if (toMinutes(p.time) >= nowMin) return { ...p, isTomorrow: false };
+      }
+      return { ...PRAYERS[0], isTomorrow: true };
+    }
+    function setText(id, txt) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = txt;
+    }
+    function renderPrayerChips(containerId, activeName) {
+      const wrap = document.getElementById(containerId);
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      PRAYERS.forEach((p) => {
+        const isActive = p.name === activeName;
+        const chip = document.createElement("div");
+        chip.className =
+          "px-4 py-3 rounded-2xl border flex items-center gap-3 " +
+          (isActive ? "border-gold bg-gold/15 text-gold-soft" : "border-white/10 bg-black/30 text-white/75");
+        chip.innerHTML = `
+          <span class="text-[11px] uppercase tracking-wide ${isActive ? "text-gold-soft" : "text-white/50"}">${p.name}</span>
+          <span class="font-semibold ${isActive ? "text-gold-soft" : "text-white"}" style="font-size:clamp(14px,1.2vw,20px)">${p.time}</span>
+        `;
+        wrap.appendChild(chip);
+      });
+    }
+    function formatCountdown(totalSec) {
+      totalSec = Math.max(0, totalSec);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      return `${h}h ${pad2(m)}m ${pad2(s)}s`;
+    }
+
+    // =========================
+    // INIT STREAM (always on)
+    // =========================
+    function initStream() {
+      const iframe = document.getElementById("stream-iframe");
+      if (!iframe) return;
+      iframe.src = LIVE_STREAM_IFRAME_SRC;
+    }
+
+    // =========================
+    // TICK
+    // =========================
+    function tick() {
+      const now = new Date();
+      const nowMin = getNowAbsMinutes();
+
+      const next = getNextPrayer(nowMin);
+      const nextMin = toMinutes(next.time);
+      const nextAbs = next.isTomorrow ? nextMin + 1440 : nextMin;
+      const minsToAzan = nextAbs - nowMin;
+
+      // progress bar over last 30 mins to azan
+      const windowMin = 30;
+      let pct = 0;
+      if (minsToAzan >= windowMin) pct = 0;
+      else if (minsToAzan <= 0) pct = 100;
+      else pct = ((windowMin - minsToAzan) / windowMin) * 100;
+
+      const totalSec = Math.max(0, Math.round(minsToAzan * 60));
+      const countdown = formatCountdown(totalSec);
+
+      // Left panel updates
+      setText("split-location", locationStr);
+      setText("split-now", now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+      setText("split-date", now.toLocaleDateString([], { weekday: "long", year: "numeric", month: "long", day: "numeric" }));
+      setText("split-next-name", next.name);
+      setText("split-next-time", next.time);
+      renderPrayerChips("split-prayer-row", next.name);
+
+      setText("split-countdown", `Next azan in: ${countdown}`);
+      const prog = document.getElementById("split-progress");
+      if (prog) prog.style.width = `${pct}%`;
+    }
+
+    // =========================
+    // INIT
+    // =========================
+    (async () => {
+      initStream();                 // always start video immediately
+      await initLocation();
+      await fetchPrayerTimesIfPossible();
+      tick();
+      setInterval(tick, 1000);
+      setInterval(fetchPrayerTimesIfPossible, 6 * 60 * 60 * 1000);
+    })();
+  </script>
+</body>
+</html>
