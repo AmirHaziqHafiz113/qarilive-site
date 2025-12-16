@@ -2,6 +2,25 @@
   "name": "qarilive-site",
   "private": true,
   "dependencies": {
-    "@netlify/blobs": "^8.0.0"
-  }
+    "@netlify/blobs": "^8.0.0",
+    "@netlify/neon": "^0.1.0"
+  },
+  "version": "1.0.0",
+  "description": "QariLive website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AmirHaziqHafiz113/qarilive-site.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AmirHaziqHafiz113/qarilive-site/issues"
+  },
+  "homepage": "https://github.com/AmirHaziqHafiz113/qarilive-site#readme"
 }
