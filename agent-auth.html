@@ -242,13 +242,15 @@
       // then send user back to the correct login page (keep ?ref for agent)
       identity.on("login", (user) => {
         const role = (user?.user_metadata?.role || "").toLowerCase();
-        if (role === "agent") {
-          const url = new URL(window.location.href);
-          const ref = url.searchParams.get("ref");
-          return safeRedirect("agent-auth.html" + (ref ? ("?ref=" + encodeURIComponent(ref)) : ""));
+
+        if (role === "master_agent") {
+          return safeRedirect("master-agent-dashboard.html");
         }
-        return safeRedirect("master-agent-auth.html");
+
+        // default: agent
+        return safeRedirect("agent-dashboard.html");
       });
+
 
       // This triggers the widget to process the hash tokens
       identity.open();
@@ -256,20 +258,25 @@
     }
 
 
-async function init(){
-  const consumed = await handleIdentityHashTokens();
-  if (consumed) return; // stop normal redirects so token isn't lost
+    async function init() {
+      const consumed = await handleIdentityHashTokens();
+      if (consumed) return; // stop normal redirects so token isn't lost
 
-  const identity = await waitForIdentity();
-  identity.init();
+      const identity = await waitForIdentity();
+      identity.init();
 
-  const u = identity.currentUser();
-  if (!u) return;
+      const u = identity.currentUser();
+      if (u) {
+        const role = (u.user_metadata?.role || "").toLowerCase();
+        if (role === "agent") safeRedirect("agent-dashboard.html");
+        else safeRedirect("master-agent-dashboard.html");
+      }
 
-  const role = (u.user_metadata?.role || "").toLowerCase();
-  if (role === "agent") return safeRedirect("agent-dashboard.html");
-  return safeRedirect("master-agent-dashboard.html");
-}
+
+      const role = (u.user_metadata?.role || "").toLowerCase();
+      if (role === "agent") return safeRedirect("agent-dashboard.html");
+      return safeRedirect("master-agent-dashboard.html");
+    }
 
 
     registerForm.addEventListener("submit", async (e) => {

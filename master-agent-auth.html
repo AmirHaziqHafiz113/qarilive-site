@@ -298,13 +298,15 @@
       // then send user back to the correct login page (keep ?ref for agent)
       identity.on("login", (user) => {
         const role = (user?.user_metadata?.role || "").toLowerCase();
+
         if (role === "agent") {
-          const url = new URL(window.location.href);
-          const ref = url.searchParams.get("ref");
-          return safeRedirect("agent-auth.html" + (ref ? ("?ref=" + encodeURIComponent(ref)) : ""));
+          return safeRedirect("agent-dashboard.html");
         }
-        return safeRedirect("master-agent-auth.html");
+
+        // default: master agent
+        return safeRedirect("master-agent-dashboard.html");
       });
+
 
       // This triggers the widget to process the hash tokens
       identity.open();
@@ -319,7 +321,12 @@
       identity.init();
 
       const u = identity.currentUser();
-      if (!u) return;
+      if (u) {
+        const role = (u.user_metadata?.role || "").toLowerCase();
+        if (role === "agent") safeRedirect("agent-dashboard.html");
+        else safeRedirect("master-agent-dashboard.html");
+      }
+
 
       const role = (u.user_metadata?.role || "").toLowerCase();
       if (role === "agent") return safeRedirect("agent-dashboard.html");
