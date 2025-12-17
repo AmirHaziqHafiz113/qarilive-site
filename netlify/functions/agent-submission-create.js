@@ -1,6 +1,8 @@
+// netlify/functions/agent-submission-create.js
 import jwt from "jsonwebtoken";
 import { google } from "googleapis";
 import { Pool } from "pg";
+import { Readable } from "stream";
 
 function json(statusCode, body) {
   return {
@@ -14,166 +16,237 @@ function json(statusCode, body) {
   };
 }
 
-function getBearerToken(event) {
+function getUserId(event) {
   const auth = event.headers.authorization || event.headers.Authorization || "";
-  return auth.startsWith("Bearer ") ? auth.slice(7).trim() : auth.trim();
-}
-
-function getUserIdFromJwt(token) {
+  const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : auth.trim();
   if (!token) return null;
   const decoded = jwt.decode(token);
   return decoded?.sub || null;
 }
 
+function safeStr(v) {
+  return String(v ?? "").trim();
+}
+
 function parseDataUrl(dataUrl) {
-  // data:image/png;base64,AAAA...
-  const m = String(dataUrl || "").match(/^data:(.+);base64,(.+)$/);
-  if (!m) throw new Error("Invalid proof_data_url");
-  const mimeType = m[1];
+  // data:image/png;base64,AAAA
+  const s = String(dataUrl || "");
+  const m = s.match(/^data:([^;]+);base64,(.+)$/);
+  if (!m) return null;
+  const mime = m[1];
   const b64 = m[2];
-  const buffer = Buffer.from(b64, "base64");
-  return { mimeType, buffer };
+  return { mime, buffer: Buffer.from(b64, "base64") };
 }
 
-function safeUpper(s) {
-  return String(s || "").trim().toUpperCase();
+function guessExtFromMime(mime) {
+  const map = {
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/gif": "gif",
+  };
+  return map[mime] || "jpg";
 }
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || process.env.NEON_DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-});
+function sanitizeFilename(name) {
+  const s = String(name || "proof").replace(/[^\w.\-]+/g, "_");
+  return s.slice(0, 120) || "proof";
+}
 
-async function uploadToDrive({ filename, mimeType, buffer }) {
-  const creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON || "{}");
-  const folderId = process.env.DRIVE_FOLDER_ID;
+function requireEnv(name) {
+  const v = process.env[name];
+  if (!v) throw new Error(`Missing env var: ${name}`);
+  return v;
+}
 
-  if (!creds?.client_email || !creds?.private_key) {
-    throw new Error("Missing GOOGLE_SERVICE_ACCOUNT_JSON env var");
+// ---------- Google Drive ----------
+function loadServiceAccount() {
+  const raw = requireEnv("GOOGLE_SERVICE_ACCOUNT_JSON");
+  let creds;
+  try {
+    creds = JSON.parse(raw);
+  } catch {
+    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON.");
   }
-  if (!folderId) throw new Error("Missing DRIVE_FOLDER_ID env var");
 
-  const auth = new google.auth.JWT(
-    creds.client_email,
-    null,
-    creds.private_key,
-    ["https://www.googleapis.com/auth/drive"]
-  );
+  if (!creds.client_email || !creds.private_key) {
+    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON missing client_email/private_key.");
+  }
 
-  const drive = google.drive({ version: "v3", auth });
+  // Fix escaped newlines (common when storing in env)
+  const fixedKey = String(creds.private_key).replace(/\\n/g, "\n");
+  return { ...creds, private_key: fixedKey };
+}
 
-  // Upload file into folder
+async function getDriveClient() {
+  const creds = loadServiceAccount();
+
+  const auth = new google.auth.JWT({
+    email: creds.client_email,
+    key: creds.private_key,
+    scopes: ["https://www.googleapis.com/auth/drive"],
+  });
+
+  return google.drive({ version: "v3", auth });
+}
+
+async function uploadToDrive({ buffer, mimeType, filename, folderId }) {
+  const drive = await getDriveClient();
+
+  // googleapis expects a stream or file-like body
+  const bodyStream = Readable.from(buffer);
+
   const createRes = await drive.files.create({
     requestBody: {
-      name: filename || "proof.jpg",
+      name: filename,
       parents: [folderId],
     },
     media: {
       mimeType,
-      body: BufferToStream(buffer),
+      body: bodyStream,
     },
-    fields: "id, webViewLink",
+    fields: "id, name",
   });
 
-  const fileId = createRes.data.id;
-  if (!fileId) throw new Error("Drive upload failed");
+  const fileId = createRes?.data?.id;
+  if (!fileId) throw new Error("Failed to upload file to Google Drive.");
 
-  // Make it public: anyone with the link can view
+  // Make it "anyone with link can view"
   await drive.permissions.create({
     fileId,
-    requestBody: {
-      role: "reader",
-      type: "anyone",
-    },
+    requestBody: { role: "reader", type: "anyone" },
   });
 
-  // Public link
-  const publicUrl = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
-  return { fileId, publicUrl };
+  return { fileId, viewUrl: `https://drive.google.com/file/d/${fileId}/view` };
 }
 
-// helper: buffer -> stream (googleapis likes streams)
-async function BufferToStream(buffer) {
-  const { Readable } = await import("stream");
-  const s = new Readable();
-  s.push(buffer);
-  s.push(null);
-  return s;
+// ---------- Neon ----------
+let _pool;
+function getPool() {
+  if (_pool) return _pool;
+
+  const connectionString =
+    process.env.DATABASE_URL ||
+    process.env.NEON_DATABASE_URL ||
+    process.env.NETLIFY_DATABASE_URL ||
+    "";
+
+  if (!connectionString) {
+    throw new Error("Missing DATABASE_URL (Neon) env var.");
+  }
+
+  _pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  });
+
+  return _pool;
 }
 
 export async function handler(event) {
   try {
+    const userId = getUserId(event);
+    if (!userId) return json(401, { ok: false, error: "Unauthorized" });
+
     if (event.httpMethod !== "POST") {
       return json(405, { ok: false, error: "Method not allowed" });
     }
 
-    const token = getBearerToken(event);
-    const agentUserId = getUserIdFromJwt(token);
-    if (!agentUserId) return json(401, { ok: false, error: "Unauthorized" });
-
     const body = JSON.parse(event.body || "{}");
 
-    const ma_code = safeUpper(body.ma_code);
-    const agent_email = String(body.agent_email || "").trim();
-    const agent_name = String(body.agent_name || "").trim();
+    const ma_code = safeStr(body.ma_code).toUpperCase();
+    const agent_email = safeStr(body.agent_email);
+    const agent_name = safeStr(body.agent_name);
 
-    const customer_name = String(body.customer_name || "").trim();
-    const customer_phone = String(body.customer_phone || "").trim();
-    const customer_address = String(body.customer_address || "").trim();
+    const customer_name = safeStr(body.customer_name);
+    const customer_phone = safeStr(body.customer_phone);
+    const customer_address = safeStr(body.customer_address);
+    const purchase_amount_rm = safeStr(body.purchase_amount_rm);
+    const purchase_date = safeStr(body.purchase_date);
+    const notes = safeStr(body.notes);
 
-    const purchase_amount_rm = String(body.purchase_amount_rm || "").trim();
-    const purchase_date = String(body.purchase_date || "").trim();
-    const notes = String(body.notes || "").trim();
+    const proof_data_url = safeStr(body.proof_data_url);
+    const proof_filename = safeStr(body.proof_filename) || "proof.jpg";
 
-    const proof_data_url = body.proof_data_url;
-    const proof_filename = String(body.proof_filename || "proof.jpg").trim();
+    if (!ma_code) return json(400, { ok: false, error: "Missing ma_code." });
+    if (!customer_name) return json(400, { ok: false, error: "Missing customer_name." });
+    if (!customer_phone) return json(400, { ok: false, error: "Missing customer_phone." });
+    if (!proof_data_url) return json(400, { ok: false, error: "Missing proof_data_url." });
 
-    if (!ma_code) return json(400, { ok: false, error: "Missing ma_code" });
-    if (!customer_name) return json(400, { ok: false, error: "Missing customer_name" });
-    if (!customer_phone) return json(400, { ok: false, error: "Missing customer_phone" });
-    if (!proof_data_url) return json(400, { ok: false, error: "Missing proof_data_url" });
+    // IMPORTANT: base64 JSON can blow up request size easily
+    if (proof_data_url.length > 6 * 1024 * 1024) {
+      return json(400, { ok: false, error: "Image too large. Please upload a smaller image (try < 2MB)." });
+    }
 
-    // Decode image
-    const { mimeType, buffer } = parseDataUrl(proof_data_url);
+    const parsed = parseDataUrl(proof_data_url);
+    if (!parsed) return json(400, { ok: false, error: "Invalid proof_data_url format." });
 
-    // Upload to Google Drive
-    const { publicUrl } = await uploadToDrive({
-      filename: proof_filename,
-      mimeType,
+    const { mime, buffer } = parsed;
+
+    const folderId = requireEnv("DRIVE_FOLDER_ID");
+    const ext = guessExtFromMime(mime);
+    const safeName = sanitizeFilename(proof_filename.replace(/\.(png|jpg|jpeg|webp|gif)$/i, ""));
+    const fileName = `QariLive_${ma_code}_${Date.now()}_${safeName}.${ext}`;
+
+    // Upload to Drive
+    const { fileId, viewUrl } = await uploadToDrive({
       buffer,
+      mimeType: mime,
+      filename: fileName,
+      folderId,
     });
 
-    // Insert into Neon DB
-    const client = await pool.connect();
-    try {
-      const q = `
-        INSERT INTO public.agent_submissions
-          (ma_code, agent_user_id, agent_name, agent_email, customer_name, customer_phone, proof_url, status)
-        VALUES
-          ($1, $2, $3, $4, $5, $6, $7, 'pending')
-        RETURNING id, created_at
-      `;
-      const r = await client.query(q, [
-        ma_code,
-        agentUserId,
-        agent_name,
-        agent_email,
-        customer_name,
-        customer_phone,
-        publicUrl,
-      ]);
+    // Insert into Neon
+    const pool = getPool();
 
-      return json(200, {
-        ok: true,
-        id: r.rows?.[0]?.id,
-        created_at: r.rows?.[0]?.created_at,
-        proof_url: publicUrl,
-      });
-    } finally {
-      client.release();
-    }
+    const q = `
+      INSERT INTO public.agent_submissions
+      (ma_code, agent_user_id, agent_email, agent_name,
+       customer_name, customer_phone, customer_address,
+       purchase_amount_rm, purchase_date, notes,
+       proof_url, proof_file_id, status)
+      VALUES
+      ($1,$2,$3,$4,
+       $5,$6,$7,
+       $8,$9,$10,
+       $11,$12,$13)
+      RETURNING id, created_at
+    `;
+
+    const vals = [
+      ma_code,
+      userId,
+      agent_email,
+      agent_name,
+      customer_name,
+      customer_phone,
+      customer_address,
+      purchase_amount_rm || null,
+      purchase_date || null,
+      notes || null,
+      viewUrl,
+      fileId,
+      "pending",
+    ];
+
+    const ins = await pool.query(q, vals);
+    const row = ins.rows?.[0];
+
+    return json(200, {
+      ok: true,
+      id: row?.id,
+      created_at: row?.created_at,
+      proof_url: viewUrl,
+    });
   } catch (e) {
-    console.error("agent-submission-create error:", e);
-    return json(500, { ok: false, error: e?.message || "Submit failed" });
+    // Return more useful errors (still safe)
+    console.error("agent-submission-create error:", e?.response?.data || e);
+    return json(500, {
+      ok: false,
+      error: e?.message || "Server error",
+      hint:
+        "Check: DRIVE_FOLDER_ID, folder shared with service account email, GOOGLE_SERVICE_ACCOUNT_JSON valid, and image size.",
+    });
   }
 }
