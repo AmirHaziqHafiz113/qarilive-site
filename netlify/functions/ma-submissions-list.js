@@ -23,7 +23,6 @@ function getUserId(event) {
 
 export async function handler(event) {
   try {
-    // Must be logged in
     const userId = getUserId(event);
     if (!userId) return json(401, { ok: false, error: "Unauthorized" });
 
@@ -33,16 +32,23 @@ export async function handler(event) {
     const sql = neon();
 
     const rows = await sql`
-      SELECT full_name, whatsapp, email, created_at, last_login
-      FROM public.agents
+      SELECT
+        customer_name,
+        customer_phone,
+        agent_name,
+        agent_email,
+        status,
+        proof_url,
+        created_at
+      FROM public.agent_submissions
       WHERE ma_code = ${maCode}
       ORDER BY created_at DESC
       LIMIT 200;
     `;
 
-    return json(200, { ok: true, count: rows.length, agents: rows });
+    return json(200, { ok: true, count: rows.length, submissions: rows });
   } catch (err) {
-    console.error("ma-agent-list error:", err);
+    console.error("ma-submissions-list error:", err);
     return json(500, { ok: false, error: err?.message || "Server error" });
   }
 }
