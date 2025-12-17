@@ -27,7 +27,9 @@
   </script>
 
   <style>
-    body { background: radial-gradient(circle at top, #121212, #000 70%); }
+    body {
+      background: radial-gradient(circle at top, #121212, #000 70%);
+    }
   </style>
 </head>
 
@@ -104,7 +106,8 @@
         </div>
 
         <!-- Alerts -->
-        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
+        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80">
+        </div>
 
         <!-- Register -->
         <form id="registerForm" class="mt-5 space-y-4">
@@ -206,14 +209,14 @@
   </footer>
 
   <script>
-    // remove redirect param if any page/link includes it (prevents widget auto redirect)
-    (() => {
-      const u = new URL(window.location.href);
-      if (u.searchParams.has("redirect")) {
-        u.searchParams.delete("redirect");
-        window.history.replaceState({}, "", u.toString());
-      }
-    })();
+      // remove redirect param if any page/link includes it (prevents widget auto redirect)
+      (() => {
+        const u = new URL(window.location.href);
+        if (u.searchParams.has("redirect")) {
+          u.searchParams.delete("redirect");
+          window.history.replaceState({}, "", u.toString());
+        }
+      })();
 
     // ---------- Helpers ----------
     const $ = (id) => document.getElementById(id);
@@ -284,7 +287,7 @@
       // Let Identity consume token, then go back to login page
       identity.open();
       setTimeout(() => {
-        try { identity.close(); } catch {}
+        try { identity.close(); } catch { }
         safeRedirect("master-agent-auth.html");
       }, 1200);
 
@@ -311,6 +314,11 @@
       e.preventDefault();
       hideAlert();
 
+      if (!maRef) {
+        showAlert("Missing MA REF in URL. Please register using the link from your Master Agent.", "error");
+        return;
+      }
+
       try {
         const identity = await waitForIdentity();
         identity.init();
@@ -320,20 +328,25 @@
         const email = $("regEmail").value.trim();
         const password = $("regPassword").value;
 
-        const maCode = makeMACode();
-
-        await netlifyIdentity.signup(email, password, {
-          data: { role: "master_agent", full_name: name, whatsapp: whatsapp, ma_code: maCode },
-          confirmationPage: "/confirm.html?role=master_agent"
+        await identity.gotrue.signup(email, password, {
+          data: {
+            role: "agent",
+            full_name: name,
+            whatsapp: whatsapp,
+            ma_code: maRef
+          },
+          confirmationPage: "/confirm.html?role=agent"
         });
 
-        showAlert(`✅ Account created. Your Master Agent REF is ${maCode}. Please verify your email.`);
-        setTimeout(() => safeRedirect("master-agent-auth.html"), 900);
+        showAlert("✅ Agent account created. Please verify email, then login.");
+        setTab("login");
+        setTimeout(() => safeRedirect("agent-auth.html?ref=" + encodeURIComponent(maRef)), 900);
 
       } catch (err) {
         showAlert(err?.message || "Registration failed.", "error");
       }
     });
+
 
     // Login flow (role-based redirect)
     loginForm.addEventListener("submit", async (e) => {

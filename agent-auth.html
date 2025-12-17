@@ -27,7 +27,9 @@
   </script>
 
   <style>
-    body { background: radial-gradient(circle at top, #121212, #000 70%); }
+    body {
+      background: radial-gradient(circle at top, #121212, #000 70%);
+    }
   </style>
 </head>
 
@@ -94,7 +96,8 @@
           </button>
         </div>
 
-        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
+        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80">
+        </div>
 
         <form id="registerForm" class="mt-5 space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -232,7 +235,7 @@
 
       identity.open();
       setTimeout(() => {
-        try { identity.close(); } catch {}
+        try { identity.close(); } catch { }
         safeRedirect("agent-auth.html" + (maRef ? ("?ref=" + encodeURIComponent(maRef)) : ""));
       }, 1200);
 
@@ -272,7 +275,7 @@
         const email = $("regEmail").value.trim();
         const password = $("regPassword").value;
 
-        await netlifyIdentity.signup(email, password, {
+        await identity.gotrue.signup(email, password, {
           data: {
             role: "agent",
             full_name: name,
@@ -290,6 +293,7 @@
         showAlert(err?.message || "Registration failed.", "error");
       }
     });
+
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
