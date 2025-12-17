@@ -438,14 +438,13 @@
       const auth = await getAuthHeader(identity);
 
       const payload = {
-        ma_code: ($("txtMACode")?.textContent || "").trim(), // ✅ add this
+        ma_code: ($("txtMACode").textContent || "").trim(), // ✅ ADD THIS
         full_name: ($("full_name").value || "").trim(),
         whatsapp: ($("whatsapp").value || "").trim(),
         bank_name: ($("bank_name").value || "").trim(),
         bank_account_name: ($("bank_holder").value || "").trim(),
         bank_account_number: resolveBankAccountToSave()
       };
-
 
       const res = await fetch("/.netlify/functions/ma-payout-set", {
         method: "POST",
