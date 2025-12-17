@@ -15,11 +15,12 @@ function json(statusCode, body) {
 
 function getUserId(event) {
   const auth = event.headers.authorization || event.headers.Authorization || "";
-  const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  const token = auth.replace("Bearer ", "").trim();
   if (!token) return null;
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = jwt.decode(token);
   return decoded?.sub || null;
 }
+
 
 export async function handler(event) {
   try {

@@ -664,7 +664,6 @@
         renderSubsTable([]);
 
         const auth = await getAuthHeader(identity);
-
         const res = await fetch("/.netlify/functions/ma-submissions-list?ma_code=" + encodeURIComponent(maCode), {
           method: "GET",
           headers: { ...auth }
