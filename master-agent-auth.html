@@ -294,46 +294,31 @@
 
       if (!hasToken) return false;
 
-      // Let Netlify Identity consume the token properly
-      // then send user back to the correct login page (keep ?ref for agent)
-      identity.on("login", (user) => {
-        const role = (user?.user_metadata?.role || "").toLowerCase();
-
-        if (role === "agent") {
-          return safeRedirect("agent-dashboard.html");
-        }
-
-        // default: master agent
-        return safeRedirect("master-agent-dashboard.html");
-      });
-
-
-      // This triggers the widget to process the hash tokens
+      // Let Identity consume token, then go back to login page
       identity.open();
+      setTimeout(() => {
+        try { identity.close(); } catch { }
+        // stay on this page; user should login after verifying
+        safeRedirect("master-agent-auth.html");
+      }, 1200);
+
       return true;
     }
 
     async function init() {
       const consumed = await handleIdentityHashTokens();
-      if (consumed) return; // stop normal redirects so token isn't lost
+      if (consumed) return;
 
       const identity = await waitForIdentity();
       identity.init();
 
       const u = identity.currentUser();
-      if (u) {
-        const role = (u.user_metadata?.role || "").toLowerCase();
-        if (role === "agent") safeRedirect("agent-dashboard.html");
-        else safeRedirect("master-agent-dashboard.html");
-      }
-
+      if (!u) return; // not logged in, stay on auth page
 
       const role = (u.user_metadata?.role || "").toLowerCase();
       if (role === "agent") return safeRedirect("agent-dashboard.html");
       return safeRedirect("master-agent-dashboard.html");
     }
-
-
 
     // Register flow
     // IMPORTANT: We DO NOT store bank details in Identity metadata.
@@ -352,27 +337,20 @@
 
         const maCode = makeMACode();
 
-        await identity.gotrue.signup(
-          email,
-          password,
-          {
-            data: {
-              role: "master_agent",
-              ma_code: maCode,
-              full_name: name,
-              whatsapp
-            }
-          }
-        );
+        await netlifyIdentity.signup(email, password, {
+          data: { role: "master_agent", full_name: name, whatsapp, ma_code: maCode },
+          confirmationPage: "/confirm.html?role=master_agent"
+        });
 
-        // ✅ redirect to master-agent-auth.html after successful signup
-        showAlert(`✅ Account created. Your Master Agent REF is ${maCode}. Please verify your email (if required). Redirecting...`);
+
+        showAlert(`✅ Account created. Your Master Agent REF is ${maCode}. Please verify your email.`);
         setTimeout(() => safeRedirect("master-agent-auth.html"), 900);
 
       } catch (err) {
         showAlert(err?.message || "Registration failed.", "error");
       }
     });
+
 
     // Login flow
     loginForm.addEventListener("submit", async (e) => {
@@ -387,11 +365,18 @@
         const password = $("loginPassword").value;
 
         await identity.gotrue.login(email, password, true);
-        safeRedirect("master-agent-dashboard.html");
+
+        const u = identity.currentUser();
+        const role = (u?.user_metadata?.role || "").toLowerCase();
+
+        if (role === "agent") return safeRedirect("agent-dashboard.html");
+        return safeRedirect("master-agent-dashboard.html");
+
       } catch (err) {
         showAlert(err?.message || "Login failed.", "error");
       }
     });
+
 
     $("openRecovery").addEventListener("click", async () => {
       hideAlert();

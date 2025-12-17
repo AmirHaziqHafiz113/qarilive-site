@@ -297,18 +297,11 @@
         const email = $("regEmail").value.trim();
         const password = $("regPassword").value;
 
-        await identity.gotrue.signup(
-          email,
-          password,
-          {
-            data: {
-              role: "agent",
-              full_name: name,
-              whatsapp,
-              parent_ma_code: maRef
-            }
-          }
-        );
+await netlifyIdentity.signup(email, password, {
+  data: { role: "agent", full_name, whatsapp, ma_code },
+  confirmationPage: "/confirm.html?role=agent"
+});
+
 
         showAlert("✅ Agent account created. Please verify email (if required), then login. Redirecting...");
         setTimeout(() => safeRedirect("agent-auth.html?ref=" + encodeURIComponent(maRef)), 900);
