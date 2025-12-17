@@ -290,7 +290,8 @@
           data: {
             // top-level keys (IMPORTANT)
             role: "agent",
-            ma_code: maRef,
+            ma_code: maRef,           // keep for compatibility
+            parent_ma_code: maRef,    // important: admin-agent-stats expects this
             full_name: name,
             whatsapp: whatsapp,
 
@@ -324,6 +325,28 @@
         const password = $("loginPassword").value;
 
         const user = await identity.gotrue.login(email, password, true);
+        // after login success
+        const u = identity.currentUser();
+        const token = await u.jwt();
+        const meta = u.user_metadata || {};
+
+        // IMPORTANT: support both shapes (old + new)
+        const ma = (meta.ma_code || meta.parent_ma_code || meta?.data?.ma_code || "").toString().trim().toUpperCase();
+
+        await fetch("/.netlify/functions/agent-upsert", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({
+            ma_code: ma,
+            full_name: meta.full_name || "",
+            whatsapp: meta.whatsapp || "",
+            email: u.email || ""
+          })
+        });
+
         routeByRole(user);
 
       } catch (err) {

@@ -33,6 +33,7 @@ exports.handler = async () => {
       const users = await res.json();
       allUsers.push(...users);
 
+
       // pagination: Netlify uses Link header
       const link = res.headers.get("link") || res.headers.get("Link") || "";
       const next = parseNextLink(link);
