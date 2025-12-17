@@ -59,11 +59,6 @@
       border-color: rgba(201, 161, 74, .65);
       box-shadow: 0 0 0 4px rgba(201, 161, 74, .12);
     }
-
-    .chip {
-      border: 1px solid rgba(201, 161, 74, .25);
-      background: rgba(0, 0, 0, .25);
-    }
   </style>
 </head>
 
@@ -113,8 +108,7 @@
     <!-- TOP SUMMARY -->
     <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
       <div>
-        <div
-          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass shadow-[0_0_18px_rgba(201,161,74,.10)]">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass shadow-[0_0_18px_rgba(201,161,74,.10)]">
           <span class="w-2 h-2 rounded-full bg-gold"></span>
           <span class="text-gold-soft text-xs">Master Agent</span>
         </div>
@@ -150,8 +144,7 @@
               <div>
                 <div class="text-[11px] text-white/45 uppercase tracking-wider">Master Agent REF</div>
                 <div id="txtMACode" class="mt-2 text-2xl font-semibold text-gold-soft">—</div>
-                <div class="mt-1 text-xs text-white/45">Used in your landing link: <span
-                    class="text-white/70">?ref=MA001</span></div>
+                <div class="mt-1 text-xs text-white/45">Used in your landing link: <span class="text-white/70">?ref=MA001</span></div>
               </div>
               <button id="copyCode"
                 class="shrink-0 px-3 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm">
@@ -183,9 +176,41 @@
             </div>
 
             <div class="mt-3 text-[11px] text-white/45">
-              Tip: The landing page reads <span class="text-white/70">ref</span> from URL and loads your
-              details securely.
+              Tip: The landing page reads <span class="text-white/70">ref</span> from URL and loads your details securely.
             </div>
+          </div>
+        </div>
+
+        <!-- ✅ NEW: AGENT REGISTRATION LINK (UNDER THIS MASTER AGENT) -->
+        <div class="glass rounded-2xl p-6">
+          <h2 class="font-playfair text-gold-soft text-2xl">Recruit Agents Under You</h2>
+          <p class="mt-1 text-sm text-white/60">
+            Share this link to register a new Agent under your Master Agent REF automatically.
+          </p>
+
+          <div class="mt-4">
+            <div class="text-[11px] text-white/45 uppercase tracking-wider">Agent Registration Link</div>
+            <a id="txtAgentRegLink" href="#" target="_blank"
+              class="mt-2 block text-sm text-white/85 underline underline-offset-4 break-all">—</a>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button id="copyAgentRegLink"
+              class="px-4 py-3 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition font-semibold">
+              Copy Link
+            </button>
+            <a id="btnOpenAgentRegLink" href="#" target="_blank"
+              class="inline-flex justify-center items-center px-4 py-3 rounded-xl font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+              Open
+            </a>
+            <button id="btnShareAgentRegWA"
+              class="px-4 py-3 rounded-xl font-semibold soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
+              Share WhatsApp
+            </button>
+          </div>
+
+          <div class="mt-3 text-[11px] text-white/45">
+            This link will look like: <span class="text-white/70">agent-auth.html?ref=MA897</span>
           </div>
         </div>
 
@@ -197,9 +222,9 @@
           </p>
 
           <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <a id="btnSubmitPurchase" href="agent-upload.html"
+            <a id="btnSubmitPurchase" href="agent-dashboard.html"
               class="inline-flex justify-center items-center px-4 py-3 rounded-xl font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-              Open Submission Page
+              Open Agent Submission Page
             </a>
 
             <button id="btnShareSubmitLink"
@@ -209,8 +234,7 @@
           </div>
 
           <div class="mt-3 text-[11px] text-white/45">
-            If your real submission page filename is different, change it in the code:
-            <span class="text-white/70">agent-upload.html</span>
+            Agents will submit purchases inside <span class="text-white/70">agent-dashboard.html</span>.
           </div>
         </div>
 
@@ -292,7 +316,7 @@
               <li>• Share your special landing link</li>
               <li>• Customer opens the link (URL has ?ref=XXXX)</li>
               <li>• Landing page loads your checkout</li>
-              <li>• You submit proof to Admin for payout</li>
+              <li>• Your Agent submits proof to Admin for payout</li>
             </ul>
           </div>
 
@@ -340,13 +364,19 @@
     }
 
     // ---- Config ----
-    const SITE_BASE = window.location.origin + "/";     // no hardcoded domain
-    const LANDING_PATH = "master-agent-landing.html";   // your landing page
-    const LOGIN_PAGE = "master-agent-auth.html";        // IMPORTANT: your MA auth page
-    const SUBMIT_PAGE = "agent-upload.html";            // your submission page
+    const SITE_BASE = window.location.origin + "/";
+    const LANDING_PATH = "master-agent-landing.html";
+    const LOGIN_PAGE = "master-agent-auth.html";
+
+    // ✅ NEW pages for Agents
+    const AGENT_AUTH_PAGE = "agent-auth.html";
+    const AGENT_DASHBOARD_PAGE = "agent-dashboard.html";
 
     function buildReferralLink(maCode) {
       return SITE_BASE + LANDING_PATH + "?ref=" + encodeURIComponent(maCode || "");
+    }
+    function buildAgentRegLink(maCode) {
+      return SITE_BASE + AGENT_AUTH_PAGE + "?ref=" + encodeURIComponent(maCode || "");
     }
 
     function copyToClipboard(text) {
@@ -387,7 +417,7 @@
     async function getAuthHeader(identity) {
       const u = identity.currentUser();
       if (!u) return {};
-      const token = await u.jwt(); // BEST way for Authorization header
+      const token = await u.jwt();
       return { "Authorization": "Bearer " + token };
     }
 
@@ -429,7 +459,6 @@
     function resolveBankAccountToSave() {
       const val = ($("bank_account").value || "").trim();
       if (!val) return "";
-      // If user didn't retype and it’s masked, keep previous real value
       if (val.includes("*")) return lastRealBankAccount || "";
       return val;
     }
@@ -438,7 +467,7 @@
       const auth = await getAuthHeader(identity);
 
       const payload = {
-        ma_code: ($("txtMACode").textContent || "").trim(), // ✅ ADD THIS
+        ma_code: ($("txtMACode").textContent || "").trim(),
         full_name: ($("full_name").value || "").trim(),
         whatsapp: ($("whatsapp").value || "").trim(),
         bank_name: ($("bank_name").value || "").trim(),
@@ -460,7 +489,6 @@
         throw new Error(out.error || "Failed to save payout details.");
       }
 
-      // refresh masked display locally
       lastRealBankAccount = payload.bank_account_number;
       $("bank_account").value = lastRealBankAccount ? maskAccount(lastRealBankAccount) : "";
     }
@@ -501,6 +529,12 @@
       $("txtLink").href = referralLink;
       $("btnOpenLink").href = referralLink;
 
+      // ✅ NEW: agent registration link
+      const agentRegLink = buildAgentRegLink(maCode);
+      $("txtAgentRegLink").textContent = agentRegLink;
+      $("txtAgentRegLink").href = agentRegLink;
+      $("btnOpenAgentRegLink").href = agentRegLink;
+
       // fill form fields (non-sensitive)
       $("full_name").value = meta.full_name || "";
       $("whatsapp").value = meta.whatsapp || "";
@@ -519,8 +553,19 @@
         openWhatsAppWithText(text);
       };
 
+      // ✅ NEW buttons
+      $("copyAgentRegLink").onclick = () => copyToClipboard(agentRegLink);
+      $("btnShareAgentRegWA").onclick = () => {
+        const text =
+          "Hi! Please register as my QariLive Agent using this link:\n" +
+          agentRegLink + "\n\n" +
+          "After registration, you can submit customer purchases for verification.";
+        openWhatsAppWithText(text);
+      };
+
+      // share submission link (agent dashboard)
       $("btnShareSubmitLink").onclick = () => {
-        openWhatsAppWithText("Submit customer purchase here:\n" + (SITE_BASE + SUBMIT_PAGE));
+        openWhatsAppWithText("Agent submission page:\n" + (SITE_BASE + AGENT_DASHBOARD_PAGE));
       };
 
       return user;
@@ -548,20 +593,17 @@
         btn.textContent = "Saving...";
 
         try {
-          // 1) safe metadata
           await saveUserMetadata(identity, {
             role: "master_agent",
             full_name: ($("full_name").value || "").trim(),
             whatsapp: ($("whatsapp").value || "").trim(),
           });
 
-          // 2) bank details (secure function -> DB)
           await savePayoutDetails(identity);
 
           showAlert("Profile & payout details saved.");
           setTimeout(hideAlert, 1200);
 
-          // refresh top welcome name
           const u = identity.currentUser();
           const m = u?.user_metadata || {};
           $("txtName").textContent = m.full_name || $("txtName").textContent;
