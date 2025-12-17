@@ -1,112 +1,94 @@
 // netlify/functions/ma-agent-list.js
-
-exports.handler = async (event, context) => {
-  try {
-    // ✅ Must be logged-in via Netlify Identity (Authorization: Bearer <jwt>)
-    const authedUser = context?.clientContext?.user;
-    if (!authedUser) {
-      return json(401, { ok: false, error: "Unauthorized. Please login." });
-    }
-
-    const meta = authedUser.user_metadata || {};
-    const role = String(meta.role || "").toLowerCase();
-    const myMaCode = String(meta.ma_code || "").trim().toUpperCase();
-
-    if (role !== "master_agent") {
-      return json(403, { ok: false, error: "Forbidden. Only master_agent can access this." });
-    }
-
-    const maCode = String(event.queryStringParameters?.ma_code || "")
-      .trim()
-      .toUpperCase();
-
-    if (!maCode) {
-      return json(400, { ok: false, error: "Missing ma_code. Example: ?ma_code=MA897" });
-    }
-
-    // ✅ Only allow MA to fetch their own agents
-    if (!myMaCode || myMaCode !== maCode) {
-      return json(403, { ok: false, error: "Forbidden. ma_code does not match your account." });
-    }
-
-    const SITE_ID = process.env.NETLIFY_SITE_ID;
-    const TOKEN = process.env.NETLIFY_IDENTITY_TOKEN;
-
-    if (!SITE_ID || !TOKEN) {
-      return json(500, {
-        ok: false,
-        error: "Missing NETLIFY_SITE_ID or NETLIFY_IDENTITY_TOKEN in environment variables."
-      });
-    }
-
-    // Pull users from Netlify Identity Admin API (pagination supported)
-    let page = 1;
-    const perPage = 1000;
-    const agents = [];
-
-    while (true) {
-      const url = `https://api.netlify.com/api/v1/sites/${SITE_ID}/identity/users?page=${page}&per_page=${perPage}`;
-
-      const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${TOKEN}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (!res.ok) {
-        const t = await res.text().catch(() => "");
-        return json(res.status, {
-          ok: false,
-          error: "Failed to fetch Identity users from Netlify API.",
-          details: t.slice(0, 500)
-        });
-      }
-
-      const users = await res.json();
-      if (!Array.isArray(users) || users.length === 0) break;
-
-      for (const u of users) {
-        const um = u?.user_metadata || {};
-        const uRole = String(um.role || "").toLowerCase();
-
-        // ✅ IMPORTANT: We count Agents by:
-        // role === "agent" AND ma_ref === MA_CODE
-        const maRef = String(um.ma_ref || um.parent_ma_code || "")
-          .trim()
-          .toUpperCase();
-
-        if (uRole === "agent" && maRef === maCode) {
-          agents.push({
-            id: u.id,
-            email: u.email || "",
-            full_name: um.full_name || "",
-            whatsapp: um.whatsapp || "",
-            ma_ref: maRef,
-            created_at: u.created_at || "",
-            last_login: u.last_login || ""
-          });
-        }
-      }
-
-      if (users.length < perPage) break;
-      page++;
-    }
-
-    // sort by newest first
-    agents.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
-
-    return json(200, { ok: true, ma_code: maCode, count: agents.length, agents });
-
-  } catch (err) {
-    return json(500, { ok: false, error: err?.message || "Server error" });
-  }
-};
+// Lists Netlify Identity users by reading GoTrue admin API from function context.
+// Requires caller to be logged in (Authorization: Bearer <user_jwt>).
 
 function json(statusCode, body) {
   return {
     statusCode,
-    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
-    body: JSON.stringify(body)
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   };
 }
+
+exports.handler = async (event, context) => {
+  try {
+    // 1) Must be authenticated (user JWT is validated by Netlify)
+    const user = context?.clientContext?.user;
+    if (!user) return json(401, { ok: false, error: "Unauthorized. Please login." });
+
+    // 2) Identity admin info provided by Netlify runtime (GoTrue)
+    const identity = context?.clientContext?.identity;
+    if (!identity?.url || !identity?.token) {
+      return json(500, {
+        ok: false,
+        error:
+          "Identity admin token not available in function context. Ensure Netlify Identity is enabled for this site.",
+      });
+    }
+
+    // 3) Query param
+    const maCode = (event.queryStringParameters?.ma_code || "").trim().toUpperCase();
+    if (!maCode) return json(400, { ok: false, error: "Missing ma_code." });
+
+    // 4) Fetch users from GoTrue admin API (paginate)
+    const perPage = 100; // GoTrue commonly supports up to 100; safe value
+    let page = 1;
+    let all = [];
+
+    while (true) {
+      const url = `${identity.url}/admin/users?page=${page}&per_page=${perPage}`;
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${identity.token}`, // <-- admin token
+          Accept: "application/json",
+        },
+      });
+
+      const text = await res.text();
+      if (!res.ok) {
+        return json(500, {
+          ok: false,
+          error: "Failed to fetch users from GoTrue admin API.",
+          details: text,
+          status: res.status,
+        });
+      }
+
+      const users = JSON.parse(text);
+      if (!Array.isArray(users) || users.length === 0) break;
+
+      all.push(...users);
+      if (users.length < perPage) break; // last page
+      page += 1;
+
+      // safety limit (avoid infinite loop)
+      if (page > 50) break;
+    }
+
+    // 5) Filter to only your Agents
+    const agents = all
+      .map((u) => {
+        const meta = u.user_metadata || {};
+        const role = String(meta.role || "").toLowerCase().trim();
+        const maRef = String(meta.ma_ref || meta.parent_ma_code || "").toUpperCase().trim();
+
+        if (role !== "agent") return null;
+        if (maRef !== maCode) return null;
+
+        return {
+          id: u.id,
+          email: u.email || "",
+          full_name: meta.full_name || "",
+          whatsapp: meta.whatsapp || "",
+          created_at: u.created_at || null,
+          last_login: u.last_login || null,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    return json(200, { ok: true, count: agents.length, agents });
+  } catch (e) {
+    return json(500, { ok: false, error: "Server error", message: e?.message || String(e) });
+  }
+};
