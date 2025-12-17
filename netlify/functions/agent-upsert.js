@@ -13,36 +13,31 @@ function json(statusCode, body) {
   };
 }
 
-function getIdentity(event) {
+function getUserId(event) {
   const auth = event.headers.authorization || event.headers.Authorization || "";
   const token = auth.replace("Bearer ", "").trim();
   if (!token) return null;
   const decoded = jwt.decode(token);
-  if (!decoded?.sub) return null;
-  return { user_id: decoded.sub };
+  return decoded?.sub || null;
 }
 
 export async function handler(event) {
   try {
-    if (event.httpMethod !== "POST") {
-      return json(405, { ok: false, error: "Method not allowed" });
-    }
+    if (event.httpMethod !== "POST") return json(405, { ok: false, error: "Method not allowed" });
 
-    const ident = getIdentity(event);
-    if (!ident) return json(401, { ok: false, error: "Unauthorized" });
+    const user_id = getUserId(event);
+    if (!user_id) return json(401, { ok: false, error: "Unauthorized" });
 
     const body = JSON.parse(event.body || "{}");
-
     const ma_code = String(body.ma_code || "").trim().toUpperCase();
+    if (!ma_code) return json(400, { ok: false, error: "Missing ma_code" });
+
     const full_name = String(body.full_name || "").trim();
     const whatsapp = String(body.whatsapp || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
 
-    if (!ma_code) return json(400, { ok: false, error: "Missing ma_code" });
-
     const sql = neon();
 
-    // Ensure table exists (optional, remove if you already created it)
     await sql`
       CREATE TABLE IF NOT EXISTS public.agents (
         user_id TEXT PRIMARY KEY,
@@ -57,7 +52,7 @@ export async function handler(event) {
 
     await sql`
       INSERT INTO public.agents (user_id, ma_code, full_name, whatsapp, email, last_login)
-      VALUES (${ident.user_id}, ${ma_code}, ${full_name}, ${whatsapp}, ${email}, NOW())
+      VALUES (${user_id}, ${ma_code}, ${full_name}, ${whatsapp}, ${email}, NOW())
       ON CONFLICT (user_id)
       DO UPDATE SET
         ma_code = EXCLUDED.ma_code,
