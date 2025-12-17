@@ -15,37 +15,34 @@ function json(statusCode, body) {
 
 function getUserId(event) {
   const auth = event.headers.authorization || event.headers.Authorization || "";
-  const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  const token = auth.replace("Bearer ", "").trim();
   if (!token) return null;
-
-  // Netlify Identity JWT is signed with "JWT_SECRET" in functions env
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = jwt.decode(token);
   return decoded?.sub || null;
 }
 
 export async function handler(event) {
   try {
+    // Must be logged in
     const userId = getUserId(event);
     if (!userId) return json(401, { ok: false, error: "Unauthorized" });
 
     const maCode = (event.queryStringParameters?.ma_code || "").trim().toUpperCase();
-    if (!maCode) return json(400, { ok: false, error: "Missing ma_code." });
+    if (!maCode) return json(400, { ok: false, error: "Missing ma_code" });
 
-    const sql = neon(); // uses NETLIFY_DATABASE_URL / DATABASE_URL automatically on Netlify
+    const sql = neon();
+
     const rows = await sql`
-      SELECT agent_user_id, email, full_name, whatsapp, ma_code, created_at, last_login
-      FROM agents
+      SELECT full_name, whatsapp, email, created_at, last_login
+      FROM public.agents
       WHERE ma_code = ${maCode}
-      ORDER BY created_at DESC;
+      ORDER BY created_at DESC
+      LIMIT 200;
     `;
 
-    return json(200, {
-      ok: true,
-      count: rows.length,
-      agents: rows,
-    });
-  } catch (e) {
-    console.error("ma-agent-list error:", e);
-    return json(500, { ok: false, error: "Failed to load agents list." });
+    return json(200, { ok: true, count: rows.length, agents: rows });
+  } catch (err) {
+    console.error("ma-agent-list error:", err);
+    return json(500, { ok: false, error: err?.message || "Server error" });
   }
 }
