@@ -6,9 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Master Agent Dashboard | QariLive</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Netlify Identity Widget -->
@@ -18,47 +16,24 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            gold: '#c9a14a',
-            'gold-soft': '#f5e6b3',
-            blackish: '#050505',
-            darkish: '#0b0b0b'
-          },
-          fontFamily: {
-            inter: ['Inter', 'sans-serif'],
-            playfair: ['Playfair Display', 'serif']
-          },
-          boxShadow: {
-            goldGlow: '0 0 34px rgba(201,161,74,.22)'
-          }
+          colors: { gold:'#c9a14a', 'gold-soft':'#f5e6b3', blackish:'#050505', darkish:'#0b0b0b' },
+          fontFamily: { inter:['Inter','sans-serif'], playfair:['Playfair Display','serif'] },
+          boxShadow: { goldGlow: '0 0 34px rgba(201,161,74,.22)' }
         }
       }
     }
   </script>
 
   <style>
-    body {
+    body{
       background:
-        radial-gradient(900px 420px at 15% 0%, rgba(201, 161, 74, .18), transparent 55%),
-        radial-gradient(900px 520px at 85% 10%, rgba(245, 230, 179, .10), transparent 60%),
+        radial-gradient(900px 420px at 15% 0%, rgba(201,161,74,.18), transparent 55%),
+        radial-gradient(900px 520px at 85% 10%, rgba(245,230,179,.10), transparent 60%),
         radial-gradient(circle at top, #121212, #000 70%);
     }
-
-    .glass {
-      background: rgba(0, 0, 0, .38);
-      border: 1px solid rgba(201, 161, 74, .16);
-      backdrop-filter: blur(10px);
-    }
-
-    .soft-border {
-      border: 1px solid rgba(255, 255, 255, .10);
-    }
-
-    .focus-gold:focus {
-      outline: none;
-      border-color: rgba(201, 161, 74, .65);
-      box-shadow: 0 0 0 4px rgba(201, 161, 74, .12);
-    }
+    .glass{ background: rgba(0,0,0,.38); border: 1px solid rgba(201,161,74,.16); backdrop-filter: blur(10px); }
+    .soft-border{ border: 1px solid rgba(255,255,255,.10); }
+    .focus-gold:focus{ outline:none; border-color: rgba(201,161,74,.65); box-shadow: 0 0 0 4px rgba(201,161,74,.12); }
   </style>
 </head>
 
@@ -69,8 +44,7 @@
     <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
       <div class="flex items-center justify-between gap-3">
         <a href="index.html" class="flex items-center gap-3 min-w-0 no-underline">
-          <div
-            class="w-9 h-9 rounded-xl bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] grid place-items-center shadow-goldGlow">
+          <div class="w-9 h-9 rounded-xl bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] grid place-items-center shadow-goldGlow">
             <span class="font-playfair text-black text-sm">Q</span>
           </div>
           <div class="min-w-0">
@@ -156,9 +130,7 @@
           <div class="glass rounded-2xl p-5">
             <div class="text-[11px] text-white/45 uppercase tracking-wider">Special Landing Page Link</div>
             <a id="txtLink" href="#" target="_blank"
-              class="mt-2 block text-sm text-white/85 underline underline-offset-4 break-all">
-              —
-            </a>
+              class="mt-2 block text-sm text-white/85 underline underline-offset-4 break-all">—</a>
 
             <div class="mt-4 grid grid-cols-2 gap-3">
               <button id="copyLink"
@@ -181,45 +153,7 @@
           </div>
         </div>
 
-        <!-- ✅ AGENT ANALYTICS (THIS MASTER AGENT ONLY) -->
-        <div class="glass rounded-2xl p-6">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <h2 class="font-playfair text-gold-soft text-2xl">Agent Analytics</h2>
-              <p class="mt-1 text-sm text-white/60">
-                Total Agents registered under your Master Agent code.
-              </p>
-            </div>
-            <button id="btnRefreshAgentStats"
-              class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm">
-              Refresh
-            </button>
-          </div>
-
-          <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="rounded-2xl soft-border bg-black/20 p-4">
-              <div class="text-[11px] text-white/45 uppercase tracking-wider">Your REF</div>
-              <div id="statMyRef" class="mt-2 text-xl font-semibold text-gold-soft">—</div>
-            </div>
-
-            <div class="rounded-2xl soft-border bg-black/20 p-4">
-              <div class="text-[11px] text-white/45 uppercase tracking-wider">Agents Under You</div>
-              <div id="statAgentsUnderMe" class="mt-2 text-2xl font-semibold text-white/90">—</div>
-            </div>
-
-            <div class="rounded-2xl soft-border bg-black/20 p-4">
-              <div class="text-[11px] text-white/45 uppercase tracking-wider">Status</div>
-              <div id="statAgentStatus" class="mt-2 text-sm text-white/70">—</div>
-            </div>
-          </div>
-
-          <div class="mt-3 text-[11px] text-white/45">
-            This counts Identity users with role <span class="text-white/70">agent</span> and
-            <span class="text-white/70">parent_ma_code</span> = your REF.
-          </div>
-        </div>
-
-        <!-- ✅ NEW: AGENT REGISTRATION LINK (UNDER THIS MASTER AGENT) -->
+        <!-- AGENT REGISTRATION LINK -->
         <div class="glass rounded-2xl p-6">
           <h2 class="font-playfair text-gold-soft text-2xl">Recruit Agents Under You</h2>
           <p class="mt-1 text-sm text-white/60">
@@ -249,6 +183,54 @@
 
           <div class="mt-3 text-[11px] text-white/45">
             This link will look like: <span class="text-white/70">agent-auth.html?ref=MA897</span>
+          </div>
+        </div>
+
+        <!-- ✅ NEW: AGENTS ANALYTICS + TABLE -->
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h2 class="font-playfair text-gold-soft text-2xl">Agents Under You</h2>
+              <p class="mt-1 text-sm text-white/60">
+                This list comes from Netlify Identity metadata. (Agents must have <span class="text-white/80">role=agent</span> and <span class="text-white/80">ma_ref=YOUR_MA_CODE</span>.)
+              </p>
+            </div>
+
+            <div class="text-right">
+              <div class="text-[11px] text-white/45 uppercase tracking-wider">Total Agents</div>
+              <div id="txtAgentCount" class="mt-1 text-2xl font-semibold text-gold-soft">—</div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button id="btnRefreshAgents"
+              class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+              Refresh List
+            </button>
+            <div id="txtAgentsStatus" class="text-sm text-white/55 self-center">—</div>
+          </div>
+
+          <div class="mt-4 overflow-x-auto">
+            <table class="min-w-full text-sm soft-border rounded-xl overflow-hidden">
+              <thead class="bg-black/30">
+                <tr class="text-left">
+                  <th class="px-4 py-3 text-white/70 font-semibold">Full Name</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">WhatsApp</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Email</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Joined</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Last Login</th>
+                </tr>
+              </thead>
+              <tbody id="tblAgents" class="divide-y divide-white/10 bg-black/15">
+                <tr>
+                  <td class="px-4 py-4 text-white/60" colspan="5">No data yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-3 text-[11px] text-white/45">
+            If list is empty but you know agents exist, your agent registration page may not be saving <span class="text-white/70">ma_ref</span>. (I can fix that after you paste agent-auth.html.)
           </div>
         </div>
 
@@ -295,7 +277,6 @@
           </div>
 
           <form id="profileForm" class="mt-6 space-y-5">
-
             <div>
               <label class="text-xs text-white/60">Full Name</label>
               <input id="full_name"
@@ -376,22 +357,18 @@
 
     // ---- UI Alerts ----
     const alertBox = $("alertBox");
-    function showAlert(msg, type = "info") {
+    function showAlert(msg, type="info"){
       alertBox.classList.remove("hidden");
       alertBox.textContent = msg;
-      alertBox.classList.remove("border-red-500/25", "bg-red-500/10", "border-gold/20", "bg-black/30");
-      if (type === "error") {
-        alertBox.classList.add("border-red-500/25", "bg-red-500/10");
-      } else {
-        alertBox.classList.add("border-gold/20", "bg-black/30");
-      }
+      alertBox.classList.remove("border-red-500/25","bg-red-500/10","border-gold/20","bg-black/30");
+      if(type === "error") alertBox.classList.add("border-red-500/25","bg-red-500/10");
+      else alertBox.classList.add("border-gold/20","bg-black/30");
     }
-    function hideAlert() { alertBox.classList.add("hidden"); alertBox.textContent = ""; }
-
-    function safeRedirect(url) { window.location.href = url; }
+    function hideAlert(){ alertBox.classList.add("hidden"); alertBox.textContent=""; }
+    function safeRedirect(url){ window.location.href = url; }
 
     // ---- Identity Helper ----
-    function waitForIdentity() {
+    function waitForIdentity(){
       return new Promise((resolve) => {
         const tick = () => {
           if (window.netlifyIdentity) return resolve(window.netlifyIdentity);
@@ -406,44 +383,42 @@
     const LANDING_PATH = "master-agent-landing.html";
     const LOGIN_PAGE = "master-agent-auth.html";
 
-    // ✅ NEW pages for Agents
     const AGENT_AUTH_PAGE = "agent-auth.html";
     const AGENT_DASHBOARD_PAGE = "agent-dashboard.html";
 
-    function buildReferralLink(maCode) {
+    function buildReferralLink(maCode){
       return SITE_BASE + LANDING_PATH + "?ref=" + encodeURIComponent(maCode || "");
     }
-    function buildAgentRegLink(maCode) {
+    function buildAgentRegLink(maCode){
       return SITE_BASE + AGENT_AUTH_PAGE + "?ref=" + encodeURIComponent(maCode || "");
     }
 
-    function copyToClipboard(text) {
-      if (!text) return;
+    function copyToClipboard(text){
+      if(!text) return;
       navigator.clipboard.writeText(text).then(() => {
         showAlert("Copied to clipboard.");
         setTimeout(hideAlert, 1200);
       }).catch(() => showAlert("Copy failed. Please copy manually.", "error"));
     }
-
-    function openWhatsAppWithText(text) {
+    function openWhatsAppWithText(text){
       window.open("https://wa.me/?text=" + encodeURIComponent(text || ""), "_blank");
     }
 
     // ---- MA Code generation (only used if missing) ----
-    function makeMACode() {
+    function makeMACode(){
       const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
       const t = Date.now().toString().slice(-4);
       return `MA${t}${rand}`;
     }
 
-    async function ensureMACode(identity) {
+    async function ensureMACode(identity){
       let u = identity.currentUser();
-      if (!u) return null;
+      if(!u) return null;
 
       const meta = u.user_metadata || {};
       let maCode = (meta.ma_code || "").toUpperCase().trim();
 
-      if (!maCode) {
+      if(!maCode){
         maCode = makeMACode();
         await u.update({ data: { ...meta, role: meta.role || "master_agent", ma_code: maCode } });
         u = identity.currentUser();
@@ -452,9 +427,9 @@
     }
 
     // ---- Auth header for Netlify Functions ----
-    async function getAuthHeader(identity) {
+    async function getAuthHeader(identity){
       const u = identity.currentUser();
-      if (!u) return {};
+      if(!u) return {};
       const token = await u.jwt();
       return { "Authorization": "Bearer " + token };
     }
@@ -462,46 +437,39 @@
     // ---- Secure payout: load/save via functions ----
     let lastRealBankAccount = "";
 
-    function maskAccount(acc) {
-      if (!acc) return "";
+    function maskAccount(acc){
+      if(!acc) return "";
       const s = String(acc);
-      if (s.length <= 4) return "****";
+      if(s.length <= 4) return "****";
       return "**** **** " + s.slice(-4);
     }
 
-    async function loadPayoutDetails(identity) {
-      try {
+    async function loadPayoutDetails(identity){
+      try{
         const auth = await getAuthHeader(identity);
-
-        const res = await fetch("/.netlify/functions/ma-payout-get", {
-          method: "GET",
-          headers: { ...auth }
-        });
-
+        const res = await fetch("/.netlify/functions/ma-payout-get", { method:"GET", headers:{ ...auth } });
         const out = await res.json().catch(() => ({}));
-        if (!res.ok) return;
+        if(!res.ok) return;
 
         const data = out.data || null;
-        if (!data) return;
+        if(!data) return;
 
         $("bank_name").value = data.bank_name || "";
         $("bank_holder").value = data.bank_account_name || "";
 
         lastRealBankAccount = data.bank_account_number || "";
         $("bank_account").value = lastRealBankAccount ? maskAccount(lastRealBankAccount) : "";
-      } catch (e) {
-        console.error(e);
-      }
+      }catch(e){ console.error(e); }
     }
 
-    function resolveBankAccountToSave() {
+    function resolveBankAccountToSave(){
       const val = ($("bank_account").value || "").trim();
-      if (!val) return "";
-      if (val.includes("*")) return lastRealBankAccount || "";
+      if(!val) return "";
+      if(val.includes("*")) return lastRealBankAccount || "";
       return val;
     }
 
-    async function savePayoutDetails(identity) {
+    async function savePayoutDetails(identity){
       const auth = await getAuthHeader(identity);
 
       const payload = {
@@ -514,64 +482,98 @@
       };
 
       const res = await fetch("/.netlify/functions/ma-payout-set", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...auth
-        },
+        method:"POST",
+        headers:{ "Content-Type":"application/json", ...auth },
         body: JSON.stringify(payload)
       });
 
       const out = await res.json().catch(() => ({}));
-      if (!res.ok || !out.ok) {
-        throw new Error(out.error || "Failed to save payout details.");
-      }
+      if(!res.ok || !out.ok) throw new Error(out.error || "Failed to save payout details.");
 
       lastRealBankAccount = payload.bank_account_number;
       $("bank_account").value = lastRealBankAccount ? maskAccount(lastRealBankAccount) : "";
     }
 
-    // ✅ NEW: Load agent count under this MA (server-side via Netlify function)
-    async function loadAgentCountForThisMA(identity, maCode) {
-      try {
-        $("statMyRef").textContent = maCode || "—";
-        $("statAgentStatus").textContent = "Loading...";
+    // ---- Identity metadata save (non-sensitive only) ----
+    async function saveUserMetadata(identity, patch){
+      const u = identity.currentUser();
+      if(!u){ safeRedirect(LOGIN_PAGE); return; }
+      const currentMeta = u.user_metadata || {};
+      await u.update({ data: { ...currentMeta, ...patch } });
+    }
+
+    // ---- ✅ NEW: Load Agents List from Function ----
+    function fmtDate(iso){
+      if(!iso) return "—";
+      try{
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleString();
+      } catch { return "—"; }
+    }
+
+    function setAgentsStatus(text){ $("txtAgentsStatus").textContent = text || "—"; }
+
+    function renderAgentsTable(agents){
+      const tbody = $("tblAgents");
+      if(!Array.isArray(agents) || agents.length === 0){
+        tbody.innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="5">No agents registered yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = agents.map(a => `
+        <tr>
+          <td class="px-4 py-3 text-white/85">${escapeHtml(a.full_name || "—")}</td>
+          <td class="px-4 py-3 text-white/75">${escapeHtml(a.whatsapp || "—")}</td>
+          <td class="px-4 py-3 text-white/75">${escapeHtml(a.email || "—")}</td>
+          <td class="px-4 py-3 text-white/60">${escapeHtml(fmtDate(a.created_at))}</td>
+          <td class="px-4 py-3 text-white/60">${escapeHtml(fmtDate(a.last_login))}</td>
+        </tr>
+      `).join("");
+    }
+
+    function escapeHtml(s){
+      return String(s || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    async function loadAgents(identity, maCode){
+      try{
+        setAgentsStatus("Loading agents...");
+        $("txtAgentCount").textContent = "—";
+        renderAgentsTable([]);
 
         const auth = await getAuthHeader(identity);
 
-        const res = await fetch("/.netlify/functions/ma-agent-count?ma_code=" + encodeURIComponent(maCode || ""), {
+        const res = await fetch("/.netlify/functions/ma-agent-list?ma_code=" + encodeURIComponent(maCode), {
           method: "GET",
           headers: { ...auth }
         });
 
         const out = await res.json().catch(() => ({}));
-        if (!res.ok || !out.ok) throw new Error(out.error || "Failed to load agent stats.");
+        if(!res.ok || !out.ok){
+          throw new Error(out.error || "Failed to load agents list.");
+        }
 
-        $("statAgentsUnderMe").textContent = String(out.count ?? 0);
-        $("statAgentStatus").textContent = "Updated just now";
-      } catch (e) {
+        $("txtAgentCount").textContent = String(out.count ?? 0);
+        renderAgentsTable(out.agents || []);
+        setAgentsStatus("Updated: " + new Date().toLocaleTimeString());
+      } catch (e){
         console.error(e);
-        $("statAgentsUnderMe").textContent = "—";
-        $("statAgentStatus").textContent = "Error";
+        setAgentsStatus("Failed to load agents.");
+        showAlert(e?.message || "Failed to load agents list.", "error");
       }
     }
 
-    // ---- Identity metadata save (non-sensitive only) ----
-    async function saveUserMetadata(identity, patch) {
-      const u = identity.currentUser();
-      if (!u) { safeRedirect(LOGIN_PAGE); return; }
-      const currentMeta = u.user_metadata || {};
-      await u.update({ data: { ...currentMeta, ...patch } });
-    }
-
-    async function loadUser(identity) {
+    async function loadUser(identity){
       identity.init();
 
       let user = identity.currentUser();
-      if (!user) {
-        safeRedirect(LOGIN_PAGE);
-        return null;
-      }
+      if(!user){ safeRedirect(LOGIN_PAGE); return null; }
 
       const maCode = await ensureMACode(identity);
       user = identity.currentUser();
@@ -592,21 +594,18 @@
       $("txtLink").href = referralLink;
       $("btnOpenLink").href = referralLink;
 
-      // ✅ agent registration link
+      // agent registration link
       const agentRegLink = buildAgentRegLink(maCode);
       $("txtAgentRegLink").textContent = agentRegLink;
       $("txtAgentRegLink").href = agentRegLink;
       $("btnOpenAgentRegLink").href = agentRegLink;
 
-      // fill form fields (non-sensitive)
+      // fill form fields
       $("full_name").value = meta.full_name || "";
       $("whatsapp").value = meta.whatsapp || "";
 
       // payout details (secure)
       await loadPayoutDetails(identity);
-
-      // ✅ load analytics (agent count)
-      await loadAgentCountForThisMA(identity, maCode);
 
       // buttons
       $("copyCode").onclick = () => copyToClipboard(maCode);
@@ -628,34 +627,29 @@
         openWhatsAppWithText(text);
       };
 
-      // share submission link (agent dashboard)
       $("btnShareSubmitLink").onclick = () => {
         openWhatsAppWithText("Agent submission page:\n" + (SITE_BASE + AGENT_DASHBOARD_PAGE));
       };
 
-      // refresh agent stats button
-      $("btnRefreshAgentStats").onclick = async () => {
-        hideAlert();
-        await loadAgentCountForThisMA(identity, maCode);
-        showAlert("Agent stats refreshed.");
-        setTimeout(hideAlert, 1000);
-      };
+      // ✅ load agents now
+      await loadAgents(identity, maCode);
+
+      // ✅ refresh button
+      $("btnRefreshAgents").onclick = () => loadAgents(identity, maCode);
 
       return user;
     }
 
-    async function main() {
+    async function main(){
       const identity = await waitForIdentity();
       const user = await loadUser(identity);
-      if (!user) return;
+      if(!user) return;
 
-      // Logout
       $("btnLogout").addEventListener("click", async () => {
-        try { await identity.logout(); }
-        finally { safeRedirect(LOGIN_PAGE); }
+        try{ await identity.logout(); }
+        finally{ safeRedirect(LOGIN_PAGE); }
       });
 
-      // Save Profile + Payout
       $("profileForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlert();
@@ -665,7 +659,7 @@
         btn.disabled = true;
         btn.textContent = "Saving...";
 
-        try {
+        try{
           await saveUserMetadata(identity, {
             role: "master_agent",
             full_name: ($("full_name").value || "").trim(),
@@ -681,7 +675,7 @@
           const m = u?.user_metadata || {};
           $("txtName").textContent = m.full_name || $("txtName").textContent;
 
-        } catch (err) {
+        } catch (err){
           console.error(err);
           showAlert(err?.message || "Save failed.", "error");
         } finally {
@@ -694,5 +688,4 @@
     main();
   </script>
 </body>
-
 </html>
