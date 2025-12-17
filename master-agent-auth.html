@@ -6,9 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Master Agent | Register / Login</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Netlify Identity Widget -->
@@ -27,15 +25,12 @@
   </script>
 
   <style>
-    body {
-      background: radial-gradient(circle at top, #121212, #000 70%);
-    }
+    body { background: radial-gradient(circle at top, #121212, #000 70%); }
   </style>
 </head>
 
 <body class="m-0 font-inter text-white/90 min-h-screen flex flex-col">
 
-  <!-- Top bar -->
   <header class="sticky top-0 z-50 backdrop-blur bg-black/55 border-b border-gold/15">
     <div class="px-[6%] md:px-[8%] py-3 flex items-center justify-between gap-3">
       <a href="index.html" class="no-underline flex items-center gap-2 min-w-0">
@@ -53,7 +48,6 @@
   <main class="flex-1 px-[6%] md:px-[8%] py-10 md:py-12">
     <div class="max-w-[980px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- Left info -->
       <section class="lg:col-span-5 rounded-2xl border border-gold/15 bg-black/30 p-6">
         <div
           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-black/30 shadow-[0_0_18px_rgba(201,161,74,.10)]">
@@ -85,31 +79,26 @@
         </div>
       </section>
 
-      <!-- Auth card -->
       <section
         class="lg:col-span-7 rounded-2xl border border-gold/15 bg-[linear-gradient(180deg,#101010,#060606)] shadow-[0_0_25px_rgba(0,0,0,.6)] p-6">
         <div class="flex items-center justify-between gap-3">
-          <h2 class="font-playfair text-gold-soft text-[1.6rem]">Master Agent Access</h2>
+          <h2 class="font-playfair text-gold-soft text-[1.6rem]">Access</h2>
           <div class="text-xs text-white/45">Netlify Identity</div>
         </div>
 
-        <!-- Tabs -->
         <div class="mt-5 flex flex-wrap gap-2">
           <button id="tabRegister" type="button"
             class="px-4 py-2 rounded-full border border-gold/35 text-gold-soft bg-black/30 hover:border-gold/60 hover:bg-black/40 transition">
-            Register
+            Register (Master Agent)
           </button>
           <button id="tabLogin" type="button"
             class="px-4 py-2 rounded-full border border-white/10 text-white/80 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
-            Login
+            Login (Any Role)
           </button>
         </div>
 
-        <!-- Alerts -->
-        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80">
-        </div>
+        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
 
-        <!-- Register -->
         <form id="registerForm" class="mt-5 space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -142,7 +131,6 @@
             </div>
           </div>
 
-          <!-- Optional section -->
           <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
             <div class="text-xs uppercase tracking-wider text-white/45">Optional (save later in dashboard)</div>
             <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -168,13 +156,8 @@
             class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
             Create Master Agent Account
           </button>
-
-          <div class="text-xs text-white/45">
-            By registering, you agree to basic verification (Admin may disable accounts that violate policy).
-          </div>
         </form>
 
-        <!-- Login -->
         <form id="loginForm" class="mt-5 space-y-4 hidden">
           <div>
             <label class="text-xs text-white/55">Email</label>
@@ -199,6 +182,7 @@
             Forgot Password
           </button>
         </form>
+
       </section>
 
     </div>
@@ -209,23 +193,13 @@
   </footer>
 
   <script>
-      // remove redirect param if any page/link includes it (prevents widget auto redirect)
-      (() => {
-        const u = new URL(window.location.href);
-        if (u.searchParams.has("redirect")) {
-          u.searchParams.delete("redirect");
-          window.history.replaceState({}, "", u.toString());
-        }
-      })();
-
-    // ---------- Helpers ----------
+    // --- Helpers ---
     const $ = (id) => document.getElementById(id);
 
     const alertBox = $("alertBox");
     function showAlert(msg, type = "info") {
       alertBox.classList.remove("hidden");
       alertBox.textContent = msg;
-
       alertBox.classList.remove("border-red-500/25", "bg-red-500/10", "border-gold/20", "bg-black/30");
       if (type === "error") alertBox.classList.add("border-red-500/25", "bg-red-500/10");
       else alertBox.classList.add("border-gold/20", "bg-black/30");
@@ -240,7 +214,29 @@
 
     function safeRedirect(url) { window.location.href = url; }
 
-    // ---------- Tabs ----------
+    function waitForIdentity() {
+      return new Promise((resolve) => {
+        const tick = () => window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(tick, 50);
+        tick();
+      });
+    }
+
+    // supports BOTH storage shapes (some of your old users may have role inside data.role)
+    function getRole(user) {
+      return (
+        user?.user_metadata?.role ||
+        user?.user_metadata?.data?.role ||
+        ""
+      ).toLowerCase();
+    }
+
+    function routeByRole(user) {
+      const role = getRole(user);
+      if (role === "agent") return safeRedirect("/agent-dashboard.html");
+      return safeRedirect("/master-agent-dashboard.html");
+    }
+
+    // --- Tabs ---
     const tabRegister = $("tabRegister");
     const tabLogin = $("tabLogin");
     const registerForm = $("registerForm");
@@ -263,61 +259,22 @@
     tabRegister.addEventListener("click", () => setTab("register"));
     tabLogin.addEventListener("click", () => setTab("login"));
 
-    // ---------- Netlify Identity ----------
-    function waitForIdentity() {
-      return new Promise((resolve) => {
-        const tick = () => window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(tick, 50);
-        tick();
-      });
-    }
-
-    async function handleIdentityHashTokens() {
-      const identity = await waitForIdentity();
-      identity.init();
-
-      const hash = window.location.hash || "";
-      const hasToken =
-        hash.includes("confirmation_token=") ||
-        hash.includes("recovery_token=") ||
-        hash.includes("invite_token=") ||
-        hash.includes("access_token=");
-
-      if (!hasToken) return false;
-
-      // Let Identity consume token, then go back to login page
-      identity.open();
-      setTimeout(() => {
-        try { identity.close(); } catch { }
-        safeRedirect("master-agent-auth.html");
-      }, 1200);
-
-      return true;
-    }
-
     async function init() {
-      const consumed = await handleIdentityHashTokens();
-      if (consumed) return;
-
       const identity = await waitForIdentity();
       identity.init();
+
+      // whenever identity logs in (widget or manual), route correctly
+      identity.on("login", (user) => routeByRole(user));
 
       const u = identity.currentUser();
-      if (!u) return;
-
-      const role = (u.user_metadata?.role || "").toLowerCase();
-      if (role === "agent") return safeRedirect("agent-dashboard.html");
-      return safeRedirect("master-agent-dashboard.html");
+      if (u) return routeByRole(u);
+      // not logged in: stay on page
     }
 
-    // Register flow
+    // --- Master Agent Register ---
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       hideAlert();
-
-      if (!maRef) {
-        showAlert("Missing MA REF in URL. Please register using the link from your Master Agent.", "error");
-        return;
-      }
 
       try {
         const identity = await waitForIdentity();
@@ -328,27 +285,26 @@
         const email = $("regEmail").value.trim();
         const password = $("regPassword").value;
 
+        const maCode = makeMACode();
+
+        // IMPORTANT: do NOT use {data:{...}} here.
+        // This must be stored directly in user_metadata so your ma-agent-list.js can read it.
         await identity.gotrue.signup(email, password, {
-          data: {
-            role: "agent",
-            full_name: name,
-            whatsapp: whatsapp,
-            ma_code: maRef
-          },
-          confirmationPage: "/confirm.html?role=agent"
+          role: "master_agent",
+          full_name: name,
+          whatsapp: whatsapp,
+          ma_code: maCode
         });
 
-        showAlert("✅ Agent account created. Please verify email, then login.");
+        showAlert(`✅ Master Agent created. Your REF is ${maCode}. Please verify your email, then login.`);
         setTab("login");
-        setTimeout(() => safeRedirect("agent-auth.html?ref=" + encodeURIComponent(maRef)), 900);
 
       } catch (err) {
         showAlert(err?.message || "Registration failed.", "error");
       }
     });
 
-
-    // Login flow (role-based redirect)
+    // --- Login (Any Role) ---
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       hideAlert();
@@ -363,10 +319,7 @@
         await identity.gotrue.login(email, password, true);
 
         const u = identity.currentUser();
-        const role = (u?.user_metadata?.role || "").toLowerCase();
-
-        if (role === "agent") return safeRedirect("agent-dashboard.html");
-        return safeRedirect("master-agent-dashboard.html");
+        routeByRole(u);
 
       } catch (err) {
         showAlert(err?.message || "Login failed.", "error");

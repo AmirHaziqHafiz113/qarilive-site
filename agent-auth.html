@@ -27,9 +27,7 @@
   </script>
 
   <style>
-    body {
-      background: radial-gradient(circle at top, #121212, #000 70%);
-    }
+    body { background: radial-gradient(circle at top, #121212, #000 70%); }
   </style>
 </head>
 
@@ -96,8 +94,7 @@
           </button>
         </div>
 
-        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80">
-        </div>
+        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
 
         <form id="registerForm" class="mt-5 space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -181,7 +178,6 @@
     function showAlert(msg, type = "info") {
       alertBox.classList.remove("hidden");
       alertBox.textContent = msg;
-
       alertBox.classList.remove("border-red-500/25", "bg-red-500/10", "border-gold/20", "bg-black/30");
       if (type === "error") alertBox.classList.add("border-red-500/25", "bg-red-500/10");
       else alertBox.classList.add("border-gold/20", "bg-black/30");
@@ -189,6 +185,20 @@
     function hideAlert() { alertBox.classList.add("hidden"); alertBox.textContent = ""; }
 
     function safeRedirect(url) { window.location.href = url; }
+
+    function getRole(user) {
+      return (
+        user?.user_metadata?.role ||
+        user?.user_metadata?.data?.role ||
+        ""
+      ).toLowerCase();
+    }
+
+    function routeByRole(user) {
+      const role = getRole(user);
+      if (role === "master_agent") return safeRedirect("/master-agent-dashboard.html");
+      return safeRedirect("/agent-dashboard.html"); // default agent
+    }
 
     const tabRegister = $("tabRegister");
     const tabLogin = $("tabLogin");
@@ -219,7 +229,7 @@
       });
     }
 
-    // Token consumption (confirm/recovery/etc.) should return user to login page, NOT dashboards.
+    // If confirm/recovery tokens appear in hash, let Identity process them, then return here (login).
     async function handleIdentityHashTokens() {
       const identity = await waitForIdentity();
       identity.init();
@@ -250,11 +260,8 @@
       identity.init();
 
       const u = identity.currentUser();
-      if (!u) return;
-
-      const role = (u.user_metadata?.role || "").toLowerCase();
-      if (role === "master_agent") return safeRedirect("master-agent-dashboard.html");
-      return safeRedirect("agent-dashboard.html");
+      if (u) return routeByRole(u);
+      // not logged in -> stay on this page
     }
 
     registerForm.addEventListener("submit", async (e) => {
@@ -275,25 +282,21 @@
         const email = $("regEmail").value.trim();
         const password = $("regPassword").value;
 
+        // IMPORTANT: metadata at top-level (NOT inside {data:{...}})
         await identity.gotrue.signup(email, password, {
-          data: {
-            role: "agent",
-            full_name: name,
-            whatsapp: whatsapp,
-            ma_code: maRef
-          },
-          confirmationPage: "/confirm.html?role=agent"
-        });
+          role: "agent",
+          full_name: name,
+          whatsapp,
+          ma_code: maRef
+        }, true);
 
         showAlert("✅ Agent account created. Please verify email, then login.");
         setTab("login");
-        setTimeout(() => safeRedirect("agent-auth.html?ref=" + encodeURIComponent(maRef)), 900);
 
       } catch (err) {
         showAlert(err?.message || "Registration failed.", "error");
       }
     });
-
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -306,13 +309,8 @@
         const email = $("loginEmail").value.trim();
         const password = $("loginPassword").value;
 
-        await identity.gotrue.login(email, password, true);
-
-        const u = identity.currentUser();
-        const role = (u?.user_metadata?.role || "").toLowerCase();
-
-        if (role === "master_agent") return safeRedirect("master-agent-dashboard.html");
-        return safeRedirect("agent-dashboard.html");
+        const user = await identity.gotrue.login(email, password, true);
+        routeByRole(user);
 
       } catch (err) {
         showAlert(err?.message || "Login failed.", "error");
