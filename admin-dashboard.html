@@ -36,224 +36,267 @@
   </script>
 
   <style>
-    body{ background: radial-gradient(circle at top, #121212, #000 70%); }
+    body{
+      background:
+        radial-gradient(900px 520px at 20% 0%, rgba(201,161,74,.18), transparent 55%),
+        radial-gradient(900px 520px at 85% 15%, rgba(245,230,179,.10), transparent 60%),
+        radial-gradient(circle at top, #121212, #000 72%);
+    }
+    .glass{
+      background: rgba(0,0,0,.42);
+      border: 1px solid rgba(201,161,74,.16);
+      backdrop-filter: blur(10px);
+    }
+    .soft-border{ border: 1px solid rgba(255,255,255,.10); }
+    .focus-gold:focus{
+      outline:none;
+      border-color: rgba(201,161,74,.70);
+      box-shadow: 0 0 0 4px rgba(201,161,74,.12);
+    }
+    .chip{
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(201,161,74,.18);
+    }
   </style>
 </head>
 
-<body class="m-0 font-inter text-white/90">
+<body class="m-0 font-inter text-white/90 min-h-screen">
 
   <!-- TOP BAR -->
-  <header class="sticky top-0 z-50 backdrop-blur bg-black/55 border-b border-gold/15">
-    <div class="px-[6%] md:px-[8%] py-3 flex items-center justify-between gap-3">
-      <a href="index.html" class="no-underline flex items-center gap-2">
-        <span class="font-playfair text-gold-soft text-lg md:text-xl">QariLive™</span>
-        <span class="hidden sm:inline-block text-xs text-white/45">Master Agent</span>
+  <header class="sticky top-0 z-50 border-b border-gold/15 bg-black/55 backdrop-blur">
+    <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="index.html" class="no-underline flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] grid place-items-center shadow-goldGlow shrink-0">
+          <span class="font-playfair text-black text-sm">Q</span>
+        </div>
+        <div class="min-w-0">
+          <div class="font-playfair text-gold-soft text-lg md:text-xl leading-tight truncate">QariLive™</div>
+          <div class="text-xs text-white/45 truncate">Master Agent Dashboard</div>
+        </div>
       </a>
 
       <div class="flex items-center gap-2">
         <a id="openLandingTop" href="#"
-           class="px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+           class="hidden sm:inline-flex px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
           Open My Page
         </a>
         <button id="logoutTop"
-          class="px-4 py-2 rounded-full font-semibold border border-white/10 text-white/80 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
+          class="px-4 py-2 rounded-full font-semibold soft-border text-white/85 bg-black/25 hover:border-gold/60 hover:bg-black/40 transition">
           Logout
         </button>
       </div>
     </div>
+
+    <div class="sm:hidden max-w-[1100px] mx-auto px-4 pb-3">
+      <a id="openLandingTopMobile" href="#"
+         class="w-full inline-flex justify-center px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+        Open My Page
+      </a>
+    </div>
   </header>
 
   <!-- HERO -->
-  <section class="px-[6%] md:px-[8%] pt-10 pb-6">
-    <div class="max-w-[1100px] mx-auto">
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-black/30 shadow-[0_0_18px_rgba(201,161,74,.10)]">
-        <span class="w-2 h-2 rounded-full bg-gold"></span>
-        <span class="text-gold-soft text-xs">Master Agent Dashboard</span>
+  <section class="max-w-[1100px] mx-auto px-4 sm:px-6 pt-10 pb-6">
+    <div class="glass rounded-3xl p-6 sm:p-8">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full chip">
+            <span class="w-2 h-2 rounded-full bg-gold"></span>
+            <span class="text-gold-soft text-xs">Master Agent</span>
+          </div>
+
+          <h1 class="mt-4 font-playfair text-gold-soft text-[2.0rem] sm:text-[2.4rem] md:text-[2.8rem] leading-tight">
+            Your Referral Page & Payout
+          </h1>
+
+          <p class="mt-2 text-white/70 max-w-[760px]">
+            Share your link/QR to track sales, and keep your payout details updated so Admin can pay commissions smoothly.
+          </p>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-3 py-1.5 rounded-full text-xs chip text-white/80">
+              Email: <span id="maEmail" class="text-white/90">—</span>
+            </span>
+            <span class="px-3 py-1.5 rounded-full text-xs chip text-white/80">
+              Role: <span id="maRoleText" class="text-white/90">—</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="w-full md:w-[360px] rounded-2xl soft-border bg-black/25 p-5">
+          <div class="text-[11px] text-white/45 uppercase tracking-wider">Account</div>
+          <div class="mt-2 flex flex-wrap items-center gap-2">
+            <span id="maName" class="font-semibold text-gold-soft text-lg">Loading…</span>
+            <span id="maRefPill" class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">
+              REF: —
+            </span>
+          </div>
+
+          <div class="mt-4 grid grid-cols-2 gap-2">
+            <button id="copyRefBtn"
+              class="px-4 py-2 rounded-xl font-semibold border border-gold/25 text-gold-soft bg-black/30 hover:border-gold/60 hover:bg-black/40 transition">
+              Copy REF
+            </button>
+            <button id="copyWABtn"
+              class="px-4 py-2 rounded-xl font-semibold border border-white/10 text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
+              Copy WA
+            </button>
+          </div>
+        </div>
       </div>
-
-      <h1 class="mt-4 font-playfair text-gold-soft text-[2.1rem] md:text-[2.8rem] leading-tight">
-        Your Referral Page & Details
-      </h1>
-
-      <p class="mt-2 text-white/70 max-w-[900px]">
-        View your unique referral code, share your landing page link/QR, and update your payout details.
-      </p>
 
       <!-- Alert -->
-      <div id="alertBox" class="hidden mt-5 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/85"></div>
+      <div id="alertBox" class="hidden mt-5 rounded-2xl glass p-4 text-sm text-white/85"></div>
     </div>
   </section>
 
-  <!-- MAIN -->
-  <section class="px-[6%] md:px-[8%] pb-[90px]">
-    <div class="max-w-[1100px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5">
+  <!-- MAIN (TOP -> DOWN) -->
+  <main class="max-w-[1100px] mx-auto px-4 sm:px-6 pb-[90px] space-y-6">
 
-      <!-- LEFT: Share assets -->
-      <div class="lg:col-span-7 space-y-5">
+    <!-- SHARE KIT -->
+    <section class="glass rounded-3xl p-6 sm:p-8">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+        <div class="flex-1">
+          <h2 class="font-playfair text-gold-soft text-[1.6rem]">Share Kit</h2>
+          <p class="mt-1 text-sm text-white/60">
+            Use this link or QR so tracking stays tied to your REF.
+          </p>
 
-        <!-- Summary -->
-        <div class="rounded-2xl border border-gold/15 bg-[linear-gradient(180deg,#101010,#060606)] shadow-[0_0_25px_rgba(0,0,0,.6)] p-6">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <div class="text-xs uppercase tracking-wider text-white/45">Account</div>
-              <div class="mt-2 flex flex-wrap items-center gap-2">
-                <span id="maName" class="font-semibold text-gold-soft text-lg">Loading…</span>
-                <span id="maRefPill" class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">
-                  REF: —
-                </span>
-                <span id="maRolePill" class="px-2.5 py-1 rounded-full text-xs border border-white/10 text-white/75 bg-black/20">
-                  Role: —
-                </span>
-              </div>
-              <div class="mt-2 text-xs text-white/45">
-                Email: <span id="maEmail" class="text-white/70">—</span>
-              </div>
+          <div class="mt-4 rounded-2xl soft-border bg-black/25 p-4">
+            <div class="text-[11px] text-white/45 uppercase tracking-wider">Your Master Agent Page</div>
+            <code id="maLink"
+              class="mt-2 block text-xs sm:text-sm px-3 py-2 rounded-xl border border-white/10 bg-black/30 text-white/85 break-all">
+              —
+            </code>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button id="copyLinkBtn"
+                class="px-4 py-2 rounded-xl font-semibold border border-white/10 text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
+                Copy Link
+              </button>
+
+              <a id="openLandingBtn" href="#"
+                class="px-4 py-2 rounded-xl font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                Open My Page
+              </a>
+
+              <button id="shareWABtn"
+                class="px-4 py-2 rounded-xl font-semibold border border-gold/25 text-gold-soft bg-black/30 hover:border-gold/60 hover:bg-black/40 transition">
+                Open WhatsApp
+              </button>
             </div>
 
-            <div class="flex flex-col items-end gap-2">
-              <button id="copyRefBtn"
-                class="px-4 py-2 rounded-full font-semibold border border-gold/25 text-gold-soft bg-black/30 hover:border-gold/60 hover:bg-black/40 transition">
-                Copy REF
-              </button>
+            <div class="mt-3 text-xs text-white/45">
+              Tip: send the link/QR (not plain “checkout link”) to avoid tracking mistakes.
             </div>
           </div>
 
-          <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4">
-            <div class="md:col-span-8 rounded-2xl border border-gold/15 bg-black/20 p-4">
-              <div class="text-xs uppercase tracking-wider text-white/45">Your Master Agent Page</div>
-              <div class="mt-2 text-sm text-white/70">
-                Share this link so purchases are tied to your REF.
-              </div>
-
-              <code id="maLink"
-                class="mt-3 block text-xs md:text-sm px-3 py-2 rounded-xl border border-white/10 bg-black/30 text-white/80 break-all">
-                —
-              </code>
-
-              <div class="mt-3 flex flex-wrap gap-2">
-                <button id="copyLinkBtn"
-                  class="px-4 py-2 rounded-full font-semibold border border-white/10 text-white/80 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
-                  Copy Link
-                </button>
-                <a id="openLandingBtn" href="#"
-                  class="px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-                  Open My Page
-                </a>
-                <button id="copyWABtn"
-                  class="px-4 py-2 rounded-full font-semibold border border-gold/25 text-gold-soft bg-black/30 hover:border-gold/60 hover:bg-black/40 transition">
-                  Copy WhatsApp Message
-                </button>
-              </div>
-
-              <div class="mt-3 text-xs text-white/45">
-                Recommended: always send the link (or QR) instead of plain “checkout link”, so tracking stays clean.
-              </div>
-            </div>
-
-            <div class="md:col-span-4 rounded-2xl border border-gold/15 bg-black/20 p-4">
-              <div class="text-xs uppercase tracking-wider text-white/45">QR Code</div>
-              <div class="mt-3 flex items-center gap-4">
-                <canvas id="qrCanvas" class="rounded-xl border border-white/10 bg-black/20 p-2"></canvas>
-                <div class="text-xs text-white/55">
-                  Scan to open your page.
-                </div>
-              </div>
-              <button id="downloadQR"
-                class="mt-4 w-full px-4 py-2 rounded-xl font-semibold border border-white/10 text-white/80 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
-                Download QR (PNG)
-              </button>
+          <div class="mt-5 rounded-2xl soft-border bg-black/20 p-4">
+            <div class="text-sm font-semibold text-gold-soft">Fast guide</div>
+            <div class="mt-2 text-sm text-white/70 space-y-1.5">
+              <div>• Share your page link/QR to customer.</div>
+              <div>• Customer pays via your flow.</div>
+              <div>• Agent submits proof → Admin verifies → commission paid.</div>
             </div>
           </div>
         </div>
 
-        <!-- Quick instructions -->
-        <div class="rounded-2xl border border-gold/15 bg-black/30 p-6">
-          <div class="text-sm font-semibold text-gold-soft">How to use (fast)</div>
-          <div class="mt-2 text-sm text-white/70 space-y-2">
-            <div>• Send customer your Master Agent page link (or QR).</div>
-            <div>• Customer follows the steps and pays via your flow.</div>
-            <div>• Your Agent sends screenshot + your REF to Admin for verification.</div>
+        <!-- QR -->
+        <div class="w-full md:w-[340px] rounded-2xl soft-border bg-black/25 p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[11px] text-white/45 uppercase tracking-wider">QR Code</div>
+              <div class="mt-1 text-sm text-white/65">Scan to open your page</div>
+            </div>
           </div>
+
+          <div class="mt-4 flex items-center justify-center">
+            <div class="rounded-2xl border border-white/10 bg-black/20 p-3">
+              <canvas id="qrCanvas" class="block"></canvas>
+            </div>
+          </div>
+
+          <button id="downloadQR"
+            class="mt-4 w-full px-4 py-2 rounded-xl font-semibold border border-white/10 text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
+            Download QR (PNG)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILE & PAYOUT -->
+    <section class="glass rounded-3xl p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <h2 class="font-playfair text-gold-soft text-[1.6rem]">Profile & Payout</h2>
+          <p class="mt-1 text-sm text-white/60">
+            Keep this accurate so Admin can send commission without delay.
+          </p>
+        </div>
+
+        <div class="rounded-2xl soft-border bg-black/25 p-4 text-sm text-white/70">
+          <div>Account: <span id="statusAccount" class="text-white/90">—</span></div>
+          <div class="mt-1">Payout: <span id="statusPayout" class="text-white/90">—</span></div>
         </div>
       </div>
 
-      <!-- RIGHT: Profile + payout details -->
-      <div class="lg:col-span-5 space-y-5">
-
-        <div class="rounded-2xl border border-gold/15 bg-[linear-gradient(180deg,#101010,#060606)] shadow-[0_0_25px_rgba(0,0,0,.6)] p-6">
-          <div class="flex items-center justify-between gap-4">
-            <h2 class="font-playfair text-gold-soft text-[1.6rem]">Profile & Payout</h2>
-            <span class="text-xs text-white/45">Update your details</span>
-          </div>
-
-          <form id="profileForm" class="mt-5 space-y-4">
-            <div>
-              <label class="text-xs text-white/55">Full Name</label>
-              <input id="fullName" required
-                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:outline-none focus:border-gold/60"
-                placeholder="e.g. Aisyah Binti Ahmad" />
-            </div>
-
-            <div>
-              <label class="text-xs text-white/55">WhatsApp Number</label>
-              <input id="whatsapp" required
-                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:outline-none focus:border-gold/60"
-                placeholder="e.g. 60123456789" />
-              <div class="mt-1 text-[11px] text-white/40">Use country code (no +, no spaces).</div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="text-xs text-white/55">Bank Name</label>
-                <input id="bankName"
-                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:outline-none focus:border-gold/60"
-                  placeholder="e.g. Maybank" />
-              </div>
-              <div>
-                <label class="text-xs text-white/55">Bank Account No.</label>
-                <input id="bankAcc"
-                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:outline-none focus:border-gold/60"
-                  placeholder="e.g. 1234567890" />
-              </div>
-            </div>
-
-            <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
-              <div class="text-xs uppercase tracking-wider text-white/45">Security</div>
-              <div class="mt-2 text-sm text-white/70">
-                To change password, use the Identity “Forgot Password” flow on the login page.
-              </div>
-            </div>
-
-            <button type="submit" id="saveBtn"
-              class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-              Save Changes
-            </button>
-
-            <button type="button" id="logoutBtn"
-              class="w-full px-4 py-3 rounded-xl font-semibold border border-white/10 text-white/80 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
-              Logout
-            </button>
-          </form>
+      <form id="profileForm" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="text-xs text-white/55">Full Name</label>
+          <input id="fullName" required
+            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 soft-border focus-gold text-white placeholder:text-white/30"
+            placeholder="e.g. Aisyah Binti Ahmad" />
         </div>
 
-        <!-- Status (optional now, useful later) -->
-        <div class="rounded-2xl border border-gold/15 bg-black/30 p-6">
-          <div class="text-sm font-semibold text-gold-soft">Status</div>
+        <div>
+          <label class="text-xs text-white/55">WhatsApp Number</label>
+          <input id="whatsapp" required
+            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 soft-border focus-gold text-white placeholder:text-white/30"
+            placeholder="e.g. 60123456789" />
+          <div class="mt-1 text-[11px] text-white/40">Use country code (no +, no spaces).</div>
+        </div>
+
+        <div>
+          <label class="text-xs text-white/55">Bank Name</label>
+          <input id="bankName"
+            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 soft-border focus-gold text-white placeholder:text-white/30"
+            placeholder="e.g. Maybank" />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="text-xs text-white/55">Bank Account Number</label>
+          <input id="bankAcc"
+            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 soft-border focus-gold text-white placeholder:text-white/30"
+            placeholder="e.g. 1234567890" />
+        </div>
+
+        <div class="md:col-span-2 rounded-2xl soft-border bg-black/20 p-4">
+          <div class="text-xs uppercase tracking-wider text-white/45">Security</div>
           <div class="mt-2 text-sm text-white/70">
-            <div>Account: <span id="statusAccount" class="text-white/85">—</span></div>
-            <div class="mt-1">Payout Details: <span id="statusPayout" class="text-white/85">—</span></div>
-          </div>
-          <div class="mt-3 text-xs text-white/45">
-            (Later) Admin can mark accounts as verified / pending / suspended.
+            Password reset uses the login page “Forgot Password” (Netlify Identity flow).
           </div>
         </div>
 
-      </div>
-    </div>
-  </section>
+        <div class="md:col-span-2 flex flex-col sm:flex-row gap-3">
+          <button type="submit" id="saveBtn"
+            class="flex-1 px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+            Save Changes
+          </button>
 
-  <footer class="border-t border-gold/15 bg-black/60 px-[6%] md:px-[8%] py-10 text-center">
-    <small class="text-white/45">© 2025 IT People Sdn Bhd • QariLive Operations</small>
+          <button type="button" id="logoutBtn"
+            class="sm:w-[190px] px-4 py-3 rounded-xl font-semibold soft-border text-white/85 bg-black/25 hover:border-gold/60 hover:bg-black/40 transition">
+            Logout
+          </button>
+        </div>
+      </form>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-gold/15 bg-black/60">
+    <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-10 text-center">
+      <small class="text-white/45">© 2025 IT People Sdn Bhd • QariLive Operations</small>
+    </div>
   </footer>
 
   <script>
@@ -261,8 +304,8 @@
       alertBox: document.getElementById("alertBox"),
       maName: document.getElementById("maName"),
       maEmail: document.getElementById("maEmail"),
+      maRoleText: document.getElementById("maRoleText"),
       maRefPill: document.getElementById("maRefPill"),
-      maRolePill: document.getElementById("maRolePill"),
       maLink: document.getElementById("maLink"),
       qrCanvas: document.getElementById("qrCanvas"),
 
@@ -273,9 +316,11 @@
 
       openLandingBtn: document.getElementById("openLandingBtn"),
       openLandingTop: document.getElementById("openLandingTop"),
+      openLandingTopMobile: document.getElementById("openLandingTopMobile"),
       copyLinkBtn: document.getElementById("copyLinkBtn"),
       copyRefBtn: document.getElementById("copyRefBtn"),
       copyWABtn: document.getElementById("copyWABtn"),
+      shareWABtn: document.getElementById("shareWABtn"),
       downloadQR: document.getElementById("downloadQR"),
       logoutBtn: document.getElementById("logoutBtn"),
       logoutTop: document.getElementById("logoutTop"),
@@ -290,7 +335,6 @@
     function showAlert(msg, type="info"){
       el.alertBox.classList.remove("hidden");
       el.alertBox.textContent = msg;
-
       el.alertBox.classList.remove("border-red-500/25","bg-red-500/10","border-gold/20","bg-black/30");
       if(type === "error"){
         el.alertBox.classList.add("border-red-500/25","bg-red-500/10");
@@ -314,7 +358,6 @@
     }
 
     function normalizeRole(user){
-      // Accept either user_metadata.role OR app_metadata.roles
       const metaRole = user?.user_metadata?.role;
       const roles = user?.app_metadata?.roles;
       if (metaRole) return metaRole;
@@ -335,10 +378,15 @@
 
     async function renderQR(link){
       try {
-        await QRCode.toCanvas(el.qrCanvas, link, { margin: 1, width: 140 });
+        await QRCode.toCanvas(el.qrCanvas, link, { margin: 1, width: 190 });
       } catch (e) {
         console.error(e);
       }
+    }
+
+    function openWhatsAppText(text){
+      const url = "https://wa.me/?text=" + encodeURIComponent(text || "");
+      window.open(url, "_blank");
     }
 
     async function init(){
@@ -351,8 +399,6 @@
         return;
       }
 
-      // Optional: enforce role for this dashboard
-      // If you want to allow normal agents too, remove this block.
       if(!isMasterAgent(user)){
         showAlert("Access denied: this dashboard is for Master Agents only.", "error");
         await identity.logout();
@@ -360,36 +406,34 @@
         return;
       }
 
-      // Ensure REF exists (generate if missing)
+      // Ensure REF exists
       let maCode = user.user_metadata?.ma_code;
       if(!maCode){
         maCode = makeMACode();
         try{
           await user.update({ data: { ...user.user_metadata, ma_code: maCode, role: "master_agent" } });
-        } catch (e){
-          console.error(e);
-        }
+        } catch (e){ console.error(e); }
       }
 
-      const name = user.user_metadata?.full_name || user.email;
+      const name = user.user_metadata?.full_name || (user.email || "Master Agent");
       const whatsapp = user.user_metadata?.whatsapp || "";
       const bankName = user.user_metadata?.bank_name || "";
       const bankAcc = user.user_metadata?.bank_acc || "";
-
       const roleText = normalizeRole(user);
 
-      // Build landing page link
+      // Your landing link format
       const link = `${window.location.origin}/ma/${encodeURIComponent(maCode)}`;
 
       // Fill UI
       el.maName.textContent = name;
       el.maEmail.textContent = user.email || "—";
+      el.maRoleText.textContent = roleText;
       el.maRefPill.textContent = `REF: ${maCode}`;
-      el.maRolePill.textContent = `Role: ${roleText}`;
       el.maLink.textContent = link;
 
       el.openLandingBtn.href = link;
       el.openLandingTop.href = link;
+      if (el.openLandingTopMobile) el.openLandingTopMobile.href = link;
 
       el.fullName.value = user.user_metadata?.full_name || "";
       el.whatsapp.value = whatsapp;
@@ -398,30 +442,37 @@
 
       // Status
       el.statusAccount.textContent = "Active (logged in)";
-      const payoutOk = (bankName && bankAcc) ? "Complete" : "Incomplete";
-      el.statusPayout.textContent = payoutOk;
+      el.statusPayout.textContent = (bankName && bankAcc) ? "Complete" : "Incomplete";
 
       // QR
       await renderQR(link);
 
-      // Copy buttons
+      // Copy REF
       el.copyRefBtn.addEventListener("click", async () => {
         const ok = await copyText(maCode);
         showAlert(ok ? "REF copied." : "Copy failed. Please copy manually.", ok ? "info" : "error");
         setTimeout(hideAlert, 1200);
       });
 
+      // Copy link
       el.copyLinkBtn.addEventListener("click", async () => {
         const ok = await copyText(link);
         showAlert(ok ? "Link copied." : "Copy failed. Please copy manually.", ok ? "info" : "error");
         setTimeout(hideAlert, 1200);
       });
 
+      // Copy WA message
       el.copyWABtn.addEventListener("click", async () => {
         const msg = `Hi! Here’s my QariLive Master Agent page (REF ${maCode}): ${link}`;
         const ok = await copyText(msg);
         showAlert(ok ? "WhatsApp message copied." : "Copy failed. Please copy manually.", ok ? "info" : "error");
         setTimeout(hideAlert, 1200);
+      });
+
+      // Open WhatsApp directly
+      el.shareWABtn.addEventListener("click", () => {
+        const msg = `Hi! Here’s my QariLive Master Agent page (REF ${maCode}): ${link}`;
+        openWhatsAppText(msg);
       });
 
       // Download QR
@@ -467,7 +518,6 @@
             }
           });
 
-          // Update UI immediately
           el.maName.textContent = updated.user_metadata?.full_name || newName;
           el.statusPayout.textContent = (newBankName && newBankAcc) ? "Complete" : "Incomplete";
 
