@@ -25,8 +25,8 @@ export async function handler(event) {
   try {
     if (event.httpMethod !== "POST") return json(405, { ok: false, error: "Method not allowed" });
 
-    const user_id = getUserId(event);
-    if (!user_id) return json(401, { ok: false, error: "Unauthorized" });
+    const agent_user_id = getUserId(event);
+    if (!agent_user_id) return json(401, { ok: false, error: "Unauthorized" });
 
     const body = JSON.parse(event.body || "{}");
     const ma_code = String(body.ma_code || "").trim().toUpperCase();
@@ -39,21 +39,9 @@ export async function handler(event) {
     const sql = neon();
 
     await sql`
-      CREATE TABLE IF NOT EXISTS public.agents (
-        user_id TEXT PRIMARY KEY,
-        ma_code TEXT NOT NULL,
-        full_name TEXT,
-        whatsapp TEXT,
-        email TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        last_login TIMESTAMPTZ
-      );
-    `;
-
-    await sql`
-      INSERT INTO public.agents (user_id, ma_code, full_name, whatsapp, email, last_login)
-      VALUES (${user_id}, ${ma_code}, ${full_name}, ${whatsapp}, ${email}, NOW())
-      ON CONFLICT (user_id)
+      INSERT INTO public.agents (agent_user_id, ma_code, full_name, whatsapp, email, last_login)
+      VALUES (${agent_user_id}, ${ma_code}, ${full_name}, ${whatsapp}, ${email}, NOW())
+      ON CONFLICT (agent_user_id)
       DO UPDATE SET
         ma_code = EXCLUDED.ma_code,
         full_name = EXCLUDED.full_name,

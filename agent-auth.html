@@ -333,7 +333,7 @@
         // IMPORTANT: support both shapes (old + new)
         const ma = (meta.ma_code || meta.parent_ma_code || meta?.data?.ma_code || "").toString().trim().toUpperCase();
 
-        await fetch("/.netlify/functions/agent-upsert", {
+        const r = await fetch("/.netlify/functions/agent-upsert", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -346,6 +346,14 @@
             email: u.email || ""
           })
         });
+
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.ok) {
+          console.warn("agent-upsert failed:", j);
+          showAlert("Agent DB sync failed: " + (j.error || "Unknown error"), "error");
+          return;
+        }
+
 
         routeByRole(user);
 
