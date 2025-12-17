@@ -27,13 +27,12 @@
   </script>
 
   <style>
-    body {
-      background: radial-gradient(circle at top, #121212, #000 70%);
-    }
+    body { background: radial-gradient(circle at top, #121212, #000 70%); }
   </style>
 </head>
 
 <body class="m-0 font-inter text-white/90 min-h-screen flex flex-col">
+
   <!-- Top bar -->
   <header class="sticky top-0 z-50 backdrop-blur bg-black/55 border-b border-gold/15">
     <div class="px-[6%] md:px-[8%] py-3 flex items-center justify-between gap-3">
@@ -60,9 +59,7 @@
           <span class="text-gold-soft text-xs">Master Agent Portal</span>
         </div>
 
-        <h1 class="mt-4 font-playfair text-gold-soft text-[2.0rem] leading-tight">
-          Register / Login
-        </h1>
+        <h1 class="mt-4 font-playfair text-gold-soft text-[2.0rem] leading-tight">Register / Login</h1>
 
         <p class="mt-2 text-white/70">
           Create your Master Agent account to receive your unique referral code and landing page link.
@@ -107,8 +104,7 @@
         </div>
 
         <!-- Alerts -->
-        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80">
-        </div>
+        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
 
         <!-- Register -->
         <form id="registerForm" class="mt-5 space-y-4">
@@ -143,7 +139,7 @@
             </div>
           </div>
 
-          <!-- Optional: we keep these fields for UX, but DO NOT store them here -->
+          <!-- Optional section -->
           <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
             <div class="text-xs uppercase tracking-wider text-white/45">Optional (save later in dashboard)</div>
             <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -210,15 +206,14 @@
   </footer>
 
   <script>
-
-      // remove redirect param if any page/link includes it (prevents widget auto redirect)
-      (() => {
-        const url = new URL(window.location.href);
-        if (url.searchParams.has("redirect")) {
-          url.searchParams.delete("redirect");
-          window.history.replaceState({}, "", url.toString());
-        }
-      })();
+    // remove redirect param if any page/link includes it (prevents widget auto redirect)
+    (() => {
+      const u = new URL(window.location.href);
+      if (u.searchParams.has("redirect")) {
+        u.searchParams.delete("redirect");
+        window.history.replaceState({}, "", u.toString());
+      }
+    })();
 
     // ---------- Helpers ----------
     const $ = (id) => document.getElementById(id);
@@ -229,11 +224,8 @@
       alertBox.textContent = msg;
 
       alertBox.classList.remove("border-red-500/25", "bg-red-500/10", "border-gold/20", "bg-black/30");
-      if (type === "error") {
-        alertBox.classList.add("border-red-500/25", "bg-red-500/10");
-      } else {
-        alertBox.classList.add("border-gold/20", "bg-black/30");
-      }
+      if (type === "error") alertBox.classList.add("border-red-500/25", "bg-red-500/10");
+      else alertBox.classList.add("border-gold/20", "bg-black/30");
     }
     function hideAlert() { alertBox.classList.add("hidden"); alertBox.textContent = ""; }
 
@@ -243,9 +235,7 @@
       return `MA${t}${rand}`;
     }
 
-    function safeRedirect(url) {
-      window.location.href = url;
-    }
+    function safeRedirect(url) { window.location.href = url; }
 
     // ---------- Tabs ----------
     const tabRegister = $("tabRegister");
@@ -273,10 +263,7 @@
     // ---------- Netlify Identity ----------
     function waitForIdentity() {
       return new Promise((resolve) => {
-        const tick = () => {
-          if (window.netlifyIdentity) return resolve(window.netlifyIdentity);
-          setTimeout(tick, 50);
-        };
+        const tick = () => window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(tick, 50);
         tick();
       });
     }
@@ -297,8 +284,7 @@
       // Let Identity consume token, then go back to login page
       identity.open();
       setTimeout(() => {
-        try { identity.close(); } catch { }
-        // stay on this page; user should login after verifying
+        try { identity.close(); } catch {}
         safeRedirect("master-agent-auth.html");
       }, 1200);
 
@@ -313,7 +299,7 @@
       identity.init();
 
       const u = identity.currentUser();
-      if (!u) return; // not logged in, stay on auth page
+      if (!u) return;
 
       const role = (u.user_metadata?.role || "").toLowerCase();
       if (role === "agent") return safeRedirect("agent-dashboard.html");
@@ -321,7 +307,6 @@
     }
 
     // Register flow
-    // IMPORTANT: We DO NOT store bank details in Identity metadata.
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       hideAlert();
@@ -338,10 +323,9 @@
         const maCode = makeMACode();
 
         await netlifyIdentity.signup(email, password, {
-          data: { role: "master_agent", full_name: name, whatsapp, ma_code: maCode },
+          data: { role: "master_agent", full_name: name, whatsapp: whatsapp, ma_code: maCode },
           confirmationPage: "/confirm.html?role=master_agent"
         });
-
 
         showAlert(`✅ Account created. Your Master Agent REF is ${maCode}. Please verify your email.`);
         setTimeout(() => safeRedirect("master-agent-auth.html"), 900);
@@ -351,8 +335,7 @@
       }
     });
 
-
-    // Login flow
+    // Login flow (role-based redirect)
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       hideAlert();
@@ -376,7 +359,6 @@
         showAlert(err?.message || "Login failed.", "error");
       }
     });
-
 
     $("openRecovery").addEventListener("click", async () => {
       hideAlert();

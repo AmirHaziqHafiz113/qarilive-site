@@ -27,9 +27,7 @@
   </script>
 
   <style>
-    body {
-      background: radial-gradient(circle at top, #121212, #000 70%);
-    }
+    body { background: radial-gradient(circle at top, #121212, #000 70%); }
   </style>
 </head>
 
@@ -96,8 +94,7 @@
           </button>
         </div>
 
-        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80">
-        </div>
+        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
 
         <form id="registerForm" class="mt-5 space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -173,8 +170,8 @@
   <script>
     const $ = (id) => document.getElementById(id);
 
-    const url = new URL(window.location.href);
-    const maRef = (url.searchParams.get("ref") || "").trim().toUpperCase();
+    const pageUrl = new URL(window.location.href);
+    const maRef = (pageUrl.searchParams.get("ref") || "").trim().toUpperCase();
     $("maRefLabel").textContent = maRef || "MISSING REF";
 
     const alertBox = $("alertBox");
@@ -183,11 +180,8 @@
       alertBox.textContent = msg;
 
       alertBox.classList.remove("border-red-500/25", "bg-red-500/10", "border-gold/20", "bg-black/30");
-      if (type === "error") {
-        alertBox.classList.add("border-red-500/25", "bg-red-500/10");
-      } else {
-        alertBox.classList.add("border-gold/20", "bg-black/30");
-      }
+      if (type === "error") alertBox.classList.add("border-red-500/25", "bg-red-500/10");
+      else alertBox.classList.add("border-gold/20", "bg-black/30");
     }
     function hideAlert() { alertBox.classList.add("hidden"); alertBox.textContent = ""; }
 
@@ -217,14 +211,12 @@
 
     function waitForIdentity() {
       return new Promise((resolve) => {
-        const tick = () => {
-          if (window.netlifyIdentity) return resolve(window.netlifyIdentity);
-          setTimeout(tick, 50);
-        };
+        const tick = () => window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(tick, 50);
         tick();
       });
     }
 
+    // Token consumption (confirm/recovery/etc.) should return user to login page, NOT dashboards.
     async function handleIdentityHashTokens() {
       const identity = await waitForIdentity();
       identity.init();
@@ -238,46 +230,29 @@
 
       if (!hasToken) return false;
 
-      // Let Netlify Identity consume the token properly
-      // then send user back to the correct login page (keep ?ref for agent)
-      identity.on("login", (user) => {
-        const role = (user?.user_metadata?.role || "").toLowerCase();
-
-        if (role === "master_agent") {
-          return safeRedirect("master-agent-dashboard.html");
-        }
-
-        // default: agent
-        return safeRedirect("agent-dashboard.html");
-      });
-
-
-      // This triggers the widget to process the hash tokens
       identity.open();
+      setTimeout(() => {
+        try { identity.close(); } catch {}
+        safeRedirect("agent-auth.html" + (maRef ? ("?ref=" + encodeURIComponent(maRef)) : ""));
+      }, 1200);
+
       return true;
     }
 
-
     async function init() {
       const consumed = await handleIdentityHashTokens();
-      if (consumed) return; // stop normal redirects so token isn't lost
+      if (consumed) return;
 
       const identity = await waitForIdentity();
       identity.init();
 
       const u = identity.currentUser();
-      if (u) {
-        const role = (u.user_metadata?.role || "").toLowerCase();
-        if (role === "agent") safeRedirect("agent-dashboard.html");
-        else safeRedirect("master-agent-dashboard.html");
-      }
-
+      if (!u) return;
 
       const role = (u.user_metadata?.role || "").toLowerCase();
-      if (role === "agent") return safeRedirect("agent-dashboard.html");
-      return safeRedirect("master-agent-dashboard.html");
+      if (role === "master_agent") return safeRedirect("master-agent-dashboard.html");
+      return safeRedirect("agent-dashboard.html");
     }
-
 
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -297,15 +272,19 @@
         const email = $("regEmail").value.trim();
         const password = $("regPassword").value;
 
-await netlifyIdentity.signup(email, password, {
-  data: { role: "agent", full_name, whatsapp, ma_code },
-  confirmationPage: "/confirm.html?role=agent"
-});
+        await netlifyIdentity.signup(email, password, {
+          data: {
+            role: "agent",
+            full_name: name,
+            whatsapp: whatsapp,
+            ma_code: maRef
+          },
+          confirmationPage: "/confirm.html?role=agent"
+        });
 
-
-        showAlert("✅ Agent account created. Please verify email (if required), then login. Redirecting...");
-        setTimeout(() => safeRedirect("agent-auth.html?ref=" + encodeURIComponent(maRef)), 900);
+        showAlert("✅ Agent account created. Please verify email, then login.");
         setTab("login");
+        setTimeout(() => safeRedirect("agent-auth.html?ref=" + encodeURIComponent(maRef)), 900);
 
       } catch (err) {
         showAlert(err?.message || "Registration failed.", "error");
@@ -324,7 +303,13 @@ await netlifyIdentity.signup(email, password, {
         const password = $("loginPassword").value;
 
         await identity.gotrue.login(email, password, true);
-        safeRedirect("agent-dashboard.html");
+
+        const u = identity.currentUser();
+        const role = (u?.user_metadata?.role || "").toLowerCase();
+
+        if (role === "master_agent") return safeRedirect("master-agent-dashboard.html");
+        return safeRedirect("agent-dashboard.html");
+
       } catch (err) {
         showAlert(err?.message || "Login failed.", "error");
       }
