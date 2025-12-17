@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Confirming…</title>
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body style="font-family:system-ui;padding:24px;background:#0b0b0b;color:#eee">
+  <h2>Confirming your account…</h2>
+  <p>One moment.</p>
+
+  <script>
+    function waitForIdentity(){
+      return new Promise((resolve) => {
+        const t = () => window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(t, 50);
+        t();
+      });
+    }
+
+    (async () => {
+      const identity = await waitForIdentity();
+      identity.init();
+
+      // If the URL contains confirmation/recovery tokens in the hash, let Identity consume them.
+      const hash = window.location.hash || "";
+      const hasToken =
+        hash.includes("confirmation_token=") ||
+        hash.includes("recovery_token=") ||
+        hash.includes("invite_token=") ||
+        hash.includes("access_token=");
+
+      identity.on("login", (user) => {
+        const role = (user?.user_metadata?.role || "").toLowerCase();
+        if (role === "agent") location.href = "/agent-auth.html";
+        else location.href = "/master-agent-auth.html";
+      });
+
+      // Opens the widget so it processes the hash token correctly
+      if (hasToken) identity.open();
+      else location.href = "/master-agent-auth.html";
+    })();
+  </script>
+</body>
+</html>
