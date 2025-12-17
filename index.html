@@ -3,20 +3,20 @@
 
 <head>
   <script>
-  (function () {
-    const h = window.location.hash || "";
-    const hasIdentityToken =
-      h.includes("confirmation_token=") ||
-      h.includes("recovery_token=") ||
-      h.includes("invite_token=") ||
-      h.includes("access_token=");
+    (function () {
+      const h = window.location.hash || "";
+      const hasIdentityToken =
+        h.includes("confirmation_token=") ||
+        h.includes("recovery_token=") ||
+        h.includes("invite_token=") ||
+        h.includes("access_token=");
 
-    if (hasIdentityToken) {
-      // preserve the token hash
-      window.location.replace("/confirm.html" + h);
-    }
-  })();
-</script>
+      if (hasIdentityToken) {
+        // preserve the token hash
+        window.location.replace("/confirm.html" + h);
+      }
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -64,6 +64,17 @@
 
       <!-- Desktop Links -->
       <div class="hidden lg:flex items-center gap-2">
+        <!-- Desktop language switch -->
+        <div class="flex items-center gap-1 rounded-full border border-gold/25 bg-black/30 p-1 mr-1">
+          <button type="button" id="btnBMDesktop"
+            class="px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition">
+            BM
+          </button>
+          <button type="button" id="btnENDesktop"
+            class="px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition">
+            EN
+          </button>
+        </div>
         <a href="#clock-preview"
           class="px-3 py-1.5 rounded-full border border-gold/25 text-gold-soft text-sm no-underline hover:border-gold/70 hover:bg-black/40 transition"
           data-ms="Preview" data-en="Preview">Preview</a>
@@ -76,27 +87,15 @@
           class="px-3 py-1.5 rounded-full border border-gold/25 text-gold-soft text-sm no-underline hover:border-gold/70 hover:bg-black/40 transition"
           data-ms="Beli" data-en="Buy">Beli</a>
 
-        <!-- ONLY ONE CTA: Sign Up -->
-        <a href="master-agent-auth.html#signup"
-          class="px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition"
-          data-ms="Daftar" data-en="Sign Up">Daftar</a>
-        <!-- Desktop language switch -->
-        <div class="flex items-center gap-1 rounded-full border border-gold/25 bg-black/30 p-1 mr-1">
-          <button type="button" id="btnBMDesktop"
-            class="px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition">
-            BM
-          </button>
-          <button type="button" id="btnENDesktop"
-            class="px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition">
-            EN
-          </button>
-        </div>
-
         <!-- Qari (external) -->
         <a href="https://qarilive-form.netlify.app" target="_blank" rel="noopener"
           class="ml-1 px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#e0c37a,#c9a14a)] shadow-goldGlow hover:opacity-90 transition"
           data-ms="Qari" data-en="Qari">Qari</a>
 
+        <!-- ONLY ONE CTA: Sign Up -->
+        <a href="master-agent-auth.html#signup"
+          class="px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition"
+          data-ms="Daftar" data-en="Sign Up">Daftar</a>
       </div>
 
       <!-- Mobile Right -->
@@ -697,48 +696,45 @@
     </div>
   </section>
   <section class="px-[6%] md:px-[8%] py-[80px] md:py-[100px]">
-  <div class="max-w-[1100px] mx-auto
+    <div class="max-w-[1100px] mx-auto
               bg-[linear-gradient(180deg,#111,#070707)]
               border border-[rgba(201,161,74,.35)]
               rounded-[26px]
               p-[35px] md:p-[50px]
               shadow-[0_0_40px_rgba(0,0,0,.75)]">
 
-    <div class="grid gap-10 md:grid-cols-12 items-center">
+      <div class="grid gap-10 md:grid-cols-12 items-center">
 
-      <!-- Image -->
-      <div class="md:col-span-4 flex justify-center">
-        <img
-          src="images/ustaz-ghazali.png"
-          alt="Ustaz Ghazali Ibrahim"
-          class="max-w-[260px] w-full h-auto rounded-[18px]"
-        />
-      </div>
+        <!-- Image -->
+        <div class="md:col-span-4 flex justify-center">
+          <img src="images/ustaz-ghazali.png" alt="Ustaz Ghazali Ibrahim"
+            class="max-w-[260px] w-full h-auto rounded-[18px]" />
+        </div>
 
-      <!-- Quote -->
-      <div class="md:col-span-8 text-left">
-        <blockquote class="font-inter text-[1.05rem] md:text-[1.15rem] text-white/90 leading-relaxed italic">
-          “ QariLive is an innovative project that brings the Quran to life through live audio and visual
-          recitation, alongside a live Arabic language learning program led by Tahfiz students every day.
-          <br><br>
-          It creates meaningful benefits not only for listeners, but also for Tahfiz students around
-          the world. ”
-        </blockquote>
+        <!-- Quote -->
+        <div class="md:col-span-8 text-left">
+          <blockquote class="font-inter text-[1.05rem] md:text-[1.15rem] text-white/90 leading-relaxed italic">
+            “ QariLive is an innovative project that brings the Quran to life through live audio and visual
+            recitation, alongside a live Arabic language learning program led by Tahfiz students every day.
+            <br><br>
+            It creates meaningful benefits not only for listeners, but also for Tahfiz students around
+            the world. ”
+          </blockquote>
 
-        <div class="mt-6">
-          <div class="font-playfair text-gold-soft text-[1.15rem]">
-            Ustaz Ghazali Ibrahim
-          </div>
-          <div class="text-sm text-white/60 mt-1">
-            Islamic preacher, motivational speaker, and<br>
-            QariLive ambassador
+          <div class="mt-6">
+            <div class="font-playfair text-gold-soft text-[1.15rem]">
+              Ustaz Ghazali Ibrahim
+            </div>
+            <div class="text-sm text-white/60 mt-1">
+              Islamic preacher, motivational speaker, and<br>
+              QariLive ambassador
+            </div>
           </div>
         </div>
-      </div>
 
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
 
   <!-- RESELLER -->
@@ -828,11 +824,11 @@
           en.className = `px-3 py-1.5 rounded-full text-xs font-semibold text-gold-soft hover:bg-black/40 transition ${lang === "en" ? active : inactive}`;
         }
       });
-      
-document.getElementById("btnBM")?.addEventListener("click", () => setLang("ms"));
-document.getElementById("btnEN")?.addEventListener("click", () => setLang("en"));
-document.getElementById("btnBMDesktop")?.addEventListener("click", () => setLang("ms"));
-document.getElementById("btnENDesktop")?.addEventListener("click", () => setLang("en"));
+
+      document.getElementById("btnBM")?.addEventListener("click", () => setLang("ms"));
+      document.getElementById("btnEN")?.addEventListener("click", () => setLang("en"));
+      document.getElementById("btnBMDesktop")?.addEventListener("click", () => setLang("ms"));
+      document.getElementById("btnENDesktop")?.addEventListener("click", () => setLang("en"));
 
       // small visual state for buttons (mobile)
       const bm = document.getElementById("btnBM");

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,155 +16,150 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: { gold:'#c9a14a', 'gold-soft':'#f5e6b3', blackish:'#050505', darkish:'#0b0b0b' },
-          fontFamily: { inter:['Inter','sans-serif'], playfair:['Playfair Display','serif'] },
-          boxShadow: { goldGlow: '0 0 34px rgba(201,161,74,.22)' }
+          colors: {
+            gold: '#c9a14a',
+            'gold-soft': '#f5e6b3',
+            blackish: '#050505',
+            darkish: '#0b0b0b'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            playfair: ['Playfair Display', 'serif']
+          },
+          boxShadow: {
+            goldGlow: '0 0 34px rgba(201,161,74,.22)'
+          }
         }
       }
     }
   </script>
 
   <style>
-    body {
-      background:
-        radial-gradient(900px 420px at 15% 0%, rgba(201, 161, 74, .18), transparent 55%),
-        radial-gradient(circle at top, #121212, #000 70%);
-    }
-    .glass {
-      background: rgba(0, 0, 0, .38);
-      border: 1px solid rgba(201, 161, 74, .16);
-      backdrop-filter: blur(10px);
-    }
-    .soft-border { border: 1px solid rgba(255, 255, 255, .10); }
-    .focus-gold:focus {
-      outline: none;
-      border-color: rgba(201, 161, 74, .65);
-      box-shadow: 0 0 0 4px rgba(201, 161, 74, .12);
-    }
+    body { background: radial-gradient(circle at top, #121212, #000 70%); }
+    .soft-border { border: 1px solid rgba(255,255,255,.10); }
+    .focus-gold:focus { outline: none; border-color: rgba(201,161,74,.65); }
   </style>
 </head>
 
 <body class="m-0 font-inter text-white/90 min-h-screen flex flex-col">
-  <header class="sticky top-0 z-50 border-b border-gold/15 bg-black/55 backdrop-blur">
+
+  <header class="sticky top-0 z-50 backdrop-blur bg-black/55 border-b border-gold/15">
     <div class="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
-      <a href="index.html" class="flex items-center gap-3 min-w-0 no-underline">
-        <div class="w-9 h-9 rounded-xl bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] grid place-items-center shadow-goldGlow">
-          <span class="font-playfair text-black text-sm">Q</span>
-        </div>
-        <div class="min-w-0">
-          <div class="font-playfair text-gold-soft text-lg leading-tight truncate">QariLive™</div>
-          <div class="text-xs text-white/45 truncate">Agent Dashboard</div>
-        </div>
+      <a href="index.html" class="no-underline flex items-center gap-2 min-w-0">
+        <span class="font-playfair text-gold-soft text-lg md:text-xl whitespace-nowrap">QariLive™</span>
+        <span class="hidden sm:inline-block text-xs text-white/45 truncate">Agent Dashboard</span>
       </a>
 
       <div class="flex items-center gap-2">
         <button id="btnLogout"
-          class="px-4 py-2 rounded-full font-semibold soft-border text-white/85 bg-black/25 hover:border-gold/60 hover:bg-black/40 transition">
+          class="shrink-0 px-4 py-2 rounded-full font-semibold text-white/90 no-underline bg-black/30 border border-white/10 hover:border-gold/60 hover:bg-black/40 transition">
           Logout
         </button>
       </div>
     </div>
   </header>
 
-  <main class="flex-1 max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-    <div class="glass rounded-2xl p-6">
-      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-black/25">
+  <main class="flex-1">
+    <div class="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section class="lg:col-span-5 rounded-2xl border border-gold/15 bg-black/30 p-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-black/30 shadow-[0_0_18px_rgba(201,161,74,.10)]">
             <span class="w-2 h-2 rounded-full bg-gold"></span>
-            <span class="text-gold-soft text-xs">Agent</span>
+            <span class="text-gold-soft text-xs">Logged in</span>
           </div>
-          <h1 class="mt-3 font-playfair text-gold-soft text-3xl">
-            Welcome, <span id="txtName" class="text-white/90">—</span>
-          </h1>
-          <div class="mt-1 text-sm text-white/60">
-            Linked Master Agent REF: <span id="txtMARef" class="text-gold-soft font-semibold">—</span>
-          </div>
-        </div>
 
-        <div class="rounded-2xl soft-border bg-black/20 px-4 py-3">
-          <div class="text-[11px] text-white/45 uppercase tracking-wider">Signed in as</div>
-          <div class="mt-1 text-sm text-white/85" id="txtEmail">—</div>
-        </div>
+          <h1 class="mt-4 font-playfair text-gold-soft text-[2.0rem] leading-tight">Agent Profile</h1>
+
+          <div class="mt-4 space-y-2 text-sm text-white/70">
+            <div><span class="text-white/45">Name:</span> <span id="txtName" class="text-gold-soft font-semibold">—</span></div>
+            <div><span class="text-white/45">Email:</span> <span id="txtEmail" class="text-gold-soft font-semibold">—</span></div>
+            <div><span class="text-white/45">Master Agent REF:</span> <span id="txtMARef" class="text-gold-soft font-semibold">—</span></div>
+          </div>
+
+          <div id="alertBox" class="hidden mt-5 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
+
+          <div class="mt-6 rounded-2xl border border-gold/15 bg-black/20 p-4 text-sm text-white/70">
+            <div class="font-semibold text-gold-soft">Your job</div>
+            <ul class="mt-2 space-y-2">
+              <li>• Collect customer details</li>
+              <li>• Upload proof of purchase</li>
+              <li>• Submit to Admin for verification</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="lg:col-span-7 rounded-2xl border border-gold/15 bg-[linear-gradient(180deg,#101010,#060606)] shadow-[0_0_25px_rgba(0,0,0,.6)] p-6">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="font-playfair text-gold-soft text-[1.6rem]">Submit Customer Purchase</h2>
+            <div class="text-xs text-white/45">Netlify Forms</div>
+          </div>
+
+          <form name="agent-submission" method="POST" data-netlify="true" enctype="multipart/form-data" class="mt-5 space-y-4">
+            <input type="hidden" name="form-name" value="agent-submission" />
+            <input id="f_ma_ref" type="hidden" name="ma_ref" value="" />
+            <input id="f_agent_email" type="hidden" name="agent_email" value="" />
+            <input id="f_agent_name" type="hidden" name="agent_name" value="" />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs text-white/60">Customer Name</label>
+                <input name="customer_name" required
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="e.g. Siti Nurhaliza" />
+              </div>
+              <div>
+                <label class="text-xs text-white/60">Customer WhatsApp</label>
+                <input name="customer_whatsapp" required inputmode="numeric"
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="e.g. 60123456789" />
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs text-white/60">Customer Address</label>
+              <textarea name="customer_address" rows="3" required
+                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                placeholder="Full address (optional format you want)"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs text-white/60">Purchase Amount (RM)</label>
+                <input name="purchase_amount_rm" inputmode="decimal"
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="e.g. 1499" />
+              </div>
+              <div>
+                <label class="text-xs text-white/60">Purchase Date</label>
+                <input name="purchase_date" type="date"
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30" />
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs text-white/60">Proof of Purchase (Screenshot / Photo)</label>
+              <input name="proof_image" type="file" accept="image/*" required
+                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85" />
+              <div class="mt-1 text-[11px] text-white/45">Upload 1 clear image (receipt / transfer screenshot).</div>
+            </div>
+
+            <div>
+              <label class="text-xs text-white/60">Notes (optional)</label>
+              <textarea name="notes" rows="2"
+                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                placeholder="Any extra notes for Admin"></textarea>
+            </div>
+
+            <button type="submit" id="btnSubmit"
+              class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+              Submit to Admin
+            </button>
+
+            <div class="text-xs text-white/45">After submit, Admin will verify and confirm. Keep customer contact available.</div>
+          </form>
+        </section>
       </div>
-
-      <div id="alertBox" class="hidden mt-5 rounded-2xl soft-border bg-black/25 p-4 text-sm text-white/85"></div>
-
-      <!-- ✅ Netlify Form (with file upload) -->
-      <form id="purchaseForm"
-            class="mt-6 space-y-4"
-            name="customer_purchase"
-            method="POST"
-            data-netlify="true"
-            enctype="multipart/form-data"
-            action="/agent-dashboard.html?success=1">
-
-        <input type="hidden" name="form-name" value="customer_purchase" />
-        <input type="hidden" id="f_ma_ref" name="master_agent_ref" value="" />
-        <input type="hidden" id="f_agent_email" name="agent_email" value="" />
-        <input type="hidden" id="f_agent_name" name="agent_name" value="" />
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="text-xs text-white/60">Customer Full Name</label>
-            <input name="customer_name" required
-              class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-              placeholder="e.g. Siti Nur Aisyah" />
-          </div>
-          <div>
-            <label class="text-xs text-white/60">Customer Phone (WhatsApp)</label>
-            <input name="customer_phone" required
-              class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-              placeholder="e.g. 60123456789" />
-          </div>
-        </div>
-
-        <div>
-          <label class="text-xs text-white/60">Customer Address</label>
-          <textarea name="customer_address" rows="3" required
-            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-            placeholder="Full address (optional format you want)"></textarea>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="text-xs text-white/60">Purchase Amount (RM)</label>
-            <input name="purchase_amount_rm" inputmode="decimal"
-              class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-              placeholder="e.g. 1499" />
-          </div>
-          <div>
-            <label class="text-xs text-white/60">Purchase Date</label>
-            <input name="purchase_date" type="date"
-              class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30" />
-          </div>
-        </div>
-
-        <div>
-          <label class="text-xs text-white/60">Proof of Purchase (Screenshot / Photo)</label>
-          <input name="proof_image" type="file" accept="image/*" required
-            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85" />
-          <div class="mt-1 text-[11px] text-white/45">
-            Upload 1 clear image (receipt / transfer screenshot).
-          </div>
-        </div>
-
-        <div>
-          <label class="text-xs text-white/60">Notes (optional)</label>
-          <textarea name="notes" rows="2"
-            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-            placeholder="Any extra notes for Admin"></textarea>
-        </div>
-
-        <button type="submit" id="btnSubmit"
-          class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-          Submit to Admin
-        </button>
-
-        <div class="text-xs text-white/45">
-          After submit, Admin will verify and confirm. Keep customer contact available.
-        </div>
-      </form>
     </div>
   </main>
 
@@ -211,7 +207,9 @@
       const meta = u.user_metadata || {};
       const email = u.email || "—";
       const name = meta.full_name || (email.includes("@") ? email.split("@")[0] : "Agent");
-      const parent = (meta.parent_ma_code || "").toUpperCase().trim();
+
+      // ✅ FIX: agent signup stores master agent ref as "ma_code"
+      const parent = (meta.ma_code || meta.parent_ma_code || meta.ma_ref || "").toUpperCase().trim();
 
       $("txtEmail").textContent = email;
       $("txtName").textContent = name;
@@ -222,7 +220,6 @@
       $("f_agent_email").value = email || "";
       $("f_agent_name").value = name || "";
 
-      // success message
       const url = new URL(window.location.href);
       if (url.searchParams.get("success") === "1") {
         showAlert("✅ Submitted successfully. Admin will review soon.");
