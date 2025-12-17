@@ -27,7 +27,9 @@
   </script>
 
   <style>
-    body { background: radial-gradient(circle at top, #121212, #000 70%); }
+    body {
+      background: radial-gradient(circle at top, #121212, #000 70%);
+    }
   </style>
 </head>
 
@@ -94,7 +96,8 @@
           </button>
         </div>
 
-        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
+        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80">
+        </div>
 
         <form id="registerForm" class="mt-5 space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -284,11 +287,22 @@
 
         // IMPORTANT: metadata at top-level (NOT inside {data:{...}})
         await identity.gotrue.signup(email, password, {
-          role: "agent",
-          full_name: name,
-          whatsapp,
-          ma_code: maRef
-        }, true);
+          data: {
+            // top-level keys (IMPORTANT)
+            role: "agent",
+            ma_code: maRef,
+            full_name: name,
+            whatsapp: whatsapp,
+
+            // keep compatibility (safe)
+            data: {
+              role: "agent",
+              ma_code: maRef
+            }
+          },
+          confirmationPage: "/confirm.html?role=agent"
+        });
+
 
         showAlert("✅ Agent account created. Please verify email, then login.");
         setTab("login");
