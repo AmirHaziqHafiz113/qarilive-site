@@ -2,6 +2,21 @@
 <html lang="ms">
 
 <head>
+  <script>
+  (function () {
+    const h = window.location.hash || "";
+    const hasIdentityToken =
+      h.includes("confirmation_token=") ||
+      h.includes("recovery_token=") ||
+      h.includes("invite_token=") ||
+      h.includes("access_token=");
+
+    if (hasIdentityToken) {
+      // preserve the token hash
+      window.location.replace("/confirm.html" + h);
+    }
+  })();
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 

@@ -3,20 +3,58 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Email Verified | QariLive</title>
+  <title>Confirming… | QariLive</title>
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 
-<body style="font-family:system-ui;padding:24px;background:#0b0b0b;color:#eee">
-  <h2>Email verified ✅</h2>
-  <p>Redirecting you to login…</p>
+<body style="margin:0;padding:0;background:#0b0b0b;color:#eee;font-family:system-ui;">
+  <div style="max-width:720px;margin:0 auto;padding:28px 16px;">
+    <h2 style="margin:0 0 10px 0;">Confirming your account…</h2>
+    <p style="margin:0;color:rgba(255,255,255,.75)">Please wait. Do not close this tab.</p>
+  </div>
 
   <script>
-    (function () {
-      const url = new URL(window.location.href);
-      const role = (url.searchParams.get("role") || "").toLowerCase();
+    function waitForIdentity(){
+      return new Promise((resolve) => {
+        const t = () => window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(t, 50);
+        t();
+      });
+    }
 
-      if (role === "agent") window.location.href = "/agent-auth.html";
-      else window.location.href = "/master-agent-auth.html";
+    (async () => {
+      const identity = await waitForIdentity();
+      identity.init();
+
+      const hash = window.location.hash || "";
+      const hasToken =
+        hash.includes("confirmation_token=") ||
+        hash.includes("recovery_token=") ||
+        hash.includes("invite_token=") ||
+        hash.includes("access_token=");
+
+      if (!hasToken) {
+        // no token → just go to master login by default
+        window.location.replace("/master-agent-auth.html");
+        return;
+      }
+
+      // When token is processed, Netlify Identity usually logs the user in.
+      identity.on("login", async (user) => {
+        try {
+          const role = (user?.user_metadata?.role || "").toLowerCase();
+          // IMPORTANT: logout so user lands on login page (your requirement)
+          await identity.logout();
+
+          if (role === "agent") window.location.replace("/agent-auth.html?verified=1");
+          else window.location.replace("/master-agent-auth.html?verified=1");
+        } catch (e) {
+          // fallback
+          window.location.replace("/master-agent-auth.html?verified=1");
+        }
+      });
+
+      // Trigger token consumption
+      identity.open();
     })();
   </script>
 </body>
