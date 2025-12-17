@@ -1,17 +1,31 @@
 import { neon } from "@netlify/neon";
+import jwt from "jsonwebtoken";
 
-export async function handler(event, context) {
+function json(statusCode, body) {
+  return {
+    statusCode,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+    },
+    body: JSON.stringify(body),
+  };
+}
+
+function getUserId(event) {
+  const auth = event.headers.authorization || event.headers.Authorization || "";
+  const token = auth.replace("Bearer ", "").trim();
+  if (!token) return null;
+
+  const decoded = jwt.decode(token);
+  return decoded?.sub || null; // Netlify Identity user id
+}
+
+export async function handler(event) {
   try {
-    const user = context?.clientContext?.user;
-    const userId = user?.sub;
-
-    if (!userId) {
-      return {
-        statusCode: 401,
-        headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-        body: JSON.stringify({ ok: false, error: "Unauthorized" })
-      };
-    }
+    const userId = getUserId(event);
+    if (!userId) return json(401, { ok: false, error: "Unauthorized" });
 
     const sql = neon();
 
@@ -22,16 +36,8 @@ export async function handler(event, context) {
       LIMIT 1;
     `;
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-      body: JSON.stringify({ ok: true, data: rows[0] || null })
-    };
+    return json(200, { ok: true, data: rows[0] || null });
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-      body: JSON.stringify({ ok: false, error: err.message })
-    };
+    return json(500, { ok: false, error: err?.message || "Server error" });
   }
 }
