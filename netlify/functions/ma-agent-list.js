@@ -92,3 +92,11 @@ exports.handler = async (event, context) => {
     return json(500, { ok: false, error: "Server error", message: e?.message || String(e) });
   }
 };
+
+return json(500, {
+  ok: false,
+  marker: "MA_AGENT_LIST_GOTRUE_V1",
+  error: "Identity admin token not available in function context. Ensure Netlify Identity is enabled for this site.",
+  debug: { hasUser: !!user, identityUrl: identity?.url || null, hasToken: !!identity?.token }
+});
+
