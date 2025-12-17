@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agent Dashboard | QariLive</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Netlify Identity Widget -->
@@ -18,37 +15,18 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            gold: '#c9a14a',
-            'gold-soft': '#f5e6b3',
-            blackish: '#050505',
-            darkish: '#0b0b0b'
-          },
-          fontFamily: {
-            inter: ['Inter', 'sans-serif'],
-            playfair: ['Playfair Display', 'serif']
-          },
-          boxShadow: {
-            goldGlow: '0 0 34px rgba(201,161,74,.22)'
-          }
+          colors: { gold:'#c9a14a', 'gold-soft':'#f5e6b3', blackish:'#050505', darkish:'#0b0b0b' },
+          fontFamily: { inter:['Inter','sans-serif'], playfair:['Playfair Display','serif'] },
+          boxShadow: { goldGlow: '0 0 34px rgba(201,161,74,.22)' }
         }
       }
     }
   </script>
 
   <style>
-    body {
-      background: radial-gradient(circle at top, #121212, #000 70%);
-    }
-
-    .soft-border {
-      border: 1px solid rgba(255, 255, 255, .10);
-    }
-
-    .focus-gold:focus {
-      outline: none;
-      border-color: rgba(201, 161, 74, .65);
-    }
+    body{ background: radial-gradient(circle at top, #121212, #000 70%); }
+    .soft-border{ border:1px solid rgba(255,255,255,.10); }
+    .focus-gold:focus{ outline:none; border-color: rgba(201,161,74,.65); box-shadow: 0 0 0 4px rgba(201,161,74,.12); }
   </style>
 </head>
 
@@ -61,22 +39,20 @@
         <span class="hidden sm:inline-block text-xs text-white/45 truncate">Agent Dashboard</span>
       </a>
 
-      <div class="flex items-center gap-2">
-        <button id="btnLogout"
-          class="shrink-0 px-4 py-2 rounded-full font-semibold text-white/90 no-underline bg-black/30 border border-white/10 hover:border-gold/60 hover:bg-black/40 transition">
-          Logout
-        </button>
-      </div>
+      <button id="btnLogout"
+        class="shrink-0 px-4 py-2 rounded-full font-semibold text-white/90 bg-black/30 border border-white/10 hover:border-gold/60 hover:bg-black/40 transition">
+        Logout
+      </button>
     </div>
   </header>
 
   <main class="flex-1">
     <div class="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
-
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT: PROFILE -->
         <section class="lg:col-span-5 rounded-2xl border border-gold/15 bg-black/30 p-6">
-          <div
-            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-black/30 shadow-[0_0_18px_rgba(201,161,74,.10)]">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-black/30 shadow-[0_0_18px_rgba(201,161,74,.10)]">
             <span class="w-2 h-2 rounded-full bg-gold"></span>
             <span class="text-gold-soft text-xs">Logged in</span>
           </div>
@@ -84,16 +60,12 @@
           <h1 class="mt-4 font-playfair text-gold-soft text-[2.0rem] leading-tight">Agent Profile</h1>
 
           <div class="mt-4 space-y-2 text-sm text-white/70">
-            <div><span class="text-white/45">Name:</span> <span id="txtName"
-                class="text-gold-soft font-semibold">—</span></div>
-            <div><span class="text-white/45">Email:</span> <span id="txtEmail"
-                class="text-gold-soft font-semibold">—</span></div>
-            <div><span class="text-white/45">Master Agent REF:</span> <span id="txtMARef"
-                class="text-gold-soft font-semibold">—</span></div>
+            <div><span class="text-white/45">Name:</span> <span id="txtName" class="text-gold-soft font-semibold">—</span></div>
+            <div><span class="text-white/45">Email:</span> <span id="txtEmail" class="text-gold-soft font-semibold">—</span></div>
+            <div><span class="text-white/45">Master Agent REF:</span> <span id="txtMARef" class="text-gold-soft font-semibold">—</span></div>
           </div>
 
-          <div id="alertBox"
-            class="hidden mt-5 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
+          <div id="alertBox" class="hidden mt-5 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
 
           <div class="mt-6 rounded-2xl border border-gold/15 bg-black/20 p-4 text-sm text-white/70">
             <div class="font-semibold text-gold-soft">Your job</div>
@@ -105,19 +77,17 @@
           </div>
         </section>
 
-        <section
-          class="lg:col-span-7 rounded-2xl border border-gold/15 bg-[linear-gradient(180deg,#101010,#060606)] shadow-[0_0_25px_rgba(0,0,0,.6)] p-6">
+        <!-- RIGHT: SUBMISSION -->
+        <section class="lg:col-span-7 rounded-2xl border border-gold/15 bg-[linear-gradient(180deg,#101010,#060606)] shadow-[0_0_25px_rgba(0,0,0,.6)] p-6">
           <div class="flex items-center justify-between gap-3">
             <h2 class="font-playfair text-gold-soft text-[1.6rem]">Submit Customer Purchase</h2>
-            <div class="text-xs text-white/45">Netlify Forms</div>
+            <div class="text-xs text-white/45">Neon DB + Cloudinary</div>
           </div>
 
-          <form name="agent-submission" method="POST" data-netlify="true" enctype="multipart/form-data"
-            class="mt-5 space-y-4">
-            <input type="hidden" name="form-name" value="agent-submission" />
-            <input id="f_ma_ref" type="hidden" name="ma_ref" value="" />
-            <input id="f_agent_email" type="hidden" name="agent_email" value="" />
-            <input id="f_agent_name" type="hidden" name="agent_name" value="" />
+          <form id="submissionForm" class="mt-5 space-y-4">
+            <input id="f_ma_ref" type="hidden" value="" />
+            <input id="f_agent_email" type="hidden" value="" />
+            <input id="f_agent_name" type="hidden" value="" />
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -138,7 +108,7 @@
               <label class="text-xs text-white/60">Customer Address</label>
               <textarea name="customer_address" rows="3" required
                 class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-                placeholder="Full address (optional format you want)"></textarea>
+                placeholder="Full address"></textarea>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -174,10 +144,10 @@
               Submit to Admin
             </button>
 
-            <div class="text-xs text-white/45">After submit, Admin will verify and confirm. Keep customer contact
-              available.</div>
+            <div class="text-xs text-white/45">After submit, Admin will verify and confirm. Keep customer contact available.</div>
           </form>
         </section>
+
       </div>
     </div>
   </main>
@@ -195,59 +165,56 @@
     function showAlert(msg, type = "info") {
       alertBox.classList.remove("hidden");
       alertBox.textContent = msg;
-      if (type === "error") {
-        alertBox.classList.add("border-red-500/25", "bg-red-500/10");
-      }
+      alertBox.classList.remove("border-red-500/25","bg-red-500/10","border-gold/20","bg-black/30");
+      if (type === "error") alertBox.classList.add("border-red-500/25","bg-red-500/10");
+      else alertBox.classList.add("border-gold/20","bg-black/30");
     }
-    function hideAlert() { alertBox.classList.add("hidden"); alertBox.textContent = ""; }
+    function hideAlert(){ alertBox.classList.add("hidden"); alertBox.textContent = ""; }
+    function safeRedirect(url){ window.location.href = url; }
 
-    function safeRedirect(url) { window.location.href = url; }
-
-    function waitForIdentity() {
+    function waitForIdentity(){
       return new Promise((resolve) => {
-        const tick = () => {
-          if (window.netlifyIdentity) return resolve(window.netlifyIdentity);
-          setTimeout(tick, 50);
-        };
+        const tick = () => window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(tick, 50);
         tick();
       });
     }
 
-    async function init() {
-      try {
+    async function fileToDataUrl(file){
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result || ""));
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    async function agentUpsert(identity, payload){
+      try{
+        const u = identity.currentUser();
+        if (!u) return;
         const token = await u.jwt();
         await fetch("/.netlify/functions/agent-upsert", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-          },
-          body: JSON.stringify({
-            ma_code: parent,
-            full_name: name,
-            whatsapp: meta.whatsapp || "",
-            email: email
-          })
+          headers: { "Content-Type":"application/json", "Authorization":"Bearer " + token },
+          body: JSON.stringify(payload)
         });
-      } catch (e) {
+      }catch(e){
         console.warn("agent-upsert failed:", e);
       }
+    }
 
+    async function init(){
       const identity = await waitForIdentity();
       identity.init();
 
       const u = identity.currentUser();
-      if (!u) {
-        safeRedirect("agent-auth.html");
-        return;
-      }
+      if (!u) return safeRedirect("agent-auth.html");
 
       const meta = u.user_metadata || {};
       const email = u.email || "—";
       const name = meta.full_name || (email.includes("@") ? email.split("@")[0] : "Agent");
 
-      // ✅ FIX: agent signup stores master agent ref as "ma_code"
-      const parent = (
+      const parent = String(
         meta.ma_code ||
         meta.parent_ma_code ||
         meta.ma_ref ||
@@ -260,10 +227,17 @@
       $("txtName").textContent = name;
       $("txtMARef").textContent = parent || "—";
 
-      // fill hidden fields for netlify form
       $("f_ma_ref").value = parent || "";
       $("f_agent_email").value = email || "";
       $("f_agent_name").value = name || "";
+
+      // ✅ make sure agent exists in Neon (agents table)
+      await agentUpsert(identity, {
+        ma_code: parent,
+        full_name: name,
+        whatsapp: meta.whatsapp || "",
+        email: email
+      });
 
       const url = new URL(window.location.href);
       if (url.searchParams.get("success") === "1") {
@@ -274,10 +248,65 @@
         try { await identity.logout(); }
         finally { safeRedirect("agent-auth.html"); }
       });
+
+      const form = $("submissionForm");
+      const btn = $("btnSubmit");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        hideAlert();
+
+        try{
+          btn.disabled = true;
+          btn.textContent = "Submitting...";
+
+          const uu = identity.currentUser();
+          if (!uu) return safeRedirect("agent-auth.html");
+          const token = await uu.jwt();
+
+          const fd = new FormData(form);
+          const proofFile = form.querySelector('input[name="proof_image"]').files?.[0];
+          if (!proofFile) { showAlert("Please upload proof image.", "error"); return; }
+
+          const proof_data_url = await fileToDataUrl(proofFile);
+
+          const payload = {
+            ma_code: $("f_ma_ref").value || "",
+            agent_email: $("f_agent_email").value || "",
+            agent_name: $("f_agent_name").value || "",
+            customer_name: fd.get("customer_name") || "",
+            customer_phone: fd.get("customer_whatsapp") || "",
+            customer_address: fd.get("customer_address") || "",
+            purchase_amount_rm: fd.get("purchase_amount_rm") || "",
+            purchase_date: fd.get("purchase_date") || "",
+            notes: fd.get("notes") || "",
+            proof_data_url,
+            proof_filename: proofFile.name || "proof.jpg",
+          };
+
+          const res = await fetch("/.netlify/functions/agent-submission-create", {
+            method: "POST",
+            headers: { "Content-Type":"application/json", "Authorization":"Bearer " + token },
+            body: JSON.stringify(payload),
+          });
+
+          const out = await res.json().catch(() => ({}));
+          if (!res.ok || !out.ok) throw new Error(out.error || ("Submit failed (HTTP " + res.status + ")"));
+
+          showAlert("✅ Submitted successfully. Admin will review soon.");
+          form.reset();
+
+        }catch(err){
+          console.error(err);
+          showAlert(err?.message || "Submit failed.", "error");
+        }finally{
+          btn.disabled = false;
+          btn.textContent = "Submit to Admin";
+        }
+      });
     }
 
     init();
   </script>
 </body>
-
 </html>
