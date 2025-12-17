@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agent | Register / Login</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Netlify Identity Widget -->
@@ -15,8 +18,8 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: { gold:'#c9a14a', 'gold-soft':'#f5e6b3', blackish:'#050505', darkish:'#0b0b0b' },
-          fontFamily: { inter:['Inter','sans-serif'], playfair:['Playfair Display','serif'] },
+          colors: { gold: '#c9a14a', 'gold-soft': '#f5e6b3', blackish: '#050505', darkish: '#0b0b0b' },
+          fontFamily: { inter: ['Inter', 'sans-serif'], playfair: ['Playfair Display', 'serif'] },
           boxShadow: { goldGlow: '0 0 34px rgba(201,161,74,.22)' }
         }
       }
@@ -24,7 +27,9 @@
   </script>
 
   <style>
-    body{ background: radial-gradient(circle at top, #121212, #000 70%); }
+    body {
+      background: radial-gradient(circle at top, #121212, #000 70%);
+    }
   </style>
 </head>
 
@@ -38,7 +43,7 @@
       </a>
 
       <a href="index.html"
-         class="shrink-0 px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+        class="shrink-0 px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
         Back to Site
       </a>
     </div>
@@ -48,7 +53,8 @@
     <div class="max-w-[980px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
 
       <section class="lg:col-span-5 rounded-2xl border border-gold/15 bg-black/30 p-6">
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-black/30 shadow-[0_0_18px_rgba(201,161,74,.10)]">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-black/30 shadow-[0_0_18px_rgba(201,161,74,.10)]">
           <span class="w-2 h-2 rounded-full bg-gold"></span>
           <span class="text-gold-soft text-xs">Agent Account</span>
         </div>
@@ -72,7 +78,8 @@
         </div>
       </section>
 
-      <section class="lg:col-span-7 rounded-2xl border border-gold/15 bg-[linear-gradient(180deg,#101010,#060606)] shadow-[0_0_25px_rgba(0,0,0,.6)] p-6">
+      <section
+        class="lg:col-span-7 rounded-2xl border border-gold/15 bg-[linear-gradient(180deg,#101010,#060606)] shadow-[0_0_25px_rgba(0,0,0,.6)] p-6">
         <div class="flex items-center justify-between gap-3">
           <h2 class="font-playfair text-gold-soft text-[1.6rem]">Agent Access</h2>
           <div class="text-xs text-white/45">Netlify Identity</div>
@@ -89,7 +96,8 @@
           </button>
         </div>
 
-        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
+        <div id="alertBox" class="hidden mt-4 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80">
+        </div>
 
         <form id="registerForm" class="mt-5 space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -170,27 +178,27 @@
     $("maRefLabel").textContent = maRef || "MISSING REF";
 
     const alertBox = $("alertBox");
-    function showAlert(msg, type="info"){
+    function showAlert(msg, type = "info") {
       alertBox.classList.remove("hidden");
       alertBox.textContent = msg;
 
-      alertBox.classList.remove("border-red-500/25","bg-red-500/10","border-gold/20","bg-black/30");
-      if(type === "error"){
-        alertBox.classList.add("border-red-500/25","bg-red-500/10");
+      alertBox.classList.remove("border-red-500/25", "bg-red-500/10", "border-gold/20", "bg-black/30");
+      if (type === "error") {
+        alertBox.classList.add("border-red-500/25", "bg-red-500/10");
       } else {
-        alertBox.classList.add("border-gold/20","bg-black/30");
+        alertBox.classList.add("border-gold/20", "bg-black/30");
       }
     }
-    function hideAlert(){ alertBox.classList.add("hidden"); alertBox.textContent = ""; }
+    function hideAlert() { alertBox.classList.add("hidden"); alertBox.textContent = ""; }
 
-    function safeRedirect(url){ window.location.href = url; }
+    function safeRedirect(url) { window.location.href = url; }
 
     const tabRegister = $("tabRegister");
     const tabLogin = $("tabLogin");
     const registerForm = $("registerForm");
     const loginForm = $("loginForm");
 
-    function setTab(which){
+    function setTab(which) {
       hideAlert();
       const isReg = which === "register";
       registerForm.classList.toggle("hidden", !isReg);
@@ -207,7 +215,7 @@
     tabRegister.addEventListener("click", () => setTab("register"));
     tabLogin.addEventListener("click", () => setTab("login"));
 
-    function waitForIdentity(){
+    function waitForIdentity() {
       return new Promise((resolve) => {
         const tick = () => {
           if (window.netlifyIdentity) return resolve(window.netlifyIdentity);
@@ -217,13 +225,52 @@
       });
     }
 
-    async function init(){
+    async function handleIdentityHashTokens() {
       const identity = await waitForIdentity();
       identity.init();
 
-      const u = identity.currentUser();
-      if (u) safeRedirect("agent-dashboard.html");
+      const hash = window.location.hash || "";
+      const hasToken =
+        hash.includes("confirmation_token=") ||
+        hash.includes("recovery_token=") ||
+        hash.includes("invite_token=") ||
+        hash.includes("access_token=");
+
+      if (!hasToken) return false;
+
+      // Let Netlify Identity consume the token properly
+      // then send user back to the correct login page (keep ?ref for agent)
+      identity.on("login", (user) => {
+        const role = (user?.user_metadata?.role || "").toLowerCase();
+        if (role === "agent") {
+          const url = new URL(window.location.href);
+          const ref = url.searchParams.get("ref");
+          return safeRedirect("agent-auth.html" + (ref ? ("?ref=" + encodeURIComponent(ref)) : ""));
+        }
+        return safeRedirect("master-agent-auth.html");
+      });
+
+      // This triggers the widget to process the hash tokens
+      identity.open();
+      return true;
     }
+
+
+async function init(){
+  const consumed = await handleIdentityHashTokens();
+  if (consumed) return; // stop normal redirects so token isn't lost
+
+  const identity = await waitForIdentity();
+  identity.init();
+
+  const u = identity.currentUser();
+  if (!u) return;
+
+  const role = (u.user_metadata?.role || "").toLowerCase();
+  if (role === "agent") return safeRedirect("agent-dashboard.html");
+  return safeRedirect("master-agent-dashboard.html");
+}
+
 
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -234,7 +281,7 @@
         return;
       }
 
-      try{
+      try {
         const identity = await waitForIdentity();
         identity.init();
 
@@ -260,7 +307,7 @@
         setTimeout(() => safeRedirect("agent-auth.html?ref=" + encodeURIComponent(maRef)), 900);
         setTab("login");
 
-      } catch (err){
+      } catch (err) {
         showAlert(err?.message || "Registration failed.", "error");
       }
     });
@@ -269,7 +316,7 @@
       e.preventDefault();
       hideAlert();
 
-      try{
+      try {
         const identity = await waitForIdentity();
         identity.init();
 
@@ -278,14 +325,14 @@
 
         await identity.gotrue.login(email, password, true);
         safeRedirect("agent-dashboard.html");
-      } catch (err){
+      } catch (err) {
         showAlert(err?.message || "Login failed.", "error");
       }
     });
 
     $("openRecovery").addEventListener("click", async () => {
       hideAlert();
-      try{
+      try {
         const identity = await waitForIdentity();
         identity.open("recovery");
       } catch {
@@ -296,4 +343,5 @@
     init();
   </script>
 </body>
+
 </html>
