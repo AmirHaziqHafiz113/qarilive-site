@@ -1,28 +1,55 @@
-import { getStore } from "@netlify/blobs";
+import { neon } from "@netlify/neon";
 
-export default async (request) => {
+function json(statusCode, body) {
+  return {
+    statusCode,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+    },
+    body: JSON.stringify(body),
+  };
+}
+
+function normalizeWa(input) {
+  const raw = (input || "").trim();
+  if (!raw) return "";
+  if (raw.startsWith("https://wa.me/") || raw.startsWith("http://wa.me/")) return raw;
+  const digits = raw.replace(/[^\d]/g, "");
+  return digits ? `https://wa.me/${digits}` : "";
+}
+
+export async function handler(event) {
   try {
-    const url = new URL(request.url);
-    const ref = (url.searchParams.get("ref") || "").trim();
+    const ref = (event.queryStringParameters?.ref || "").trim();
+    if (!ref) return json(400, { ok: false, error: "Missing ref" });
 
-    if (!ref) {
-      return Response.json({ ok: false, error: "Missing ref" }, { status: 400 });
-    }
+    const sql = neon(); // uses NETLIFY_DATABASE_URL
 
-    // Store name: master_agents (you will save data with key = ref)
-    const store = getStore("master_agents");
+    // IMPORTANT: allow lookup by ma_code (preferred) OR user_id (fallback)
+    const rows = await sql`
+      SELECT user_id, ma_code, full_name, whatsapp
+      FROM public.ma_payout
+      WHERE ma_code = ${ref} OR user_id = ${ref}
+      LIMIT 1;
+    `;
 
-    const data = await store.get(ref, { type: "json" });
+    if (!rows.length) return json(404, { ok: false, error: "REF not found" });
 
-    if (!data) {
-      return Response.json({ ok: false, error: "Not found" }, { status: 404 });
-    }
+    const row = rows[0];
 
-    return Response.json({ ok: true, data }, { status: 200 });
-  } catch (e) {
-    return Response.json(
-      { ok: false, error: "Server error", detail: String(e?.message || e) },
-      { status: 500 }
-    );
+    return json(200, {
+      ok: true,
+      data: {
+        full_name: row.full_name || "Master Agent",
+        ma_code: row.ma_code || row.user_id,
+        whatsapp: normalizeWa(row.whatsapp),
+        checkout_url: "https://checkout.xendit.co/od/qarilivelite",
+      },
+    });
+  } catch (err) {
+    console.error("ma-get error:", err);
+    return json(500, { ok: false, error: "Server error" });
   }
-};
+}
