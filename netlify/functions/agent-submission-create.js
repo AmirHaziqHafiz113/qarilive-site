@@ -29,7 +29,6 @@ function safeStr(v) {
 }
 
 function parseDataUrl(dataUrl) {
-  // data:image/png;base64,AAAA
   const s = String(dataUrl || "");
   const m = s.match(/^data:([^;]+);base64,(.+)$/);
   if (!m) return null;
@@ -60,41 +59,20 @@ function requireEnv(name) {
   return v;
 }
 
-// ---------- Google Drive ----------
-function loadServiceAccount() {
-  const raw = requireEnv("GOOGLE_SERVICE_ACCOUNT_JSON");
-  let creds;
-  try {
-    creds = JSON.parse(raw);
-  } catch {
-    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON.");
-  }
+// ---------- Google Drive (OAuth) ----------
+async function getDriveClientOAuth() {
+  const clientId = requireEnv("GOOGLE_CLIENT_ID");
+  const clientSecret = requireEnv("GOOGLE_CLIENT_SECRET");
+  const refreshToken = requireEnv("GOOGLE_REFRESH_TOKEN");
 
-  if (!creds.client_email || !creds.private_key) {
-    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON missing client_email/private_key.");
-  }
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
 
-  // Fix escaped newlines (common when storing in env)
-  const fixedKey = String(creds.private_key).replace(/\\n/g, "\n");
-  return { ...creds, private_key: fixedKey };
-}
-
-async function getDriveClient() {
-  const creds = loadServiceAccount();
-
-  const auth = new google.auth.JWT({
-    email: creds.client_email,
-    key: creds.private_key,
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
-
-  return google.drive({ version: "v3", auth });
+  return google.drive({ version: "v3", auth: oauth2Client });
 }
 
 async function uploadToDrive({ buffer, mimeType, filename, folderId }) {
-  const drive = await getDriveClient();
-
-  // googleapis expects a stream or file-like body
+  const drive = await getDriveClientOAuth();
   const bodyStream = Readable.from(buffer);
 
   const createRes = await drive.files.create({
@@ -112,7 +90,7 @@ async function uploadToDrive({ buffer, mimeType, filename, folderId }) {
   const fileId = createRes?.data?.id;
   if (!fileId) throw new Error("Failed to upload file to Google Drive.");
 
-  // Make it "anyone with link can view"
+  // Anyone with link can view
   await drive.permissions.create({
     fileId,
     requestBody: { role: "reader", type: "anyone" },
@@ -174,7 +152,7 @@ export async function handler(event) {
     if (!customer_phone) return json(400, { ok: false, error: "Missing customer_phone." });
     if (!proof_data_url) return json(400, { ok: false, error: "Missing proof_data_url." });
 
-    // IMPORTANT: base64 JSON can blow up request size easily
+    // base64 JSON can blow up request size easily
     if (proof_data_url.length > 6 * 1024 * 1024) {
       return json(400, { ok: false, error: "Image too large. Please upload a smaller image (try < 2MB)." });
     }
@@ -189,7 +167,7 @@ export async function handler(event) {
     const safeName = sanitizeFilename(proof_filename.replace(/\.(png|jpg|jpeg|webp|gif)$/i, ""));
     const fileName = `QariLive_${ma_code}_${Date.now()}_${safeName}.${ext}`;
 
-    // Upload to Drive
+    // Upload to Drive (OAuth)
     const { fileId, viewUrl } = await uploadToDrive({
       buffer,
       mimeType: mime,
@@ -240,13 +218,14 @@ export async function handler(event) {
       proof_url: viewUrl,
     });
   } catch (e) {
-    // Return more useful errors (still safe)
-    console.error("agent-submission-create error:", e?.response?.data || e);
+    // Better debug output
+    console.error("agent-submission-create error:", e?.response?.data || e?.stack || e);
+
     return json(500, {
       ok: false,
       error: e?.message || "Server error",
       hint:
-        "Check: DRIVE_FOLDER_ID, folder shared with service account email, GOOGLE_SERVICE_ACCOUNT_JSON valid, and image size.",
+        "Check: DRIVE_FOLDER_ID is correct, OAuth env vars (GOOGLE_CLIENT_ID/SECRET/REFRESH_TOKEN) exist, and the folder is owned by the same Google account used for OAuth.",
     });
   }
 }
