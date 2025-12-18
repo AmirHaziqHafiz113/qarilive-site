@@ -242,7 +242,7 @@
                   class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
                   placeholder="Master Agent REF or Agent user_id" />
                 <div class="mt-1 text-[11px] text-white/45">
-                  Master Agent: lookup by <span class="text-white/80">ma_code</span> or <span class="text-white/80">user_id</span> (your DB supports both). :contentReference[oaicite:3]{index=3}
+                  Master Agent: lookup by <span class="text-white/80">ma_code</span> or <span class="text-white/80">user_id</span> (your DB supports both).
                 </div>
               </div>
 
@@ -287,8 +287,8 @@
                   <div><span class="text-white/45">Account Name:</span> <span id="bankName">—</span></div>
                   <div><span class="text-white/45">Account Number:</span> <span id="bankAcc">—</span></div>
                   <div class="mt-2 text-[11px] text-white/45">
-                    Master Agent bank is stored in <span class="text-white/80">ma_payout</span>. :contentReference[oaicite:4]{index=4}
-                    Agent bank is stored in <span class="text-white/80">agent_payout_details</span>. :contentReference[oaicite:5]{index=5}
+                    Master Agent bank is stored in <span class="text-white/80">ma_payout</span>.
+                    Agent bank is stored in <span class="text-white/80">agent_payout_details</span>.
                   </div>
                 </div>
               </div>
@@ -337,17 +337,29 @@
       });
     }
 
+    // ✅ Correct role check: Netlify Identity roles live in JWT app_metadata.roles
+    function isAdminFromJwt(token){
+      try{
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const roles = payload?.app_metadata?.roles || [];
+        return Array.isArray(roles) && roles.includes("admin");
+      }catch{
+        return false;
+      }
+    }
+
     async function requireAdmin(identity){
       identity.init();
       const u = identity.currentUser();
       if (!u) return (window.location.href = "admin-auth.html");
 
-      const role = String(u.user_metadata?.role || "").toLowerCase();
-      if (role !== "admin"){
+      const token = await u.jwt();
+      if (!isAdminFromJwt(token)){
         await identity.logout();
         window.location.href = "admin-auth.html";
         return null;
       }
+
       $("adminEmail").textContent = u.email || "admin";
       return u;
     }
@@ -396,7 +408,7 @@
       });
     }
 
-    // --- Analytics (uses your existing function) ---
+    // --- Analytics (uses your existing function: admin-agent-stats.js) ---
     async function loadAnalytics(identity){
       try{
         $("analyticsStatus").textContent = "Loading...";
@@ -475,8 +487,6 @@
     }
 
     async function loadUsers(identity){
-      // You will implement this Netlify function next.
-      // It should return Identity users with user_metadata (role, ma_code/parent_ma_code, full_name, etc.)
       const res = await fetch("/.netlify/functions/admin-users-list?t=" + Date.now(), {
         headers: { ...(await authHeader(identity)) }
       });
@@ -507,7 +517,7 @@
       const out = await res.json().catch(()=>({}));
       if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
 
-      showAlert("✅ User created. (You can choose to send invite email / set temp password in server logic.)");
+      showAlert("✅ User created (invite should be sent by server).");
     }
 
     window.__disableUser = async (id)=>{
@@ -553,14 +563,12 @@
       $("bankName").textContent = "—";
       $("bankAcc").textContent = "—";
 
-      // 1) earnings
       const eRes = await fetch("/.netlify/functions/admin-earnings-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
         headers: { ...(await authHeader(identity)) }
       });
       const eOut = await eRes.json().catch(()=>({}));
       if (!eRes.ok || !eOut.ok) throw new Error(eOut.error || "Failed to load earnings.");
 
-      // 2) bank
       const bRes = await fetch("/.netlify/functions/admin-bank-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
         headers: { ...(await authHeader(identity)) }
       });
@@ -635,8 +643,6 @@
           $("newEmail").value = "";
           $("newName").value = "";
           $("newParentMA").value = "";
-          // optionally reload users
-          // await loadUsers(identity);
         }catch(e){
           showAlert(e?.message || "Create user failed.", "error");
         }finally{
@@ -660,7 +666,6 @@
         finally{ btn.disabled = false; btn.textContent = old; }
       });
 
-      // initial
       renderEarningsChartPlaceholder();
       await loadAnalytics(identity);
     }
