@@ -372,10 +372,14 @@
     async function loadAnalytics(identity){
       try{
         $("analyticsStatus").textContent = "Loading...";
-        const res = await fetch("/.netlify/functions/admin-agent-stats?t=" + Date.now(), {
+
+        // ✅ IMPORTANT: You said you don't want /admin folder for functions
+        // So the endpoint must be the file name: netlify/functions/agent-stats.js
+        const res = await fetch("/.netlify/functions/agent-stats?t=" + Date.now(), {
           method: "GET",
           headers: { ...(await authHeader(identity)) }
         });
+
         const out = await res.json().catch(()=>({}));
         if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
 
