@@ -47,7 +47,30 @@ export async function handler(event) {
     const IDENTITY_TOKEN = process.env.NETLIFY_IDENTITY_TOKEN;
 
     if (!SITE_ID || !IDENTITY_TOKEN) {
-      return json(500, { ok: false, error: "Missing NETLIFY_SITE_ID or NETLIFY_IDENTITY_TOKEN" });
+      return json(500, {
+        ok: false,
+        error: "Missing env vars",
+        hasSiteId: !!SITE_ID,
+        hasIdentityToken: !!IDENTITY_TOKEN,
+      });
+    }
+
+    const siteIdMasked = String(SITE_ID).slice(0, 8) + "...";
+
+    // Quick sanity check: can this token see this site at all?
+    const siteCheckUrl = `https://api.netlify.com/api/v1/sites/${SITE_ID}`;
+    {
+      const r = await fetch(siteCheckUrl, { headers: { Authorization: `Bearer ${IDENTITY_TOKEN}` } });
+      const t = await r.text().catch(() => "");
+      if (!r.ok) {
+        return json(r.status, {
+          ok: false,
+          error: "Netlify token/site check failed",
+          siteIdMasked,
+          attempted: siteCheckUrl,
+          detail: t,
+        });
+      }
     }
 
     let url = `https://api.netlify.com/api/v1/sites/${SITE_ID}/identity/users?per_page=100`;
@@ -56,18 +79,26 @@ export async function handler(event) {
     const allUsers = [];
     while (url) {
       const res = await fetch(url, { headers });
+      const txt = await res.text().catch(() => "");
+
       if (!res.ok) {
-        const t = await res.text().catch(() => "");
-        return json(res.status, { ok: false, error: "Failed to fetch users", detail: t });
+        return json(res.status, {
+          ok: false,
+          error: "Failed to fetch users",
+          siteIdMasked,
+          attempted: url,
+          detail: txt,
+        });
       }
 
-      const users = await res.json();
+      const users = JSON.parse(txt || "[]");
       allUsers.push(...users);
 
       const link = res.headers.get("link") || res.headers.get("Link") || "";
       url = parseNextLink(link);
     }
 
+    // ... your existing aggregation logic
     const counts = {};
     let totalAgents = 0;
 
@@ -94,7 +125,7 @@ export async function handler(event) {
       byMasterAgent,
     });
   } catch (err) {
-    console.error("admin-agent-stats error:", err);
+    console.error("agent-stats error:", err);
     return json(500, { ok: false, error: err?.message || "Server error" });
   }
 }

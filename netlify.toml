@@ -1,23 +1,18 @@
-[[redirects]]
-from = "/.netlify/identity/*"
-to = "/.netlify/identity/:splat"
-status = 200
+[build]
+  publish = "."
+  functions = "netlify/functions"
 
+# Admin shortcut URL (no admin folder needed)
 [[redirects]]
-from = "/.netlify/functions/*"
-to = "/.netlify/functions/:splat"
-status = 200
+  from = "/admin"
+  to = "/admin-dashboard.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
 
+# Non-admins going to /admin get sent to login
 [[redirects]]
-from = "/admin"
-to = "/admin-dashboard.html"
-status = 200
-force = true
-conditions = { Role = ["admin"] }
-
-[[redirects]]
-from = "/admin/*"
-to = "/admin-dashboard.html"
-status = 200
-force = true
-conditions = { Role = ["admin"] }
+  from = "/admin"
+  to = "/admin-login.html"
+  status = 302
+  force = true
