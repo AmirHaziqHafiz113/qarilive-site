@@ -1,4 +1,4 @@
-// netlify/functions/ma-submissions-list.js
+// netlify/functions/agent-submissions-self.js
 import jwt from "jsonwebtoken";
 import { Pool } from "pg";
 
@@ -47,31 +47,27 @@ export async function handler(event) {
       return json(405, { ok: false, error: "Method not allowed" });
     }
 
-    const maCode = (event.queryStringParameters?.ma_code || "").trim().toUpperCase();
-    if (!maCode) return json(400, { ok: false, error: "Missing ma_code" });
-
     const pool = getPool();
 
     const r = await pool.query(
       `
       SELECT
         id, created_at, ma_code,
-        agent_email, agent_name,
         customer_name, customer_phone,
         purchase_amount_rm, purchase_date,
         notes,
         proof_url, status
       FROM public.agent_submissions
-      WHERE ma_code = $1
+      WHERE agent_user_id = $1
       ORDER BY created_at DESC
       LIMIT 500
       `,
-      [maCode]
+      [userId]
     );
 
     return json(200, { ok: true, count: r.rows.length, submissions: r.rows });
   } catch (err) {
-    console.error("ma-submissions-list error:", err);
+    console.error("agent-submissions-self error:", err);
     return json(500, { ok: false, error: err?.message || "Server error" });
   }
 }

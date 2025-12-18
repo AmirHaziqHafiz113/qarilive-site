@@ -28,6 +28,20 @@ function safeStr(v) {
   return String(v ?? "").trim();
 }
 
+function safeInt(v, fallback = 0) {
+  const n = Number(String(v ?? "").trim());
+  if (!Number.isFinite(n)) return fallback;
+  return Math.trunc(n);
+}
+
+function safeMoney(v, fallback = 0) {
+  // accept "3000", "3,000", "3000.00"
+  const s = String(v ?? "").replace(/,/g, "").trim();
+  const n = Number(s);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.round(n * 100) / 100;
+}
+
 function parseDataUrl(dataUrl) {
   const s = String(dataUrl || "");
   const m = s.match(/^data:([^;]+);base64,(.+)$/);
@@ -122,6 +136,12 @@ function getPool() {
   return _pool;
 }
 
+// Fixed-price products (RM)
+const PRODUCT_PRICES_RM = {
+  "QariLive Lite": 1500,
+  "QariLive Azan Clock": 3000,
+};
+
 export async function handler(event) {
   try {
     const userId = getUserId(event);
@@ -140,9 +160,14 @@ export async function handler(event) {
     const customer_name = safeStr(body.customer_name);
     const customer_phone = safeStr(body.customer_phone);
     const customer_address = safeStr(body.customer_address);
-    const purchase_amount_rm = safeStr(body.purchase_amount_rm);
+
+    // Product fields (new)
+    const product_name = safeStr(body.product_name) || "QariLive Lite";
+    const quantity = Math.max(1, safeInt(body.quantity, 1));
+    const unit_price_rm = PRODUCT_PRICES_RM[product_name] ?? safeMoney(body.unit_price_rm, 0);
+
     const purchase_date = safeStr(body.purchase_date);
-    const notes = safeStr(body.notes);
+    const userNotes = safeStr(body.notes);
 
     const proof_data_url = safeStr(body.proof_data_url);
     const proof_filename = safeStr(body.proof_filename) || "proof.jpg";
@@ -151,6 +176,18 @@ export async function handler(event) {
     if (!customer_name) return json(400, { ok: false, error: "Missing customer_name." });
     if (!customer_phone) return json(400, { ok: false, error: "Missing customer_phone." });
     if (!proof_data_url) return json(400, { ok: false, error: "Missing proof_data_url." });
+
+    // Validate product (optional strict)
+    if (!PRODUCT_PRICES_RM[product_name]) {
+      return json(400, { ok: false, error: "Invalid product_name. Allowed: QariLive Lite, QariLive Azan Clock." });
+    }
+
+    // Always compute total from fixed unit price
+    const total_amount_rm = unit_price_rm * quantity;
+
+    // Store meta in notes (no DB schema change)
+    const metaLine = `[QL_PRODUCT]=${product_name};[QL_QTY]=${quantity};[QL_UNIT]=${unit_price_rm};`;
+    const notes = userNotes ? `${userNotes}\n${metaLine}` : metaLine;
 
     // base64 JSON can blow up request size easily
     if (proof_data_url.length > 6 * 1024 * 1024) {
@@ -200,7 +237,7 @@ export async function handler(event) {
       customer_name,
       customer_phone,
       customer_address,
-      purchase_amount_rm || null,
+      String(total_amount_rm), // store as text (existing column)
       purchase_date || null,
       notes || null,
       viewUrl,
@@ -216,6 +253,10 @@ export async function handler(event) {
       id: row?.id,
       created_at: row?.created_at,
       proof_url: viewUrl,
+      total_amount_rm,
+      product_name,
+      quantity,
+      unit_price_rm,
     });
   } catch (e) {
     // Better debug output

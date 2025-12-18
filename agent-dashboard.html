@@ -27,19 +27,16 @@
   </script>
 
   <style>
-    body {
-      background: radial-gradient(circle at top, #121212, #000 70%);
-    }
-
-    .soft-border {
-      border: 1px solid rgba(255, 255, 255, .10);
-    }
-
+    body { background: radial-gradient(circle at top, #121212, #000 70%); }
+    .soft-border { border: 1px solid rgba(255, 255, 255, .10); }
     .focus-gold:focus {
       outline: none;
       border-color: rgba(201, 161, 74, .65);
       box-shadow: 0 0 0 4px rgba(201, 161, 74, .12);
     }
+    .glass { background: rgba(0,0,0,.30); border: 1px solid rgba(201,161,74,.15); }
+    th.sortable { cursor:pointer; user-select:none; }
+    th.sortable:hover { background: rgba(0,0,0,.35); }
   </style>
 </head>
 
@@ -130,17 +127,64 @@
                 placeholder="Full address"></textarea>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="text-xs text-white/60">Purchase Amount (RM)</label>
-                <input name="purchase_amount_rm" inputmode="decimal"
-                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-                  placeholder="e.g. 1499" />
+            <!-- PRODUCT -->
+            <div class="rounded-2xl soft-border bg-black/20 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <div class="text-xs text-white/60">Product</div>
+                  <div class="mt-1 text-sm text-white/70">Select item and quantity. Price is fixed.</div>
+                </div>
+                <div class="text-xs text-white/45">Auto-calc amount</div>
               </div>
+
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="cursor-pointer rounded-2xl soft-border bg-black/25 p-4 hover:border-gold/50 transition">
+                  <input type="radio" name="product_choice" value="QariLive Lite" class="mr-2 accent-[#c9a14a]" checked />
+                  <span class="font-semibold text-white/90">QariLive Lite</span>
+                  <div class="mt-1 text-xs text-white/55">RM 1,500 / unit</div>
+                </label>
+
+                <label class="cursor-pointer rounded-2xl soft-border bg-black/25 p-4 hover:border-gold/50 transition">
+                  <input type="radio" name="product_choice" value="QariLive Azan Clock" class="mr-2 accent-[#c9a14a]" />
+                  <span class="font-semibold text-white/90">QariLive Azan Clock</span>
+                  <div class="mt-1 text-xs text-white/55">RM 3,000 / unit</div>
+                </label>
+              </div>
+
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                <div>
+                  <label class="text-xs text-white/60">Quantity</label>
+                  <input id="qty" name="quantity" type="number" min="1" step="1" value="1" required
+                    class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30" />
+                </div>
+
+                <div>
+                  <label class="text-xs text-white/60">Unit Price (RM)</label>
+                  <input id="unitPrice" type="text" readonly
+                    class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border text-white/70" />
+                </div>
+
+                <div>
+                  <label class="text-xs text-white/60">Total Amount (RM)</label>
+                  <input id="totalAmount" name="purchase_amount_rm" type="text" readonly
+                    class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border text-white/90 font-semibold" />
+                </div>
+              </div>
+
+              <div class="mt-2 text-[11px] text-white/45">If customer buys more than 1 unit, just increase Quantity.</div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="text-xs text-white/60">Purchase Date</label>
                 <input name="purchase_date" type="date"
                   class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30" />
+              </div>
+              <div>
+                <label class="text-xs text-white/60">Notes (optional)</label>
+                <input name="notes"
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="Any extra notes for Admin" />
               </div>
             </div>
 
@@ -151,13 +195,6 @@
               <div class="mt-1 text-[11px] text-white/45">Upload 1 clear image (receipt / transfer screenshot).</div>
             </div>
 
-            <div>
-              <label class="text-xs text-white/60">Notes (optional)</label>
-              <textarea name="notes" rows="2"
-                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-                placeholder="Any extra notes for Admin"></textarea>
-            </div>
-
             <button type="submit" id="btnSubmit"
               class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
               Submit to Admin
@@ -166,6 +203,70 @@
             <div class="text-xs text-white/45">After submit, Admin will verify and confirm. Keep customer contact
               available.</div>
           </form>
+        </section>
+
+        <!-- FULL WIDTH: MY SUBMISSIONS -->
+        <section class="lg:col-span-12 rounded-2xl glass p-6">
+          <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <h2 class="font-playfair text-gold-soft text-2xl">My Submissions</h2>
+              <p class="mt-1 text-sm text-white/60">Only shows submissions created by <span class="text-white/80">your account</span>.</p>
+            </div>
+            <div class="text-left md:text-right">
+              <div class="text-[11px] text-white/45 uppercase tracking-wider">Total</div>
+              <div id="mySubCount" class="mt-1 text-3xl font-semibold text-gold-soft">—</div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-col lg:flex-row lg:items-center gap-3">
+            <div class="flex flex-wrap gap-2 items-center">
+              <button id="btnRefreshMySubs"
+                class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+                Refresh
+              </button>
+              <div id="mySubsStatus" class="text-sm text-white/55">—</div>
+            </div>
+
+            <div class="flex-1"></div>
+
+            <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <input id="mySubsSearch"
+                class="w-full sm:w-[320px] px-4 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30 text-sm"
+                placeholder="Search my submissions..." />
+              <select id="mySubsPerPage" class="px-3 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white/85 text-sm">
+                <option value="5">5 / page</option>
+                <option value="10" selected>10 / page</option>
+                <option value="20">20 / page</option>
+                <option value="50">50 / page</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-4 overflow-x-auto">
+            <table id="mySubsTable" class="min-w-full text-sm soft-border rounded-xl overflow-hidden">
+              <thead class="bg-black/30">
+                <tr class="text-left">
+                  <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="customer_name">Customer</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="customer_phone">Phone</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="product">Product</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="qty">Qty</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="purchase_amount_rm">Amount (RM)</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="status">Status</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="created_at">Submitted</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Proof</th>
+                </tr>
+              </thead>
+              <tbody id="tblMySubs" class="divide-y divide-white/10 bg-black/15">
+                <tr><td class="px-4 py-4 text-white/60" colspan="8">Not loaded yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between gap-3">
+            <button id="mySubsPrev" class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm">Prev</button>
+            <div id="mySubsPageInfo" class="text-sm text-white/55">—</div>
+            <button id="mySubsNext" class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm">Next</button>
+          </div>
         </section>
 
       </div>
@@ -199,6 +300,138 @@
       });
     }
 
+    function escapeHtml(s){
+      return String(s || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function fmtDate(iso){
+      if (!iso) return "—";
+      try{ const d = new Date(iso); if (isNaN(d.getTime())) return "—"; return d.toLocaleString(); }
+      catch{ return "—"; }
+    }
+
+    // Notes meta parsing (from agent-submission-create)
+    function parseMetaFromNotes(notes){
+      const out = { product:"—", qty:"—", unit:"—" };
+      const s = String(notes || "");
+      const mProd = s.match(/\[QL_PRODUCT\]=([^;]+);/);
+      const mQty  = s.match(/\[QL_QTY\]=([^;]+);/);
+      const mUnit = s.match(/\[QL_UNIT\]=([^;]+);/);
+      if (mProd) out.product = mProd[1].trim();
+      if (mQty) out.qty = mQty[1].trim();
+      if (mUnit) out.unit = mUnit[1].trim();
+      return out;
+    }
+
+    // ---- Simple DataTable (client-side) ----
+    function makeDataTable(opts){
+      const {
+        tableId, tbodyId, searchId, perPageId, prevId, nextId, pageInfoId,
+        emptyMessage, columns
+      } = opts;
+
+      const table = $(tableId);
+      const tbody = $(tbodyId);
+      const search = $(searchId);
+      const perPage = $(perPageId);
+      const prevBtn = $(prevId);
+      const nextBtn = $(nextId);
+      const pageInfo = $(pageInfoId);
+
+      let raw = [];
+      let filtered = [];
+      let page = 1;
+      let pageSize = Number(perPage?.value || 10);
+      let sortKey = null;
+      let sortDir = "desc";
+      const sortIcons = { asc:"▲", desc:"▼" };
+
+      function getCellText(col, row){
+        if (col.text) return String(col.text(row) ?? "");
+        const v = row?.[col.key];
+        return v == null ? "" : String(v);
+      }
+      function rowSearchText(row){
+        return columns.map(c => getCellText(c,row)).join(" ").toLowerCase();
+      }
+      function applyFilter(){
+        const q = String(search?.value || "").trim().toLowerCase();
+        filtered = !q ? raw.slice() : raw.filter(r => rowSearchText(r).includes(q));
+      }
+      function applySort(){
+        if (!sortKey) return;
+        const col = columns.find(c => (c.sortKey || c.key) === sortKey);
+        const getter = col?.sortValue ? (r)=>col.sortValue(r) : (r)=>getCellText(col || {key:sortKey}, r);
+
+        filtered.sort((a,b)=>{
+          const av = getter(a); const bv = getter(b);
+          const an = typeof av==="number" ? av : Number(av);
+          const bn = typeof bv==="number" ? bv : Number(bv);
+          const bothNumeric = !Number.isNaN(an) && !Number.isNaN(bn);
+          let res;
+          if (bothNumeric) res = an - bn;
+          else res = String(av ?? "").localeCompare(String(bv ?? ""), undefined, {numeric:true, sensitivity:"base"});
+          return sortDir==="asc" ? res : -res;
+        });
+      }
+      function totalPages(){ return Math.max(1, Math.ceil(filtered.length / pageSize)); }
+      function clampPage(){ const tp = totalPages(); page = Math.min(Math.max(page,1),tp); }
+      function updateHeaderIcons(){
+        table?.querySelectorAll("thead th.sortable").forEach(th=>{
+          const key = th.getAttribute("data-key");
+          const base = th.getAttribute("data-label") || th.textContent.replace(/ ▲| ▼/g,"").trim();
+          th.setAttribute("data-label", base);
+          th.textContent = (key===sortKey) ? (base + " " + (sortDir==="asc"?sortIcons.asc:sortIcons.desc)) : base;
+        });
+      }
+      function render(){
+        pageSize = Number(perPage?.value || 10) || 10;
+        applyFilter(); applySort(); clampPage();
+        const tp = totalPages();
+        const start = (page-1)*pageSize;
+        const slice = filtered.slice(start, start+pageSize);
+
+        if (!slice.length){
+          tbody.innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="${columns.length}">${escapeHtml(emptyMessage || "No results.")}</td></tr>`;
+        } else {
+          tbody.innerHTML = slice.map(row=>{
+            const tds = columns.map(col=>{
+              const html = col.render ? col.render(row) : escapeHtml(getCellText(col,row) || "—");
+              return `<td class="px-4 py-3 ${col.tdClass || "text-white/75"}">${html}</td>`;
+            }).join("");
+            return `<tr>${tds}</tr>`;
+          }).join("");
+        }
+        pageInfo.textContent = `Page ${page} / ${tp} • ${filtered.length} result(s)`;
+        prevBtn.disabled = page<=1;
+        nextBtn.disabled = page>=tp;
+        prevBtn.classList.toggle("opacity-50", prevBtn.disabled);
+        nextBtn.classList.toggle("opacity-50", nextBtn.disabled);
+        updateHeaderIcons();
+      }
+      function setData(rows){ raw = Array.isArray(rows)?rows.slice():[]; page=1; render(); }
+
+      search?.addEventListener("input", ()=>{ page=1; render(); });
+      perPage?.addEventListener("change", ()=>{ page=1; render(); });
+      prevBtn?.addEventListener("click", ()=>{ page-=1; render(); });
+      nextBtn?.addEventListener("click", ()=>{ page+=1; render(); });
+      table?.querySelectorAll("thead th.sortable").forEach(th=>{
+        th.addEventListener("click", ()=>{
+          const key = th.getAttribute("data-key");
+          if (!key) return;
+          if (sortKey===key) sortDir = (sortDir==="asc"?"desc":"asc");
+          else { sortKey=key; sortDir="asc"; }
+          page=1; render();
+        });
+      });
+
+      return { setData, render, setSort:(key,dir="desc")=>{ sortKey=key; sortDir=dir; render(); } };
+    }
+
     async function fileToDataUrl(file) {
       return new Promise((resolve, reject) => {
         const r = new FileReader();
@@ -220,6 +453,83 @@
         });
       } catch (e) {
         console.warn("agent-upsert failed:", e);
+      }
+    }
+
+    // Product config
+    const PRODUCTS = {
+      "QariLive Lite": 1500,
+      "QariLive Azan Clock": 3000,
+    };
+
+    function getSelectedProduct(){
+      const el = document.querySelector('input[name="product_choice"]:checked');
+      return el ? el.value : "QariLive Lite";
+    }
+    function calcTotals(){
+      const product = getSelectedProduct();
+      const unit = PRODUCTS[product] || 0;
+      const qty = Math.max(1, Number($("qty").value || 1));
+      const total = unit * qty;
+
+      $("unitPrice").value = unit ? unit.toLocaleString("en-MY") : "";
+      $("totalAmount").value = total ? total.toLocaleString("en-MY") : "";
+      return { product, unit, qty, total };
+    }
+
+    function setMySubsStatus(text){ $("mySubsStatus").textContent = text || "—"; }
+
+    const mySubsDT = makeDataTable({
+      tableId: "mySubsTable",
+      tbodyId: "tblMySubs",
+      searchId: "mySubsSearch",
+      perPageId: "mySubsPerPage",
+      prevId: "mySubsPrev",
+      nextId: "mySubsNext",
+      pageInfoId: "mySubsPageInfo",
+      emptyMessage: "No submissions yet.",
+      columns: [
+        { key:"customer_name", tdClass:"text-white/85", text:(r)=>r.customer_name||"—" },
+        { key:"customer_phone", tdClass:"text-white/75", text:(r)=>r.customer_phone||"—" },
+        { key:"product", tdClass:"text-white/75", text:(r)=>parseMetaFromNotes(r.notes).product },
+        { key:"qty", tdClass:"text-white/75", text:(r)=>parseMetaFromNotes(r.notes).qty, sortValue:(r)=>Number(parseMetaFromNotes(r.notes).qty)||0 },
+        { key:"purchase_amount_rm", tdClass:"text-white/75", text:(r)=> (r.purchase_amount_rm ?? "—"), sortValue:(r)=>Number(r.purchase_amount_rm)||0 },
+        { key:"status", tdClass:"text-white/60", text:(r)=>r.status||"pending" },
+        { key:"created_at", tdClass:"text-white/60", text:(r)=>fmtDate(r.created_at), sortValue:(r)=>new Date(r.created_at||0).getTime() },
+        { key:"proof_url", tdClass:"text-white/75", render:(r)=> {
+            const url = r.proof_url || "";
+            return url ? `<a class="underline underline-offset-4 text-white/85" target="_blank" href="${escapeHtml(url)}">View</a>` : "—";
+          }, text:(r)=>r.proof_url||"" },
+      ]
+    });
+    mySubsDT.setSort("created_at","desc");
+
+    async function loadMySubmissions(identity){
+      try{
+        setMySubsStatus("Loading...");
+        $("mySubCount").textContent = "—";
+        mySubsDT.setData([]);
+
+        const u = identity.currentUser();
+        if (!u) return safeRedirect("agent-auth.html");
+        const token = await u.jwt();
+
+        const res = await fetch("/.netlify/functions/agent-submissions-self?t=" + Date.now(), {
+          method:"GET",
+          headers:{ "Authorization": "Bearer " + token }
+        });
+
+        const out = await res.json().catch(()=>({}));
+        if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
+
+        $("mySubCount").textContent = String(out.count ?? (out.submissions?.length ?? 0));
+        mySubsDT.setData(out.submissions || []);
+        setMySubsStatus("Updated: " + new Date().toLocaleTimeString());
+      }catch(e){
+        console.error(e);
+        setMySubsStatus("Failed to load.");
+        $("mySubCount").textContent = "—";
+        mySubsDT.setData([]);
       }
     }
 
@@ -259,6 +569,11 @@
         email: email
       });
 
+      // init product calc
+      document.querySelectorAll('input[name="product_choice"]').forEach(el => el.addEventListener("change", calcTotals));
+      $("qty").addEventListener("input", calcTotals);
+      calcTotals();
+
       const url = new URL(window.location.href);
       if (url.searchParams.get("success") === "1") {
         showAlert("✅ Submitted successfully. Admin will review soon.");
@@ -268,6 +583,11 @@
         try { await identity.logout(); }
         finally { safeRedirect("agent-auth.html"); }
       });
+
+      $("btnRefreshMySubs").addEventListener("click", () => loadMySubmissions(identity));
+
+      // Load my submissions on open
+      await loadMySubmissions(identity);
 
       const form = $("submissionForm");
       const btn = $("btnSubmit");
@@ -290,6 +610,8 @@
 
           const proof_data_url = await fileToDataUrl(proofFile);
 
+          const totals = calcTotals();
+
           const payload = {
             ma_code: $("f_ma_ref").value || "",
             agent_email: $("f_agent_email").value || "",
@@ -297,7 +619,10 @@
             customer_name: fd.get("customer_name") || "",
             customer_phone: fd.get("customer_whatsapp") || "",
             customer_address: fd.get("customer_address") || "",
-            purchase_amount_rm: fd.get("purchase_amount_rm") || "",
+            product_name: totals.product,
+            quantity: totals.qty,
+            unit_price_rm: totals.unit,
+            purchase_amount_rm: String(totals.total),
             purchase_date: fd.get("purchase_date") || "",
             notes: fd.get("notes") || "",
             proof_data_url,
@@ -315,6 +640,12 @@
 
           showAlert("✅ Submitted successfully. Admin will review soon.");
           form.reset();
+          $("qty").value = "1";
+          document.querySelector('input[name="product_choice"][value="QariLive Lite"]').checked = true;
+          calcTotals();
+
+          // refresh table
+          await loadMySubmissions(identity);
 
         } catch (err) {
           console.error(err);

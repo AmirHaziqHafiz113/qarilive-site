@@ -55,6 +55,8 @@
       background: rgba(0,0,0,.35);
       border: 1px solid rgba(201,161,74,.18);
     }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { background: rgba(0,0,0,.35); }
   </style>
 </head>
 
@@ -183,28 +185,49 @@
         </div>
       </div>
 
-      <div class="mt-4 flex flex-wrap gap-2 items-center">
-        <button id="btnRefreshAgents" class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
-          Refresh Agents
-        </button>
-        <div id="txtAgentsStatus" class="text-sm text-white/55">—</div>
+      <div class="mt-4 flex flex-col lg:flex-row lg:items-center gap-3">
+        <div class="flex flex-wrap gap-2 items-center">
+          <button id="btnRefreshAgents" class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+            Refresh Agents
+          </button>
+          <div id="txtAgentsStatus" class="text-sm text-white/55">—</div>
+        </div>
+
+        <div class="flex-1"></div>
+
+        <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <input id="agentsSearch" class="w-full sm:w-[280px] px-4 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30 text-sm"
+                 placeholder="Search agents..." />
+          <select id="agentsPerPage" class="px-3 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white/85 text-sm">
+            <option value="5">5 / page</option>
+            <option value="10" selected>10 / page</option>
+            <option value="20">20 / page</option>
+            <option value="50">50 / page</option>
+          </select>
+        </div>
       </div>
 
       <div class="mt-4 overflow-x-auto">
-        <table class="min-w-full text-sm soft-border rounded-xl overflow-hidden">
+        <table id="agentsTable" class="min-w-full text-sm soft-border rounded-xl overflow-hidden">
           <thead class="bg-black/30">
             <tr class="text-left">
-              <th class="px-4 py-3 text-white/70 font-semibold">Full Name</th>
-              <th class="px-4 py-3 text-white/70 font-semibold">WhatsApp</th>
-              <th class="px-4 py-3 text-white/70 font-semibold">Email</th>
-              <th class="px-4 py-3 text-white/70 font-semibold">Joined</th>
-              <th class="px-4 py-3 text-white/70 font-semibold">Last Login</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="full_name">Full Name</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="whatsapp">WhatsApp</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="email">Email</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="created_at">Joined</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="last_login">Last Login</th>
             </tr>
           </thead>
           <tbody id="tblAgents" class="divide-y divide-white/10 bg-black/15">
             <tr><td class="px-4 py-4 text-white/60" colspan="5">Loading...</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="mt-4 flex items-center justify-between gap-3">
+        <button id="agentsPrev" class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm">Prev</button>
+        <div id="agentsPageInfo" class="text-sm text-white/55">—</div>
+        <button id="agentsNext" class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm">Next</button>
       </div>
     </section>
 
@@ -221,29 +244,53 @@
         </div>
       </div>
 
-      <div class="mt-4 flex flex-wrap gap-2 items-center">
-        <button id="btnRefreshSubs" class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
-          Refresh Submissions
-        </button>
-        <div id="txtSubsStatus" class="text-sm text-white/55">—</div>
+      <div class="mt-4 flex flex-col lg:flex-row lg:items-center gap-3">
+        <div class="flex flex-wrap gap-2 items-center">
+          <button id="btnRefreshSubs" class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+            Refresh Submissions
+          </button>
+          <div id="txtSubsStatus" class="text-sm text-white/55">—</div>
+        </div>
+
+        <div class="flex-1"></div>
+
+        <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <input id="subsSearch" class="w-full sm:w-[300px] px-4 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30 text-sm"
+                 placeholder="Search submissions..." />
+          <select id="subsPerPage" class="px-3 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white/85 text-sm">
+            <option value="5">5 / page</option>
+            <option value="10" selected>10 / page</option>
+            <option value="20">20 / page</option>
+            <option value="50">50 / page</option>
+          </select>
+        </div>
       </div>
 
       <div class="mt-4 overflow-x-auto">
-        <table class="min-w-full text-sm soft-border rounded-xl overflow-hidden">
+        <table id="subsTable" class="min-w-full text-sm soft-border rounded-xl overflow-hidden">
           <thead class="bg-black/30">
             <tr class="text-left">
-              <th class="px-4 py-3 text-white/70 font-semibold">Customer Name</th>
-              <th class="px-4 py-3 text-white/70 font-semibold">Customer Phone</th>
-              <th class="px-4 py-3 text-white/70 font-semibold">Agent</th>
-              <th class="px-4 py-3 text-white/70 font-semibold">Status</th>
-              <th class="px-4 py-3 text-white/70 font-semibold">Submitted At</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="customer_name">Customer Name</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="customer_phone">Customer Phone</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="agent_name">Agent</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="product">Product</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="qty">Qty</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="purchase_amount_rm">Amount (RM)</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="status">Status</th>
+              <th class="px-4 py-3 text-white/70 font-semibold sortable" data-key="created_at">Submitted At</th>
               <th class="px-4 py-3 text-white/70 font-semibold">Proof</th>
             </tr>
           </thead>
           <tbody id="tblSubs" class="divide-y divide-white/10 bg-black/15">
-            <tr><td class="px-4 py-4 text-white/60" colspan="6">Not loaded yet.</td></tr>
+            <tr><td class="px-4 py-4 text-white/60" colspan="9">Not loaded yet.</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="mt-4 flex items-center justify-between gap-3">
+        <button id="subsPrev" class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm">Prev</button>
+        <div id="subsPageInfo" class="text-sm text-white/55">—</div>
+        <button id="subsNext" class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm">Next</button>
       </div>
     </section>
 
@@ -402,6 +449,181 @@
       return { "Authorization": "Bearer " + token };
     }
 
+    // ---- Data helpers ----
+    function fmtDate(iso){
+      if (!iso) return "—";
+      try{
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleString();
+      }catch{ return "—"; }
+    }
+    function escapeHtml(s){
+      return String(s || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // Notes meta parsing (from agent-submission-create)
+    // Example: ... \n[QL_PRODUCT]=QariLive Lite;[QL_QTY]=2;[QL_UNIT]=1500;
+    function parseMetaFromNotes(notes){
+      const out = { product:"—", qty:"—", unit:"—" };
+      const s = String(notes || "");
+      const mProd = s.match(/\[QL_PRODUCT\]=([^;]+);/);
+      const mQty  = s.match(/\[QL_QTY\]=([^;]+);/);
+      const mUnit = s.match(/\[QL_UNIT\]=([^;]+);/);
+      if (mProd) out.product = mProd[1].trim();
+      if (mQty) out.qty = mQty[1].trim();
+      if (mUnit) out.unit = mUnit[1].trim();
+      return out;
+    }
+
+    // ---- Simple DataTable (client-side) ----
+    function makeDataTable(opts){
+      const {
+        tableId, tbodyId, searchId, perPageId, prevId, nextId, pageInfoId,
+        emptyMessage, columns
+      } = opts;
+
+      const table = $(tableId);
+      const tbody = $(tbodyId);
+      const search = $(searchId);
+      const perPage = $(perPageId);
+      const prevBtn = $(prevId);
+      const nextBtn = $(nextId);
+      const pageInfo = $(pageInfoId);
+
+      let raw = [];
+      let filtered = [];
+      let page = 1;
+      let pageSize = Number(perPage?.value || 10);
+      let sortKey = null;
+      let sortDir = "desc"; // default
+      const sortIcons = { asc: "▲", desc: "▼" };
+
+      function getCellText(col, row){
+        if (col.text) return String(col.text(row) ?? "");
+        const v = row?.[col.key];
+        return v == null ? "" : String(v);
+      }
+
+      function rowSearchText(row){
+        return columns.map(c => getCellText(c, row)).join(" ").toLowerCase();
+      }
+
+      function applyFilter(){
+        const q = String(search?.value || "").trim().toLowerCase();
+        if (!q) filtered = raw.slice();
+        else filtered = raw.filter(r => rowSearchText(r).includes(q));
+      }
+
+      function applySort(){
+        if (!sortKey) return;
+        const col = columns.find(c => (c.sortKey || c.key) === sortKey);
+        const getter = col?.sortValue
+          ? (r) => col.sortValue(r)
+          : (r) => getCellText(col || {key:sortKey}, r);
+
+        filtered.sort((a,b) => {
+          const av = getter(a);
+          const bv = getter(b);
+          const an = typeof av === "number" ? av : Number(av);
+          const bn = typeof bv === "number" ? bv : Number(bv);
+          const bothNumeric = !Number.isNaN(an) && !Number.isNaN(bn);
+
+          let res;
+          if (bothNumeric) res = an - bn;
+          else res = String(av ?? "").localeCompare(String(bv ?? ""), undefined, {numeric:true, sensitivity:"base"});
+
+          return sortDir === "asc" ? res : -res;
+        });
+      }
+
+      function totalPages(){
+        return Math.max(1, Math.ceil(filtered.length / pageSize));
+      }
+
+      function clampPage(){
+        const tp = totalPages();
+        if (page > tp) page = tp;
+        if (page < 1) page = 1;
+      }
+
+      function updateHeaderIcons(){
+        if (!table) return;
+        const ths = table.querySelectorAll("thead th.sortable");
+        ths.forEach(th => {
+          const key = th.getAttribute("data-key");
+          const base = th.getAttribute("data-label") || th.textContent.replace(/ ▲| ▼/g,"").trim();
+          th.setAttribute("data-label", base);
+          if (key === sortKey) th.textContent = base + " " + (sortDir === "asc" ? sortIcons.asc : sortIcons.desc);
+          else th.textContent = base;
+        });
+      }
+
+      function render(){
+        pageSize = Number(perPage?.value || 10) || 10;
+
+        applyFilter();
+        applySort();
+        clampPage();
+
+        const tp = totalPages();
+        const start = (page - 1) * pageSize;
+        const slice = filtered.slice(start, start + pageSize);
+
+        if (!slice.length){
+          tbody.innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="${columns.length}">${escapeHtml(emptyMessage || "No results.")}</td></tr>`;
+        } else {
+          tbody.innerHTML = slice.map(row => {
+            const tds = columns.map(col => {
+              const html = col.render ? col.render(row) : escapeHtml(getCellText(col, row) || "—");
+              return `<td class="px-4 py-3 ${col.tdClass || "text-white/75"}">${html}</td>`;
+            }).join("");
+            return `<tr>${tds}</tr>`;
+          }).join("");
+        }
+
+        pageInfo.textContent = `Page ${page} / ${tp} • ${filtered.length} result(s)`;
+        prevBtn.disabled = page <= 1;
+        nextBtn.disabled = page >= tp;
+
+        prevBtn.classList.toggle("opacity-50", prevBtn.disabled);
+        nextBtn.classList.toggle("opacity-50", nextBtn.disabled);
+
+        updateHeaderIcons();
+      }
+
+      function setData(rows){
+        raw = Array.isArray(rows) ? rows.slice() : [];
+        page = 1;
+        render();
+      }
+
+      // events
+      search?.addEventListener("input", () => { page = 1; render(); });
+      perPage?.addEventListener("change", () => { page = 1; render(); });
+
+      prevBtn?.addEventListener("click", () => { page -= 1; render(); });
+      nextBtn?.addEventListener("click", () => { page += 1; render(); });
+
+      table?.querySelectorAll("thead th.sortable").forEach(th => {
+        th.addEventListener("click", () => {
+          const key = th.getAttribute("data-key");
+          if (!key) return;
+          if (sortKey === key) sortDir = (sortDir === "asc" ? "desc" : "asc");
+          else { sortKey = key; sortDir = "asc"; }
+          page = 1;
+          render();
+        });
+      });
+
+      return { setData, render, setSort: (key, dir="desc") => { sortKey = key; sortDir = dir; render(); } };
+    }
+
     // ---- Secure payout: load/save via functions ----
     let lastRealBankAccount = "";
 
@@ -469,56 +691,34 @@
     }
 
     // ---- Agents list ----
-    function fmtDate(iso){
-      if (!iso) return "—";
-      try{
-        const d = new Date(iso);
-        if (isNaN(d.getTime())) return "—";
-        return d.toLocaleString();
-      }catch{ return "—"; }
-    }
-    function escapeHtml(s){
-      return String(s || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
     function setAgentsStatus(text){ $("txtAgentsStatus").textContent = text || "—"; }
-
-    function renderAgentsTable(agents){
-      const tbody = $("tblAgents");
-      if (!Array.isArray(agents) || agents.length === 0){
-        tbody.innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="5">No agents registered yet.</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = agents.map(a => `
-        <tr>
-          <td class="px-4 py-3 text-white/85">${escapeHtml(a.full_name || "—")}</td>
-          <td class="px-4 py-3 text-white/75">${escapeHtml(a.whatsapp || "—")}</td>
-          <td class="px-4 py-3 text-white/75">${escapeHtml(a.email || "—")}</td>
-          <td class="px-4 py-3 text-white/60">${escapeHtml(fmtDate(a.created_at))}</td>
-          <td class="px-4 py-3 text-white/60">${escapeHtml(fmtDate(a.last_login))}</td>
-        </tr>
-      `).join("");
-    }
+    const agentsDT = makeDataTable({
+      tableId: "agentsTable",
+      tbodyId: "tblAgents",
+      searchId: "agentsSearch",
+      perPageId: "agentsPerPage",
+      prevId: "agentsPrev",
+      nextId: "agentsNext",
+      pageInfoId: "agentsPageInfo",
+      emptyMessage: "No agents found.",
+      columns: [
+        { key:"full_name", tdClass:"text-white/85", text:(r)=>r.full_name||"—" },
+        { key:"whatsapp", tdClass:"text-white/75", text:(r)=>r.whatsapp||"—" },
+        { key:"email", tdClass:"text-white/75", text:(r)=>r.email||"—" },
+        { key:"created_at", tdClass:"text-white/60", text:(r)=>fmtDate(r.created_at), sortValue:(r)=>new Date(r.created_at||0).getTime() },
+        { key:"last_login", tdClass:"text-white/60", text:(r)=>fmtDate(r.last_login), sortValue:(r)=>new Date(r.last_login||0).getTime() },
+      ]
+    });
+    agentsDT.setSort("created_at","desc");
 
     async function loadAgents(identity, maCode){
       try{
         setAgentsStatus("Loading agents...");
         $("txtAgentCount").textContent = "—";
-        $("tblAgents").innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="5">Loading...</td></tr>`;
+        agentsDT.setData([]);
 
         const auth = await getAuthHeader(identity);
-
-        const qs = new URLSearchParams({
-          ma_code: maCode,
-          maCode: maCode,
-          ref: maCode,
-          t: Date.now()
-        });
-
+        const qs = new URLSearchParams({ ma_code: maCode, t: Date.now() });
         const url = "/.netlify/functions/ma-agent-list?" + qs.toString();
         const res = await fetch(url, { method:"GET", headers:{ ...auth } });
         const out = await res.json().catch(() => ({}));
@@ -528,59 +728,60 @@
           setAgentsStatus("Failed to load agents: " + msg);
           showAlert("Agents list error: " + msg, "error");
           $("txtAgentCount").textContent = "0";
-          renderAgentsTable([]);
+          agentsDT.setData([]);
           return;
         }
 
         $("txtAgentCount").textContent = String(out.count ?? (out.agents?.length ?? 0));
-        renderAgentsTable(out.agents || []);
+        agentsDT.setData(out.agents || []);
         setAgentsStatus("Updated: " + new Date().toLocaleTimeString());
       }catch(e){
         console.error(e);
         setAgentsStatus("Failed to load agents.");
         showAlert(e?.message || "Failed to load agents list.", "error");
         $("txtAgentCount").textContent = "0";
-        renderAgentsTable([]);
+        agentsDT.setData([]);
       }
     }
 
     // ---- Submissions list ----
     function setSubsStatus(text){ $("txtSubsStatus").textContent = text || "—"; }
-
-    function renderSubsTable(items){
-      const tbody = $("tblSubs");
-      if (!Array.isArray(items) || items.length === 0){
-        tbody.innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="6">No submissions yet.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = items.map(s => {
-        const proofUrl = s.proof_url || "";
-        const proofCell = proofUrl
-          ? `<a class="underline underline-offset-4 text-white/85" target="_blank" href="${escapeHtml(proofUrl)}">View</a>`
-          : `—`;
-
-        return `
-          <tr>
-            <td class="px-4 py-3 text-white/85">${escapeHtml(s.customer_name || "—")}</td>
-            <td class="px-4 py-3 text-white/75">${escapeHtml(s.customer_phone || "—")}</td>
-            <td class="px-4 py-3 text-white/75">${escapeHtml(s.agent_name || s.agent_email || "—")}</td>
-            <td class="px-4 py-3 text-white/60">${escapeHtml(s.status || "pending")}</td>
-            <td class="px-4 py-3 text-white/60">${escapeHtml(fmtDate(s.created_at))}</td>
-            <td class="px-4 py-3 text-white/75">${proofCell}</td>
-          </tr>
-        `;
-      }).join("");
-    }
+    const subsDT = makeDataTable({
+      tableId: "subsTable",
+      tbodyId: "tblSubs",
+      searchId: "subsSearch",
+      perPageId: "subsPerPage",
+      prevId: "subsPrev",
+      nextId: "subsNext",
+      pageInfoId: "subsPageInfo",
+      emptyMessage: "No submissions found.",
+      columns: [
+        { key:"customer_name", tdClass:"text-white/85", text:(r)=>r.customer_name||"—" },
+        { key:"customer_phone", tdClass:"text-white/75", text:(r)=>r.customer_phone||"—" },
+        { key:"agent_name", tdClass:"text-white/75", text:(r)=>r.agent_name||r.agent_email||"—" },
+        { key:"product", tdClass:"text-white/75", text:(r)=>parseMetaFromNotes(r.notes).product },
+        { key:"qty", tdClass:"text-white/75", text:(r)=>parseMetaFromNotes(r.notes).qty, sortValue:(r)=>Number(parseMetaFromNotes(r.notes).qty)||0 },
+        { key:"purchase_amount_rm", tdClass:"text-white/75", text:(r)=> (r.purchase_amount_rm ?? "—") , sortValue:(r)=> Number(r.purchase_amount_rm)||0 },
+        { key:"status", tdClass:"text-white/60", text:(r)=>r.status||"pending" },
+        { key:"created_at", tdClass:"text-white/60", text:(r)=>fmtDate(r.created_at), sortValue:(r)=>new Date(r.created_at||0).getTime() },
+        { key:"proof_url", tdClass:"text-white/75", render:(r)=> {
+            const proofUrl = r.proof_url || "";
+            return proofUrl
+              ? `<a class="underline underline-offset-4 text-white/85" target="_blank" href="${escapeHtml(proofUrl)}">View</a>`
+              : "—";
+          }, text:(r)=>r.proof_url||"" }
+      ]
+    });
+    subsDT.setSort("created_at","desc");
 
     async function loadSubmissions(identity, maCode){
       try{
         setSubsStatus("Loading submissions...");
         $("txtSubCount").textContent = "—";
-        renderSubsTable([]);
+        subsDT.setData([]);
 
         const auth = await getAuthHeader(identity);
-        const res = await fetch("/.netlify/functions/ma-submissions-list?ma_code=" + encodeURIComponent(maCode), {
+        const res = await fetch("/.netlify/functions/ma-submissions-list?ma_code=" + encodeURIComponent(maCode) + "&t=" + Date.now(), {
           method:"GET",
           headers:{ ...auth }
         });
@@ -589,12 +790,12 @@
         if (!res.ok || !out.ok) throw new Error(out.error || "Failed to load submissions list.");
 
         $("txtSubCount").textContent = String(out.count ?? 0);
-        renderSubsTable(out.submissions || []);
+        subsDT.setData(out.submissions || []);
         setSubsStatus("Updated: " + new Date().toLocaleTimeString());
       }catch(e){
         console.error(e);
         setSubsStatus("Failed to load submissions.");
-        renderSubsTable([]);
+        subsDT.setData([]);
         $("txtSubCount").textContent = "—";
       }
     }
