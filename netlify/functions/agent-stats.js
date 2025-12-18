@@ -37,31 +37,59 @@ function parseNextLink(linkHeader) {
   return null;
 }
 
+function getRole(u) {
+  const meta = u.user_metadata || {};
+  const r1 = String(meta.role || "").trim().toLowerCase();
+  if (r1) return r1;
+
+  const roles = u.app_metadata?.roles;
+  if (Array.isArray(roles) && roles.length) return String(roles[0] || "").trim().toLowerCase();
+
+  return "";
+}
+
+// master agent “code” can be stored under different keys in your current data
+function getMasterAgentCode(u) {
+  const meta = u.user_metadata || {};
+  const code =
+    meta.ma_code ||
+    meta.parent_ma_code || // (you currently show MA codes in “Parent MA”, so many of yours are here)
+    meta.ma_ref ||
+    meta.ref ||
+    meta.parent_ma ||
+    "";
+  return String(code || "").trim().toUpperCase();
+}
+
+// agent -> which master agent it belongs to
+function getAgentParentCode(u) {
+  const meta = u.user_metadata || {};
+  const code =
+    meta.parent_ma_code || // preferred
+    meta.ma_code ||        // many implementations store parent here
+    meta.parent_ma ||
+    "";
+  return String(code || "").trim().toUpperCase();
+}
+
 export async function handler(event, context) {
   try {
-    // CORS preflight
     if (event.httpMethod === "OPTIONS") return json(200, { ok: true });
-
     if (event.httpMethod !== "GET") return json(405, { ok: false, error: "Method not allowed" });
 
-    // Must be logged in + admin (based on the caller's JWT)
     const token = getBearerToken(event);
     if (!token) return json(401, { ok: false, error: "Unauthorized" });
     if (!isAdmin(token)) return json(403, { ok: false, error: "Forbidden (admin only)" });
 
-    // Netlify injects Identity admin info here (GoTrue admin token + url)
     const identity = context?.clientContext?.identity;
     if (!identity?.url || !identity?.token) {
       return json(500, {
         ok: false,
-        error:
-          "Identity admin token not available in function context. Check: Identity enabled on THIS site + redeploy.",
-        hasIdentityUrl: !!identity?.url,
-        hasIdentityToken: !!identity?.token,
+        error: "Identity admin token not available in function context. Ensure Identity is enabled on THIS site + redeploy.",
       });
     }
 
-    const base = String(identity.url).replace(/\/$/, ""); // e.g. https://<site>/.netlify/identity
+    const base = String(identity.url).replace(/\/$/, "");
     let url = `${base}/admin/users?per_page=100`;
     const headers = { Authorization: `Bearer ${identity.token}` };
 
@@ -78,9 +106,8 @@ export async function handler(event, context) {
           detail: txt,
         });
       }
-      const parsed = JSON.parse(txt || "[]");
 
-      // GoTrue may return either an array OR an object like { users: [...] }
+      const parsed = JSON.parse(txt || "[]");
       const usersArr = Array.isArray(parsed)
         ? parsed
         : Array.isArray(parsed?.users)
@@ -89,39 +116,49 @@ export async function handler(event, context) {
 
       allUsers.push(...usersArr);
 
-
       const link = res.headers.get("link") || res.headers.get("Link") || "";
       url = parseNextLink(link);
     }
 
-    // your existing aggregation logic (kept)
+    // 1) collect master agents (so we can show them even if counts are 0)
+    const masterAgents = [];
+    for (const u of allUsers) {
+      const role = getRole(u);
+      if (role !== "master_agent") continue;
+      const code = getMasterAgentCode(u);
+      if (!code) continue;
+      masterAgents.push(code);
+    }
+
+    // unique codes
+    const masterSet = new Set(masterAgents);
+
+    // 2) count agents by parent master agent code
     const counts = {};
     let totalAgents = 0;
 
     for (const u of allUsers) {
-      const meta = u.user_metadata || {};
-      const role = String(meta.role || "").toLowerCase();
+      const role = getRole(u);
       if (role !== "agent") continue;
 
       totalAgents++;
-      const parent = String(meta.parent_ma_code || "").trim().toUpperCase();
+      const parent = getAgentParentCode(u);
       if (!parent) continue;
 
       counts[parent] = (counts[parent] || 0) + 1;
+      masterSet.add(parent); // include even if master not found in list
     }
 
-    const byMasterAgent = Object.entries(counts)
-      .map(([ma_code, agent_count]) => ({ ma_code, agent_count }))
-      .sort((a, b) => b.agent_count - a.agent_count);
+    // 3) build chart list INCLUDING master agents with 0
+    const byMasterAgent = Array.from(masterSet)
+      .map((ma_code) => ({ ma_code, agent_count: counts[ma_code] || 0 }))
+      .sort((a, b) => b.agent_count - a.agent_count || a.ma_code.localeCompare(b.ma_code));
 
     return json(200, {
       ok: true,
       totalUsers: allUsers.length,
       totalAgents,
+      totalMasterAgents: masterAgents.length,
       byMasterAgent,
     });
-  } catch (err) {
-    console.error("agent-stats error:", err);
-    return json(500, { ok: false, error: err?.message || "Server error" });
-  }
-}
+  } catch
