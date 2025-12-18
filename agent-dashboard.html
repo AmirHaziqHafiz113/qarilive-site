@@ -79,6 +79,25 @@
                 class="text-gold-soft font-semibold">—</span></div>
           </div>
 
+          <!-- ✅ NEW: MASTER AGENT LANDING PAGE -->
+          <div class="mt-5 rounded-2xl border border-gold/15 bg-black/20 p-4">
+            <div class="text-[11px] text-white/45 uppercase tracking-wider">Your Master Agent Landing Page</div>
+            <a id="txtMALanding" href="#" target="_blank"
+              class="mt-2 block text-sm text-white/85 underline underline-offset-4 break-all">—</a>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button id="copyMALanding"
+                class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+                Copy Link
+              </button>
+              <button id="shareMALandingWA"
+                class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+                Share WhatsApp
+              </button>
+            </div>
+            <div class="mt-2 text-[11px] text-white/45">This is your Master Agent’s official purchase page link.</div>
+          </div>
+
           <div id="alertBox"
             class="hidden mt-5 rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
 
@@ -269,6 +288,58 @@
           </div>
         </section>
 
+        <!-- ✅ NEW: AGENT BANK DETAILS (PRIVATE, NOT VISIBLE TO MASTER AGENT) -->
+        <section class="lg:col-span-12 rounded-2xl glass p-6">
+          <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <h2 class="font-playfair text-gold-soft text-2xl">My Bank Details (Private)</h2>
+              <p class="mt-1 text-sm text-white/60">
+                Only Admin can process payout. Master Agent will <span class="text-white/80">NOT</span> see your bank details.
+              </p>
+            </div>
+            <div class="text-left md:text-right">
+              <div class="text-[11px] text-white/45 uppercase tracking-wider">Last updated</div>
+              <div id="bankUpdatedAt" class="mt-1 text-sm font-semibold text-gold-soft">—</div>
+            </div>
+          </div>
+
+          <form id="agentBankForm" class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-white/60">Bank Name</label>
+              <input id="bank_name" required
+                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                placeholder="Maybank / CIMB / etc" />
+            </div>
+
+            <div>
+              <label class="text-xs text-white/60">Account Holder Name</label>
+              <input id="bank_account_name" required
+                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                placeholder="Name as per bank" />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="text-xs text-white/60">Account Number</label>
+              <input id="bank_account_number" required
+                class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                placeholder="Full account number" />
+              <div class="mt-1 text-[11px] text-white/45">
+                We will mask it after loading. To change, type the full number again.
+              </div>
+            </div>
+
+            <div class="md:col-span-2">
+              <button type="submit" id="btnSaveBank"
+                class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                Save Bank Details
+              </button>
+              <div class="mt-2 text-[11px] text-white/45">
+                Saving uses your Netlify Identity login (JWT). Master Agent dashboard has no access to this data.
+              </div>
+            </div>
+          </form>
+        </section>
+
       </div>
     </div>
   </main>
@@ -456,6 +527,89 @@
       }
     }
 
+    // ✅ NEW: Master Agent landing helpers
+    function openWhatsAppWithText(text){
+      window.open("https://wa.me/?text=" + encodeURIComponent(text || ""), "_blank");
+    }
+    function copyToClipboard(text){
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showAlert("Copied to clipboard.");
+        setTimeout(hideAlert, 1200);
+      }).catch(() => showAlert("Copy failed. Please copy manually.", "error"));
+    }
+
+    // ✅ NEW: Agent bank (private) helpers
+    async function getAuthHeader(identity){
+      const u = identity.currentUser();
+      if (!u) return {};
+      const token = await u.jwt();
+      return { "Authorization": "Bearer " + token };
+    }
+    function maskAccount(acc){
+      if (!acc) return "";
+      const s = String(acc);
+      if (s.length <= 4) return "****";
+      return "**** **** " + s.slice(-4);
+    }
+    let lastRealBankAccount = "";
+
+    async function loadAgentBank(identity){
+      try{
+        const auth = await getAuthHeader(identity);
+        const res = await fetch("/.netlify/functions/agent-payout-get?t=" + Date.now(), {
+          method:"GET",
+          headers: { ...auth }
+        });
+        const out = await res.json().catch(()=>({}));
+        if (!res.ok || !out.ok) return;
+
+        const d = out.data || null;
+        if (!d) {
+          $("bankUpdatedAt").textContent = "—";
+          return;
+        }
+
+        $("bank_name").value = d.bank_name || "";
+        $("bank_account_name").value = d.bank_account_name || "";
+        lastRealBankAccount = d.bank_account_number || "";
+        $("bank_account_number").value = lastRealBankAccount ? maskAccount(lastRealBankAccount) : "";
+        $("bankUpdatedAt").textContent = d.updated_at ? fmtDate(d.updated_at) : "—";
+      }catch(e){
+        console.error(e);
+      }
+    }
+
+    function resolveAccountToSave(){
+      const val = ($("bank_account_number").value || "").trim();
+      if (!val) return "";
+      if (val.includes("*")) return lastRealBankAccount || "";
+      return val;
+    }
+
+    async function saveAgentBank(identity){
+      const auth = await getAuthHeader(identity);
+
+      const payload = {
+        bank_name: ($("bank_name").value || "").trim(),
+        bank_account_name: ($("bank_account_name").value || "").trim(),
+        bank_account_number: resolveAccountToSave()
+      };
+
+      const res = await fetch("/.netlify/functions/agent-payout-set", {
+        method:"POST",
+        headers: { "Content-Type":"application/json", ...auth },
+        body: JSON.stringify(payload)
+      });
+
+      const out = await res.json().catch(()=>({}));
+      if (!res.ok || !out.ok) throw new Error(out.error || "Failed to save bank details.");
+
+      lastRealBankAccount = payload.bank_account_number;
+      $("bank_account_number").value = lastRealBankAccount ? maskAccount(lastRealBankAccount) : "";
+      $("bankUpdatedAt").textContent = fmtDate(new Date().toISOString());
+    }
+
     // Product config
     const PRODUCTS = {
       "QariLive Lite": 1500,
@@ -561,6 +715,19 @@
       $("f_agent_email").value = email || "";
       $("f_agent_name").value = name || "";
 
+      // ✅ NEW: master agent landing url (change LANDING_FILE if your page name differs)
+      const LANDING_FILE = "master-agent-landing.html";
+      const base = window.location.origin.replace(/\/$/,"") + "/";
+      const maLanding = parent ? (base + LANDING_FILE + "?ref=" + encodeURIComponent(parent)) : "";
+      const a = $("txtMALanding");
+      a.textContent = maLanding || "—";
+      a.href = maLanding || "#";
+      $("copyMALanding").onclick = () => maLanding && copyToClipboard(maLanding);
+      $("shareMALandingWA").onclick = () => {
+        if (!maLanding) return;
+        openWhatsAppWithText("Hi! This is my Master Agent’s official QariLive purchase link:\n" + maLanding);
+      };
+
       // ✅ make sure agent exists in Neon (agents table)
       await agentUpsert(identity, {
         ma_code: parent,
@@ -585,6 +752,31 @@
       });
 
       $("btnRefreshMySubs").addEventListener("click", () => loadMySubmissions(identity));
+
+      // ✅ NEW: load agent bank
+      await loadAgentBank(identity);
+
+      // ✅ NEW: save agent bank
+      $("agentBankForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        hideAlert();
+        const btn = $("btnSaveBank");
+        const old = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        try{
+          await saveAgentBank(identity);
+          showAlert("✅ Bank details saved (private).");
+          setTimeout(hideAlert, 1400);
+        }catch(err){
+          console.error(err);
+          showAlert(err?.message || "Save failed.", "error");
+        }finally{
+          btn.disabled = false;
+          btn.textContent = old;
+        }
+      });
 
       // Load my submissions on open
       await loadMySubmissions(identity);
