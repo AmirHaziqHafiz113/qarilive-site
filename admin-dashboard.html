@@ -451,7 +451,7 @@
     }
 
     async function loadUsers(identity){
-      const res = await fetch("/.netlify/functions/admin-users-list?t=" + Date.now(), {
+      const res = await fetch("/.netlify/functions/users-list?t=" + Date.now(), {
         headers: { ...(await authHeader(identity)) }
       });
       const out = await res.json().catch(()=>({}));
