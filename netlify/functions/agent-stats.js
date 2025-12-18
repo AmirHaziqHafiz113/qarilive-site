@@ -161,4 +161,8 @@ export async function handler(event, context) {
       totalMasterAgents: masterAgents.length,
       byMasterAgent,
     });
-  } catch
+  } catch (err) {
+    console.error("agent-stats error:", err);
+    return json(500, { ok: false, error: err?.message || "Server error" });
+  }
+}
