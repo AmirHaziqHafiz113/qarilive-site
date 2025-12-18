@@ -1,4 +1,3 @@
-// netlify/functions/admin/agent-stats.js
 import jwt from "jsonwebtoken";
 
 function json(statusCode, body) {
@@ -22,7 +21,8 @@ function getBearerToken(event) {
 function isAdmin(token) {
   const decoded = jwt.decode(token);
   const roles = decoded?.app_metadata?.roles || [];
-  return Array.isArray(roles) && roles.includes("admin");
+  const metaRole = decoded?.user_metadata?.role;
+  return (Array.isArray(roles) && roles.includes("admin")) || metaRole === "admin";
 }
 
 function parseNextLink(linkHeader) {
