@@ -164,7 +164,7 @@
               </button>
 
               <div class="text-[11px] text-white/45">
-                Uses: <span class="text-white/80">/.netlify/functions/admin-user-create</span>
+                Uses: <span class="text-white/80">/.netlify/functions/user-create</span>
               </div>
             </div>
           </div>
@@ -193,7 +193,7 @@
             </table>
 
             <div class="mt-3 text-xs text-white/45">
-              Uses: <span class="text-white/80">admin-users-list</span>, <span class="text-white/80">admin-user-disable</span>, <span class="text-white/80">admin-user-delete</span>
+              Uses: <span class="text-white/80">users-list</span>, <span class="text-white/80">user-disable</span>, <span class="text-white/80">user-delete</span>
             </div>
           </div>
         </div>
@@ -235,7 +235,7 @@
               </button>
 
               <div class="text-[11px] text-white/45">
-                Uses: <span class="text-white/80">admin-earnings-one</span>, <span class="text-white/80">admin-bank-one</span>
+                Uses: <span class="text-white/80">earnings-one</span>, <span class="text-white/80">bank-one</span>
               </div>
             </div>
           </div>
@@ -276,7 +276,7 @@
                   Create Payout Batch (Export CSV)
                 </button>
                 <div class="mt-2 text-[11px] text-white/45">
-                  Uses: <span class="text-white/80">admin-payout-batch-create</span>
+                  Uses: <span class="text-white/80">payout-batch-create</span>
                 </div>
               </div>
 
@@ -470,7 +470,7 @@
       if (!email || !name) throw new Error("Email and name are required.");
       if (role === "agent" && !parent) throw new Error("Agent requires Parent Master Agent REF.");
 
-      const res = await fetch("/.netlify/functions/admin-user-create", {
+      const res = await fetch("/.netlify/functions/user-create", {
         method: "POST",
         headers: { "Content-Type":"application/json", ...(await authHeader(identity)) },
         body: JSON.stringify({ role, email, name, parent_ma: parent })
@@ -484,7 +484,7 @@
     window.__disableUser = async (id)=>{
       try{
         const identity = window.__identity;
-        const res = await fetch("/.netlify/functions/admin-user-disable", {
+        const res = await fetch("/.netlify/functions/user-disable", {
           method:"POST",
           headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
           body: JSON.stringify({ id })
@@ -500,7 +500,7 @@
       try{
         const identity = window.__identity;
         if (!confirm("Delete user permanently? (Better to disable)")) return;
-        const res = await fetch("/.netlify/functions/admin-user-delete", {
+        const res = await fetch("/.netlify/functions/user-delete", {
           method:"POST",
           headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
           body: JSON.stringify({ id })
@@ -524,13 +524,13 @@
       $("bankName").textContent = "—";
       $("bankAcc").textContent = "—";
 
-      const eRes = await fetch("/.netlify/functions/admin-earnings-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
+      const eRes = await fetch("/.netlify/functions/aearnings-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
         headers: { ...(await authHeader(identity)) }
       });
       const eOut = await eRes.json().catch(()=>({}));
       if (!eRes.ok || !eOut.ok) throw new Error(eOut.error || "Failed to load earnings.");
 
-      const bRes = await fetch("/.netlify/functions/admin-bank-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
+      const bRes = await fetch("/.netlify/functions/bank-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
         headers: { ...(await authHeader(identity)) }
       });
       const bOut = await bRes.json().catch(()=>({}));
@@ -554,7 +554,7 @@
       if (!id) throw new Error("Identifier is required.");
       if (Number.isNaN(pct) || pct < 0 || pct > 100) throw new Error("Commission % must be between 0 and 100.");
 
-      const res = await fetch("/.netlify/functions/admin-payout-batch-create", {
+      const res = await fetch("/.netlify/functions/payout-batch-create", {
         method:"POST",
         headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
         body: JSON.stringify({ type, id, commission_pct: pct })
