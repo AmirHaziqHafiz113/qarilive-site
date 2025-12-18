@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login | QariLive</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Netlify Identity Widget -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { gold:'#c9a14a', 'gold-soft':'#f5e6b3', blackish:'#050505', darkish:'#0b0b0b' },
+          fontFamily: { inter:['Inter','sans-serif'], playfair:['Playfair Display','serif'] },
+          boxShadow: { goldGlow:'0 0 34px rgba(201,161,74,.22)' }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background: radial-gradient(circle at top, #121212, #000 70%); }
+    .soft-border { border: 1px solid rgba(255,255,255,.10); }
+    .focus-gold:focus {
+      outline: none;
+      border-color: rgba(201,161,74,.65);
+      box-shadow: 0 0 0 4px rgba(201,161,74,.12);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center font-inter text-white/90 px-4">
+  <div class="w-full max-w-[520px] rounded-2xl border border-gold/15 bg-black/35 p-7 shadow-[0_0_35px_rgba(0,0,0,.55)]">
+    <div class="flex items-center justify-between">
+      <div class="font-playfair text-gold-soft text-2xl">QariLive Admin</div>
+      <div class="text-xs text-white/45">Netlify Identity</div>
+    </div>
+
+    <p class="mt-2 text-sm text-white/60">
+      Login only. No registration on this page.
+    </p>
+
+    <div id="alert" class="hidden mt-4 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-white/85"></div>
+
+    <div class="mt-6 space-y-3">
+      <label class="text-xs text-white/60">Email</label>
+      <input id="email" type="email" autocomplete="email"
+        class="w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+        placeholder="admin@yourcompany.com" />
+
+      <label class="text-xs text-white/60">Password</label>
+      <input id="password" type="password" autocomplete="current-password"
+        class="w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+        placeholder="••••••••••" />
+
+      <button id="btnLogin"
+        class="mt-2 w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+        Login as Admin
+      </button>
+
+      <div class="text-[11px] text-white/45">
+        Access is allowed only if user_metadata.role = <span class="text-white/80">admin</span>.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id)=>document.getElementById(id);
+    const alertBox = $("alert");
+
+    function showError(msg){
+      alertBox.classList.remove("hidden");
+      alertBox.textContent = msg || "Login failed.";
+    }
+    function hideError(){
+      alertBox.classList.add("hidden");
+      alertBox.textContent = "";
+    }
+    function waitForIdentity(){
+      return new Promise((resolve)=>{
+        const t=()=>window.netlifyIdentity?resolve(window.netlifyIdentity):setTimeout(t,50);
+        t();
+      });
+    }
+
+    async function init(){
+      const identity = await waitForIdentity();
+      identity.init();
+
+      const u = identity.currentUser();
+      if (u){
+        const role = String(u.user_metadata?.role || "").toLowerCase();
+        if (role === "admin") return (window.location.href = "admin-dashboard.html");
+        await identity.logout();
+      }
+
+      $("btnLogin").addEventListener("click", async ()=>{
+        hideError();
+        const email = ($("email").value || "").trim();
+        const password = ($("password").value || "").trim();
+        if (!email || !password) return showError("Please enter email and password.");
+
+        try{
+          await identity.login(email, password, true);
+          const uu = identity.currentUser();
+          const role = String(uu?.user_metadata?.role || "").toLowerCase();
+          if (role !== "admin"){
+            await identity.logout();
+            return showError("This account is not an admin.");
+          }
+          window.location.href = "admin-dashboard.html";
+        }catch(e){
+          showError(e?.message || "Login failed.");
+        }
+      });
+    }
+    init();
+  </script>
+</body>
+</html>

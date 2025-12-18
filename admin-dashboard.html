@@ -3,542 +3,666 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Master Agent | Dashboard</title>
+  <title>Admin Dashboard | QariLive</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Netlify Identity -->
   <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <!-- QR generator -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+  <!-- Charts (CDN, no build step) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            gold: '#c9a14a',
-            'gold-soft': '#f5e6b3',
-            blackish: '#050505',
-            darkish: '#0b0b0b'
-          },
-          fontFamily: {
-            inter: ['Inter', 'sans-serif'],
-            playfair: ['Playfair Display', 'serif']
-          },
-          boxShadow: {
-            goldGlow: '0 0 34px rgba(201,161,74,.22)'
-          }
+          colors: { gold:'#c9a14a', 'gold-soft':'#f5e6b3', blackish:'#050505', darkish:'#0b0b0b' },
+          fontFamily: { inter:['Inter','sans-serif'], playfair:['Playfair Display','serif'] },
+          boxShadow: { goldGlow:'0 0 34px rgba(201,161,74,.22)' }
         }
       }
     }
   </script>
 
   <style>
-    body{
-      background:
-        radial-gradient(900px 520px at 20% 0%, rgba(201,161,74,.18), transparent 55%),
-        radial-gradient(900px 520px at 85% 15%, rgba(245,230,179,.10), transparent 60%),
-        radial-gradient(circle at top, #121212, #000 72%);
-    }
-    .glass{
-      background: rgba(0,0,0,.42);
-      border: 1px solid rgba(201,161,74,.16);
-      backdrop-filter: blur(10px);
-    }
-    .soft-border{ border: 1px solid rgba(255,255,255,.10); }
-    .focus-gold:focus{
-      outline:none;
-      border-color: rgba(201,161,74,.70);
+    body { background: radial-gradient(circle at top, #121212, #000 70%); }
+    .soft-border { border: 1px solid rgba(255,255,255,.10); }
+    .focus-gold:focus {
+      outline: none;
+      border-color: rgba(201,161,74,.65);
       box-shadow: 0 0 0 4px rgba(201,161,74,.12);
     }
-    .chip{
-      background: rgba(0,0,0,.35);
-      border: 1px solid rgba(201,161,74,.18);
-    }
+    .glass { background: rgba(0,0,0,.30); border: 1px solid rgba(201,161,74,.15); }
+    th.sortable { cursor:pointer; user-select:none; }
+    th.sortable:hover { background: rgba(0,0,0,.35); }
+    canvas { background: rgba(0,0,0,.12); border-radius: 16px; }
   </style>
 </head>
 
-<body class="m-0 font-inter text-white/90 min-h-screen">
+<body class="m-0 font-inter text-white/90 min-h-screen flex flex-col">
 
-  <!-- TOP BAR -->
-  <header class="sticky top-0 z-50 border-b border-gold/15 bg-black/55 backdrop-blur">
-    <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-      <a href="index.html" class="no-underline flex items-center gap-3 min-w-0">
-        <div class="w-9 h-9 rounded-xl bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] grid place-items-center shadow-goldGlow shrink-0">
-          <span class="font-playfair text-black text-sm">Q</span>
-        </div>
-        <div class="min-w-0">
-          <div class="font-playfair text-gold-soft text-lg md:text-xl leading-tight truncate">QariLive™</div>
-          <div class="text-xs text-white/45 truncate">Master Agent Dashboard</div>
-        </div>
-      </a>
+  <header class="sticky top-0 z-50 backdrop-blur bg-black/55 border-b border-gold/15">
+    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <a href="index.html" class="no-underline flex items-center gap-2 min-w-0">
+          <span class="font-playfair text-gold-soft text-lg md:text-xl whitespace-nowrap">QariLive™</span>
+          <span class="hidden sm:inline-block text-xs text-white/45 truncate">Admin Dashboard</span>
+        </a>
+      </div>
 
       <div class="flex items-center gap-2">
-        <a id="openLandingTop" href="#"
-           class="hidden sm:inline-flex px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-          Open My Page
-        </a>
-        <button id="logoutTop"
-          class="px-4 py-2 rounded-full font-semibold soft-border text-white/85 bg-black/25 hover:border-gold/60 hover:bg-black/40 transition">
+        <div class="hidden md:block text-xs text-white/45">
+          <span id="adminEmail">—</span>
+        </div>
+        <button id="btnLogout"
+          class="px-4 py-2 rounded-full font-semibold text-white/90 bg-black/30 border border-white/10 hover:border-gold/60 hover:bg-black/40 transition">
           Logout
         </button>
       </div>
     </div>
-
-    <div class="sm:hidden max-w-[1100px] mx-auto px-4 pb-3">
-      <a id="openLandingTopMobile" href="#"
-         class="w-full inline-flex justify-center px-4 py-2 rounded-full font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-        Open My Page
-      </a>
-    </div>
   </header>
 
-  <!-- HERO -->
-  <section class="max-w-[1100px] mx-auto px-4 sm:px-6 pt-10 pb-6">
-    <div class="glass rounded-3xl p-6 sm:p-8">
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full chip">
-            <span class="w-2 h-2 rounded-full bg-gold"></span>
-            <span class="text-gold-soft text-xs">Master Agent</span>
-          </div>
+  <main class="flex-1">
+    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-6">
 
-          <h1 class="mt-4 font-playfair text-gold-soft text-[2.0rem] sm:text-[2.4rem] md:text-[2.8rem] leading-tight">
-            Your Referral Page & Payout
-          </h1>
+      <!-- ALERT -->
+      <div id="alertBox" class="hidden rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
 
-          <p class="mt-2 text-white/70 max-w-[760px]">
-            Share your link/QR to track sales, and keep your payout details updated so Admin can pay commissions smoothly.
-          </p>
-
-          <div class="mt-4 flex flex-wrap gap-2">
-            <span class="px-3 py-1.5 rounded-full text-xs chip text-white/80">
-              Email: <span id="maEmail" class="text-white/90">—</span>
-            </span>
-            <span class="px-3 py-1.5 rounded-full text-xs chip text-white/80">
-              Role: <span id="maRoleText" class="text-white/90">—</span>
-            </span>
-          </div>
+      <!-- KPI CARDS -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="rounded-2xl glass p-5">
+          <div class="text-[11px] text-white/45 uppercase tracking-wider">Total Users (Identity)</div>
+          <div id="kpiTotalUsers" class="mt-2 text-3xl font-semibold text-gold-soft">—</div>
+          <div class="mt-1 text-xs text-white/45">From Identity Admin API</div>
         </div>
+        <div class="rounded-2xl glass p-5">
+          <div class="text-[11px] text-white/45 uppercase tracking-wider">Total Agents</div>
+          <div id="kpiTotalAgents" class="mt-2 text-3xl font-semibold text-gold-soft">—</div>
+          <div class="mt-1 text-xs text-white/45">From Identity role=agent</div>
+        </div>
+        <div class="rounded-2xl glass p-5">
+          <div class="text-[11px] text-white/45 uppercase tracking-wider">Top Master Agent</div>
+          <div id="kpiTopMA" class="mt-2 text-xl font-semibold text-gold-soft">—</div>
+          <div class="mt-1 text-xs text-white/45">Highest agent count</div>
+        </div>
+      </section>
 
-        <div class="w-full md:w-[360px] rounded-2xl soft-border bg-black/25 p-5">
-          <div class="text-[11px] text-white/45 uppercase tracking-wider">Account</div>
-          <div class="mt-2 flex flex-wrap items-center gap-2">
-            <span id="maName" class="font-semibold text-gold-soft text-lg">Loading…</span>
-            <span id="maRefPill" class="px-2.5 py-1 rounded-full text-xs border border-gold/25 text-gold-soft bg-black/30">
-              REF: —
-            </span>
-          </div>
-
-          <div class="mt-4 grid grid-cols-2 gap-2">
-            <button id="copyRefBtn"
-              class="px-4 py-2 rounded-xl font-semibold border border-gold/25 text-gold-soft bg-black/30 hover:border-gold/60 hover:bg-black/40 transition">
-              Copy REF
-            </button>
-            <button id="copyWABtn"
-              class="px-4 py-2 rounded-xl font-semibold border border-white/10 text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
-              Copy WA
+      <!-- CHARTS -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="rounded-2xl glass p-5">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="font-playfair text-gold-soft text-xl">Agents by Master Agent</h2>
+            <button id="btnRefreshAnalytics"
+              class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+              Refresh
             </button>
           </div>
+          <div class="mt-4">
+            <canvas id="chartAgentsByMA" height="240"></canvas>
+          </div>
+          <div id="analyticsStatus" class="mt-3 text-sm text-white/55">—</div>
         </div>
-      </div>
 
-      <!-- Alert -->
-      <div id="alertBox" class="hidden mt-5 rounded-2xl glass p-4 text-sm text-white/85"></div>
-    </div>
-  </section>
-
-  <!-- MAIN (TOP -> DOWN) -->
-  <main class="max-w-[1100px] mx-auto px-4 sm:px-6 pb-[90px] space-y-6">
-
-    <!-- SHARE KIT -->
-    <section class="glass rounded-3xl p-6 sm:p-8">
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-        <div class="flex-1">
-          <h2 class="font-playfair text-gold-soft text-[1.6rem]">Share Kit</h2>
+        <div class="rounded-2xl glass p-5">
+          <h2 class="font-playfair text-gold-soft text-xl">Earnings Overview</h2>
           <p class="mt-1 text-sm text-white/60">
-            Use this link or QR so tracking stays tied to your REF.
+            This chart will work after you implement <span class="text-white/80">admin-earnings-summary</span>.
           </p>
+          <div class="mt-4">
+            <canvas id="chartEarnings" height="240"></canvas>
+          </div>
+          <div class="mt-3 text-sm text-white/55" id="earningsStatus">Waiting for API…</div>
+        </div>
+      </section>
 
-          <div class="mt-4 rounded-2xl soft-border bg-black/25 p-4">
-            <div class="text-[11px] text-white/45 uppercase tracking-wider">Your Master Agent Page</div>
-            <code id="maLink"
-              class="mt-2 block text-xs sm:text-sm px-3 py-2 rounded-xl border border-white/10 bg-black/30 text-white/85 break-all">
-              —
-            </code>
+      <!-- MANAGEMENT -->
+      <section class="rounded-2xl glass p-6">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <h2 class="font-playfair text-gold-soft text-2xl">Manage Master Agents & Agents</h2>
+            <p class="mt-1 text-sm text-white/60">
+              Add / disable / delete users (Admin-only). For safety, prefer “disable” over delete.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="btnLoadUsers"
+              class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+              Load Users
+            </button>
+          </div>
+        </div>
 
-            <div class="mt-3 flex flex-wrap gap-2">
-              <button id="copyLinkBtn"
-                class="px-4 py-2 rounded-xl font-semibold border border-white/10 text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
-                Copy Link
+        <div class="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- Create user -->
+          <div class="rounded-2xl border border-gold/15 bg-black/20 p-5">
+            <div class="text-sm font-semibold text-gold-soft">Create New User</div>
+            <p class="mt-1 text-xs text-white/55">
+              No public registration. Admin creates accounts.
+            </p>
+
+            <div class="mt-4 space-y-3">
+              <div>
+                <label class="text-xs text-white/60">Role</label>
+                <select id="newRole" class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85">
+                  <option value="master_agent">master_agent</option>
+                  <option value="agent">agent</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs text-white/60">Email</label>
+                <input id="newEmail" type="email"
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="user@email.com" />
+              </div>
+
+              <div>
+                <label class="text-xs text-white/60">Full Name</label>
+                <input id="newName" type="text"
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="Full name" />
+              </div>
+
+              <div id="newParentWrap">
+                <label class="text-xs text-white/60">Parent Master Agent REF (for agent)</label>
+                <input id="newParentMA" type="text"
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="e.g. A15261 / MA897 (your format)" />
+              </div>
+
+              <button id="btnCreateUser"
+                class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                Create User
               </button>
 
-              <a id="openLandingBtn" href="#"
-                class="px-4 py-2 rounded-xl font-semibold text-black no-underline bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-                Open My Page
-              </a>
-
-              <button id="shareWABtn"
-                class="px-4 py-2 rounded-xl font-semibold border border-gold/25 text-gold-soft bg-black/30 hover:border-gold/60 hover:bg-black/40 transition">
-                Open WhatsApp
-              </button>
+              <div class="text-[11px] text-white/45">
+                Needs API: <span class="text-white/80">/.netlify/functions/admin-user-create</span>
+              </div>
             </div>
+          </div>
+
+          <!-- Users list -->
+          <div class="lg:col-span-2 rounded-2xl border border-gold/15 bg-black/20 p-5 overflow-x-auto">
+            <div class="flex items-center justify-between gap-3">
+              <div class="text-sm font-semibold text-gold-soft">Users</div>
+              <input id="userSearch"
+                class="w-[260px] max-w-full px-4 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30 text-sm"
+                placeholder="Search email / role / name..." />
+            </div>
+
+            <table class="mt-4 min-w-full text-sm soft-border rounded-xl overflow-hidden">
+              <thead class="bg-black/30">
+                <tr class="text-left">
+                  <th class="px-4 py-3 text-white/70 font-semibold">Role</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Email</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Name</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Parent MA</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tblUsers" class="divide-y divide-white/10 bg-black/15">
+                <tr><td class="px-4 py-4 text-white/60" colspan="5">Not loaded yet.</td></tr>
+              </tbody>
+            </table>
 
             <div class="mt-3 text-xs text-white/45">
-              Tip: send the link/QR (not plain “checkout link”) to avoid tracking mistakes.
-            </div>
-          </div>
-
-          <div class="mt-5 rounded-2xl soft-border bg-black/20 p-4">
-            <div class="text-sm font-semibold text-gold-soft">Fast guide</div>
-            <div class="mt-2 text-sm text-white/70 space-y-1.5">
-              <div>• Share your page link/QR to customer.</div>
-              <div>• Customer pays via your flow.</div>
-              <div>• Agent submits proof → Admin verifies → commission paid.</div>
+              Needs API: <span class="text-white/80">admin-users-list</span>, <span class="text-white/80">admin-user-disable</span>, <span class="text-white/80">admin-user-delete</span>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- QR -->
-        <div class="w-full md:w-[340px] rounded-2xl soft-border bg-black/25 p-5">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-[11px] text-white/45 uppercase tracking-wider">QR Code</div>
-              <div class="mt-1 text-sm text-white/65">Scan to open your page</div>
+      <!-- PAYOUTS -->
+      <section class="rounded-2xl glass p-6">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <h2 class="font-playfair text-gold-soft text-2xl">Payouts & Bank Details</h2>
+            <p class="mt-1 text-sm text-white/60">
+              Select a Master Agent or Agent → see earnings + bank details → generate payout batch.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="rounded-2xl border border-gold/15 bg-black/20 p-5">
+            <div class="text-sm font-semibold text-gold-soft">Lookup</div>
+
+            <div class="mt-3 space-y-3">
+              <div>
+                <label class="text-xs text-white/60">Type</label>
+                <select id="payType" class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85">
+                  <option value="master_agent">Master Agent</option>
+                  <option value="agent">Agent</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs text-white/60">Identifier</label>
+                <input id="payId" type="text"
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="Master Agent REF or Agent user_id" />
+                <div class="mt-1 text-[11px] text-white/45">
+                  Master Agent: lookup by <span class="text-white/80">ma_code</span> or <span class="text-white/80">user_id</span> (your DB supports both). :contentReference[oaicite:3]{index=3}
+                </div>
+              </div>
+
+              <button id="btnLoadPayout"
+                class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                Load Earnings + Bank
+              </button>
+
+              <div class="text-[11px] text-white/45">
+                Needs API: <span class="text-white/80">admin-earnings-one</span>, <span class="text-white/80">admin-bank-one</span>
+              </div>
             </div>
           </div>
 
-          <div class="mt-4 flex items-center justify-center">
-            <div class="rounded-2xl border border-white/10 bg-black/20 p-3">
-              <canvas id="qrCanvas" class="block"></canvas>
+          <div class="lg:col-span-2 rounded-2xl border border-gold/15 bg-black/20 p-5">
+            <div class="flex items-center justify-between gap-3">
+              <div class="text-sm font-semibold text-gold-soft">Details</div>
+              <div id="payStatus" class="text-sm text-white/55">—</div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="rounded-2xl soft-border bg-black/20 p-4">
+                <div class="text-[11px] text-white/45 uppercase tracking-wider">Earnings (Calculated)</div>
+                <div id="earnedTotal" class="mt-2 text-2xl font-semibold text-gold-soft">—</div>
+                <div class="mt-1 text-xs text-white/45">Based on approved submissions × commission %.</div>
+              </div>
+
+              <div class="rounded-2xl soft-border bg-black/20 p-4">
+                <div class="text-[11px] text-white/45 uppercase tracking-wider">Commission %</div>
+                <div class="mt-2 flex items-center gap-2">
+                  <input id="commissionPct" type="number" min="0" max="100" step="0.1"
+                    class="w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                    placeholder="e.g. 10" />
+                </div>
+                <div class="mt-1 text-xs text-white/45">Admin sets or overrides payout percent.</div>
+              </div>
+
+              <div class="md:col-span-2 rounded-2xl soft-border bg-black/20 p-4">
+                <div class="text-[11px] text-white/45 uppercase tracking-wider">Bank Details</div>
+                <div class="mt-2 text-sm text-white/80">
+                  <div><span class="text-white/45">Bank:</span> <span id="bankBank">—</span></div>
+                  <div><span class="text-white/45">Account Name:</span> <span id="bankName">—</span></div>
+                  <div><span class="text-white/45">Account Number:</span> <span id="bankAcc">—</span></div>
+                  <div class="mt-2 text-[11px] text-white/45">
+                    Master Agent bank is stored in <span class="text-white/80">ma_payout</span>. :contentReference[oaicite:4]{index=4}
+                    Agent bank is stored in <span class="text-white/80">agent_payout_details</span>. :contentReference[oaicite:5]{index=5}
+                  </div>
+                </div>
+              </div>
+
+              <div class="md:col-span-2">
+                <button id="btnCreatePayoutBatch"
+                  class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                  Create Payout Batch (Lock + Export)
+                </button>
+                <div class="mt-2 text-[11px] text-white/45">
+                  Needs API: <span class="text-white/80">admin-payout-batch-create</span>
+                </div>
+              </div>
+
             </div>
           </div>
-
-          <button id="downloadQR"
-            class="mt-4 w-full px-4 py-2 rounded-xl font-semibold border border-white/10 text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition">
-            Download QR (PNG)
-          </button>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- PROFILE & PAYOUT -->
-    <section class="glass rounded-3xl p-6 sm:p-8">
-      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-        <div>
-          <h2 class="font-playfair text-gold-soft text-[1.6rem]">Profile & Payout</h2>
-          <p class="mt-1 text-sm text-white/60">
-            Keep this accurate so Admin can send commission without delay.
-          </p>
-        </div>
-
-        <div class="rounded-2xl soft-border bg-black/25 p-4 text-sm text-white/70">
-          <div>Account: <span id="statusAccount" class="text-white/90">—</span></div>
-          <div class="mt-1">Payout: <span id="statusPayout" class="text-white/90">—</span></div>
-        </div>
-      </div>
-
-      <form id="profileForm" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="md:col-span-2">
-          <label class="text-xs text-white/55">Full Name</label>
-          <input id="fullName" required
-            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 soft-border focus-gold text-white placeholder:text-white/30"
-            placeholder="e.g. Aisyah Binti Ahmad" />
-        </div>
-
-        <div>
-          <label class="text-xs text-white/55">WhatsApp Number</label>
-          <input id="whatsapp" required
-            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 soft-border focus-gold text-white placeholder:text-white/30"
-            placeholder="e.g. 60123456789" />
-          <div class="mt-1 text-[11px] text-white/40">Use country code (no +, no spaces).</div>
-        </div>
-
-        <div>
-          <label class="text-xs text-white/55">Bank Name</label>
-          <input id="bankName"
-            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 soft-border focus-gold text-white placeholder:text-white/30"
-            placeholder="e.g. Maybank" />
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="text-xs text-white/55">Bank Account Number</label>
-          <input id="bankAcc"
-            class="mt-1 w-full px-4 py-3 rounded-xl bg-black/30 soft-border focus-gold text-white placeholder:text-white/30"
-            placeholder="e.g. 1234567890" />
-        </div>
-
-        <div class="md:col-span-2 rounded-2xl soft-border bg-black/20 p-4">
-          <div class="text-xs uppercase tracking-wider text-white/45">Security</div>
-          <div class="mt-2 text-sm text-white/70">
-            Password reset uses the login page “Forgot Password” (Netlify Identity flow).
-          </div>
-        </div>
-
-        <div class="md:col-span-2 flex flex-col sm:flex-row gap-3">
-          <button type="submit" id="saveBtn"
-            class="flex-1 px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-            Save Changes
-          </button>
-
-          <button type="button" id="logoutBtn"
-            class="sm:w-[190px] px-4 py-3 rounded-xl font-semibold soft-border text-white/85 bg-black/25 hover:border-gold/60 hover:bg-black/40 transition">
-            Logout
-          </button>
-        </div>
-      </form>
-    </section>
-
+    </div>
   </main>
 
   <footer class="border-t border-gold/15 bg-black/60">
-    <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-10 text-center">
+    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
       <small class="text-white/45">© 2025 IT People Sdn Bhd • QariLive Operations</small>
     </div>
   </footer>
 
   <script>
-    const el = {
-      alertBox: document.getElementById("alertBox"),
-      maName: document.getElementById("maName"),
-      maEmail: document.getElementById("maEmail"),
-      maRoleText: document.getElementById("maRoleText"),
-      maRefPill: document.getElementById("maRefPill"),
-      maLink: document.getElementById("maLink"),
-      qrCanvas: document.getElementById("qrCanvas"),
+    const $ = (id) => document.getElementById(id);
 
-      fullName: document.getElementById("fullName"),
-      whatsapp: document.getElementById("whatsapp"),
-      bankName: document.getElementById("bankName"),
-      bankAcc: document.getElementById("bankAcc"),
-
-      openLandingBtn: document.getElementById("openLandingBtn"),
-      openLandingTop: document.getElementById("openLandingTop"),
-      openLandingTopMobile: document.getElementById("openLandingTopMobile"),
-      copyLinkBtn: document.getElementById("copyLinkBtn"),
-      copyRefBtn: document.getElementById("copyRefBtn"),
-      copyWABtn: document.getElementById("copyWABtn"),
-      shareWABtn: document.getElementById("shareWABtn"),
-      downloadQR: document.getElementById("downloadQR"),
-      logoutBtn: document.getElementById("logoutBtn"),
-      logoutTop: document.getElementById("logoutTop"),
-
-      profileForm: document.getElementById("profileForm"),
-      saveBtn: document.getElementById("saveBtn"),
-
-      statusAccount: document.getElementById("statusAccount"),
-      statusPayout: document.getElementById("statusPayout"),
-    };
-
+    const alertBox = $("alertBox");
     function showAlert(msg, type="info"){
-      el.alertBox.classList.remove("hidden");
-      el.alertBox.textContent = msg;
-      el.alertBox.classList.remove("border-red-500/25","bg-red-500/10","border-gold/20","bg-black/30");
-      if(type === "error"){
-        el.alertBox.classList.add("border-red-500/25","bg-red-500/10");
-      } else {
-        el.alertBox.classList.add("border-gold/20","bg-black/30");
-      }
+      alertBox.classList.remove("hidden");
+      alertBox.textContent = msg;
+      alertBox.classList.remove("border-red-500/25","bg-red-500/10","border-gold/20","bg-black/30");
+      if (type==="error") alertBox.classList.add("border-red-500/25","bg-red-500/10");
+      else alertBox.classList.add("border-gold/20","bg-black/30");
     }
-    function hideAlert(){ el.alertBox.classList.add("hidden"); el.alertBox.textContent = ""; }
+    function hideAlert(){ alertBox.classList.add("hidden"); alertBox.textContent=""; }
 
     function waitForIdentity(){
-      return new Promise((resolve) => {
-        const tick = () => window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(tick, 50);
-        tick();
+      return new Promise((resolve)=>{
+        const t=()=>window.netlifyIdentity?resolve(window.netlifyIdentity):setTimeout(t,50);
+        t();
       });
     }
 
-    function makeMACode(){
-      const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-      const t = Date.now().toString().slice(-4);
-      return `MA${t}${rand}`;
+    async function requireAdmin(identity){
+      identity.init();
+      const u = identity.currentUser();
+      if (!u) return (window.location.href = "admin-auth.html");
+
+      const role = String(u.user_metadata?.role || "").toLowerCase();
+      if (role !== "admin"){
+        await identity.logout();
+        window.location.href = "admin-auth.html";
+        return null;
+      }
+      $("adminEmail").textContent = u.email || "admin";
+      return u;
     }
 
-    function normalizeRole(user){
-      const metaRole = user?.user_metadata?.role;
-      const roles = user?.app_metadata?.roles;
-      if (metaRole) return metaRole;
-      if (Array.isArray(roles) && roles.length) return roles.join(", ");
-      return "unknown";
+    async function authHeader(identity){
+      const u = identity.currentUser();
+      if (!u) return {};
+      const token = await u.jwt();
+      return { "Authorization": "Bearer " + token };
     }
 
-    function isMasterAgent(user){
-      const r = user?.user_metadata?.role;
-      const roles = user?.app_metadata?.roles;
-      return r === "master_agent" || (Array.isArray(roles) && roles.includes("master_agent"));
+    // --- Charts ---
+    let chartAgentsByMA = null;
+    let chartEarnings = null;
+
+    function renderAgentsByMAChart(items){
+      const labels = (items || []).map(x => x.ma_code);
+      const values = (items || []).map(x => Number(x.agent_count || 0));
+
+      const ctx = $("chartAgentsByMA").getContext("2d");
+      if (chartAgentsByMA) chartAgentsByMA.destroy();
+      chartAgentsByMA = new Chart(ctx, {
+        type: "bar",
+        data: { labels, datasets: [{ label: "Agents", data: values }] },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: true } },
+          scales: {
+            x: { ticks: { color: "rgba(255,255,255,.65)" } },
+            y: { ticks: { color: "rgba(255,255,255,.65)" }, beginAtZero: true }
+          }
+        }
+      });
     }
 
-    async function copyText(txt){
-      try { await navigator.clipboard.writeText(txt); return true; }
-      catch { return false; }
+    function renderEarningsChartPlaceholder(){
+      const ctx = $("chartEarnings").getContext("2d");
+      if (chartEarnings) chartEarnings.destroy();
+      chartEarnings = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: ["Pending API"],
+          datasets: [{ label: "Earnings (RM)", data: [0] }]
+        },
+        options: { responsive: true }
+      });
     }
 
-    async function renderQR(link){
-      try {
-        await QRCode.toCanvas(el.qrCanvas, link, { margin: 1, width: 190 });
-      } catch (e) {
+    // --- Analytics (uses your existing function) ---
+    async function loadAnalytics(identity){
+      try{
+        $("analyticsStatus").textContent = "Loading...";
+        const res = await fetch("/.netlify/functions/admin-agent-stats?t=" + Date.now(), {
+          method: "GET",
+          headers: { ...(await authHeader(identity)) }
+        });
+        const out = await res.json().catch(()=>({}));
+        if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
+
+        $("kpiTotalUsers").textContent = String(out.totalUsers ?? "—");
+        $("kpiTotalAgents").textContent = String(out.totalAgents ?? "—");
+
+        const top = (out.byMasterAgent || [])[0];
+        $("kpiTopMA").textContent = top ? (top.ma_code + " (" + top.agent_count + ")") : "—";
+
+        renderAgentsByMAChart(out.byMasterAgent || []);
+        $("analyticsStatus").textContent = "Updated: " + new Date().toLocaleTimeString();
+      }catch(e){
         console.error(e);
+        $("analyticsStatus").textContent = "Failed to load analytics.";
+        showAlert(e?.message || "Failed to load analytics.", "error");
       }
     }
 
-    function openWhatsAppText(text){
-      const url = "https://wa.me/?text=" + encodeURIComponent(text || "");
-      window.open(url, "_blank");
+    // --- User management UI (placeholder APIs) ---
+    function escapeHtml(s){
+      return String(s || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    let cachedUsers = [];
+
+    function renderUsersTable(list){
+      const q = String($("userSearch").value || "").trim().toLowerCase();
+      const rows = (list || []).filter(u=>{
+        if (!q) return true;
+        const hay = (u.role+" "+u.email+" "+u.name+" "+(u.parent_ma||"")).toLowerCase();
+        return hay.includes(q);
+      });
+
+      const tbody = $("tblUsers");
+      if (!rows.length){
+        tbody.innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="5">No users.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rows.map(u=>{
+        const role = escapeHtml(u.role || "—");
+        const email = escapeHtml(u.email || "—");
+        const name = escapeHtml(u.name || "—");
+        const parent = escapeHtml(u.parent_ma || "—");
+        const id = escapeHtml(u.id || "");
+
+        return `
+          <tr>
+            <td class="px-4 py-3 text-white/80">${role}</td>
+            <td class="px-4 py-3 text-white/75">${email}</td>
+            <td class="px-4 py-3 text-white/75">${name}</td>
+            <td class="px-4 py-3 text-white/60">${parent}</td>
+            <td class="px-4 py-3 text-white/75">
+              <div class="flex flex-wrap gap-2">
+                <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm"
+                  onclick="window.__disableUser('${id}')">Disable</button>
+                <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm"
+                  onclick="window.__deleteUser('${id}')">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function loadUsers(identity){
+      // You will implement this Netlify function next.
+      // It should return Identity users with user_metadata (role, ma_code/parent_ma_code, full_name, etc.)
+      const res = await fetch("/.netlify/functions/admin-users-list?t=" + Date.now(), {
+        headers: { ...(await authHeader(identity)) }
+      });
+      const out = await res.json().catch(()=>({}));
+      if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
+
+      cachedUsers = out.users || [];
+      renderUsersTable(cachedUsers);
+    }
+
+    async function createUser(identity){
+      const role = ($("newRole").value || "").trim();
+      const email = ($("newEmail").value || "").trim().toLowerCase();
+      const name = ($("newName").value || "").trim();
+      const parent = ($("newParentMA").value || "").trim().toUpperCase();
+
+      if (!email || !name) throw new Error("Email and name are required.");
+      if (role === "agent" && !parent) throw new Error("Agent requires Parent Master Agent REF.");
+
+      const payload = { role, email, name, parent_ma: parent };
+
+      const res = await fetch("/.netlify/functions/admin-user-create", {
+        method: "POST",
+        headers: { "Content-Type":"application/json", ...(await authHeader(identity)) },
+        body: JSON.stringify(payload)
+      });
+
+      const out = await res.json().catch(()=>({}));
+      if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
+
+      showAlert("✅ User created. (You can choose to send invite email / set temp password in server logic.)");
+    }
+
+    window.__disableUser = async (id)=>{
+      try{
+        const identity = window.__identity;
+        const res = await fetch("/.netlify/functions/admin-user-disable", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
+          body: JSON.stringify({ id })
+        });
+        const out = await res.json().catch(()=>({}));
+        if (!res.ok || !out.ok) throw new Error(out.error || "Disable failed.");
+        showAlert("✅ User disabled.");
+        await loadUsers(identity);
+      }catch(e){ showAlert(e?.message || "Disable failed.", "error"); }
+    };
+
+    window.__deleteUser = async (id)=>{
+      try{
+        const identity = window.__identity;
+        if (!confirm("Delete user permanently? (Better to disable)")) return;
+        const res = await fetch("/.netlify/functions/admin-user-delete", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
+          body: JSON.stringify({ id })
+        });
+        const out = await res.json().catch(()=>({}));
+        if (!res.ok || !out.ok) throw new Error(out.error || "Delete failed.");
+        showAlert("✅ User deleted.");
+        await loadUsers(identity);
+      }catch(e){ showAlert(e?.message || "Delete failed.", "error"); }
+    };
+
+    // --- Payout lookup (placeholder APIs) ---
+    async function loadPayout(identity){
+      const type = ($("payType").value || "").trim();
+      const id = ($("payId").value || "").trim();
+      if (!id) throw new Error("Identifier is required.");
+
+      $("payStatus").textContent = "Loading...";
+      $("earnedTotal").textContent = "—";
+      $("bankBank").textContent = "—";
+      $("bankName").textContent = "—";
+      $("bankAcc").textContent = "—";
+
+      // 1) earnings
+      const eRes = await fetch("/.netlify/functions/admin-earnings-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
+        headers: { ...(await authHeader(identity)) }
+      });
+      const eOut = await eRes.json().catch(()=>({}));
+      if (!eRes.ok || !eOut.ok) throw new Error(eOut.error || "Failed to load earnings.");
+
+      // 2) bank
+      const bRes = await fetch("/.netlify/functions/admin-bank-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
+        headers: { ...(await authHeader(identity)) }
+      });
+      const bOut = await bRes.json().catch(()=>({}));
+      if (!bRes.ok || !bOut.ok) throw new Error(bOut.error || "Failed to load bank details.");
+
+      $("earnedTotal").textContent = "RM " + Number(eOut.total_rm || 0).toLocaleString("en-MY");
+      $("commissionPct").value = String(eOut.commission_pct ?? "");
+
+      $("bankBank").textContent = bOut.bank?.bank_name || "—";
+      $("bankName").textContent = bOut.bank?.bank_account_name || "—";
+      $("bankAcc").textContent = bOut.bank?.bank_account_number || "—";
+
+      $("payStatus").textContent = "Loaded.";
+    }
+
+    async function createPayoutBatch(identity){
+      const type = ($("payType").value || "").trim();
+      const id = ($("payId").value || "").trim();
+      const pct = Number($("commissionPct").value || 0);
+
+      if (!id) throw new Error("Identifier is required.");
+      if (Number.isNaN(pct) || pct < 0 || pct > 100) throw new Error("Commission % must be between 0 and 100.");
+
+      const payload = { type, id, commission_pct: pct };
+
+      const res = await fetch("/.netlify/functions/admin-payout-batch-create", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
+        body: JSON.stringify(payload)
+      });
+
+      const out = await res.json().catch(()=>({}));
+      if (!res.ok || !out.ok) throw new Error(out.error || "Failed to create payout batch.");
+
+      showAlert("✅ Payout batch created. Batch ID: " + (out.batch_id || "—"));
     }
 
     async function init(){
       const identity = await waitForIdentity();
-      identity.init();
+      window.__identity = identity;
 
-      const user = identity.currentUser();
-      if(!user){
-        window.location.href = "master-agent-auth.html";
-        return;
-      }
+      const u = await requireAdmin(identity);
+      if (!u) return;
 
-      if(!isMasterAgent(user)){
-        showAlert("Access denied: this dashboard is for Master Agents only.", "error");
-        await identity.logout();
-        window.location.href = "master-agent-auth.html";
-        return;
-      }
-
-      // Ensure REF exists
-      let maCode = user.user_metadata?.ma_code;
-      if(!maCode){
-        maCode = makeMACode();
-        try{
-          await user.update({ data: { ...user.user_metadata, ma_code: maCode, role: "master_agent" } });
-        } catch (e){ console.error(e); }
-      }
-
-      const name = user.user_metadata?.full_name || (user.email || "Master Agent");
-      const whatsapp = user.user_metadata?.whatsapp || "";
-      const bankName = user.user_metadata?.bank_name || "";
-      const bankAcc = user.user_metadata?.bank_acc || "";
-      const roleText = normalizeRole(user);
-
-      // Your landing link format
-      const link = `${window.location.origin}/ma/${encodeURIComponent(maCode)}`;
-
-      // Fill UI
-      el.maName.textContent = name;
-      el.maEmail.textContent = user.email || "—";
-      el.maRoleText.textContent = roleText;
-      el.maRefPill.textContent = `REF: ${maCode}`;
-      el.maLink.textContent = link;
-
-      el.openLandingBtn.href = link;
-      el.openLandingTop.href = link;
-      if (el.openLandingTopMobile) el.openLandingTopMobile.href = link;
-
-      el.fullName.value = user.user_metadata?.full_name || "";
-      el.whatsapp.value = whatsapp;
-      el.bankName.value = bankName;
-      el.bankAcc.value = bankAcc;
-
-      // Status
-      el.statusAccount.textContent = "Active (logged in)";
-      el.statusPayout.textContent = (bankName && bankAcc) ? "Complete" : "Incomplete";
-
-      // QR
-      await renderQR(link);
-
-      // Copy REF
-      el.copyRefBtn.addEventListener("click", async () => {
-        const ok = await copyText(maCode);
-        showAlert(ok ? "REF copied." : "Copy failed. Please copy manually.", ok ? "info" : "error");
-        setTimeout(hideAlert, 1200);
+      $("btnLogout").addEventListener("click", async ()=>{
+        try{ await identity.logout(); }finally{ window.location.href = "admin-auth.html"; }
       });
 
-      // Copy link
-      el.copyLinkBtn.addEventListener("click", async () => {
-        const ok = await copyText(link);
-        showAlert(ok ? "Link copied." : "Copy failed. Please copy manually.", ok ? "info" : "error");
-        setTimeout(hideAlert, 1200);
-      });
-
-      // Copy WA message
-      el.copyWABtn.addEventListener("click", async () => {
-        const msg = `Hi! Here’s my QariLive Master Agent page (REF ${maCode}): ${link}`;
-        const ok = await copyText(msg);
-        showAlert(ok ? "WhatsApp message copied." : "Copy failed. Please copy manually.", ok ? "info" : "error");
-        setTimeout(hideAlert, 1200);
-      });
-
-      // Open WhatsApp directly
-      el.shareWABtn.addEventListener("click", () => {
-        const msg = `Hi! Here’s my QariLive Master Agent page (REF ${maCode}): ${link}`;
-        openWhatsAppText(msg);
-      });
-
-      // Download QR
-      el.downloadQR.addEventListener("click", () => {
-        try {
-          const a = document.createElement("a");
-          a.download = `QariLive-QR-${maCode}.png`;
-          a.href = el.qrCanvas.toDataURL("image/png");
-          a.click();
-        } catch {
-          showAlert("Unable to download QR on this browser.", "error");
-        }
-      });
-
-      // Save profile
-      el.profileForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+      $("btnRefreshAnalytics").addEventListener("click", ()=>loadAnalytics(identity));
+      $("btnLoadUsers").addEventListener("click", async ()=>{
         hideAlert();
+        try{ await loadUsers(identity); }
+        catch(e){ showAlert(e?.message || "Failed to load users.", "error"); }
+      });
 
-        const newName = el.fullName.value.trim();
-        const newWA = el.whatsapp.value.trim();
-        const newBankName = el.bankName.value.trim();
-        const newBankAcc = el.bankAcc.value.trim();
+      $("userSearch").addEventListener("input", ()=>renderUsersTable(cachedUsers));
 
-        if(!newName || !newWA){
-          showAlert("Please fill Full Name and WhatsApp Number.", "error");
-          return;
-        }
+      $("newRole").addEventListener("change", ()=>{
+        const role = $("newRole").value;
+        $("newParentWrap").style.display = (role === "agent") ? "block" : "none";
+      });
+      $("newRole").dispatchEvent(new Event("change"));
 
-        el.saveBtn.disabled = true;
-        el.saveBtn.classList.add("opacity-80","pointer-events-none");
-
+      $("btnCreateUser").addEventListener("click", async ()=>{
+        hideAlert();
+        const btn = $("btnCreateUser");
+        const old = btn.textContent;
+        btn.disabled = true; btn.textContent = "Creating...";
         try{
-          const updated = await user.update({
-            data: {
-              ...user.user_metadata,
-              role: "master_agent",
-              ma_code: maCode,
-              full_name: newName,
-              whatsapp: newWA,
-              bank_name: newBankName,
-              bank_acc: newBankAcc
-            }
-          });
-
-          el.maName.textContent = updated.user_metadata?.full_name || newName;
-          el.statusPayout.textContent = (newBankName && newBankAcc) ? "Complete" : "Incomplete";
-
-          showAlert("Saved successfully.");
-          setTimeout(hideAlert, 1400);
-        } catch (err){
-          console.error(err);
-          showAlert(err?.message || "Failed to save changes.", "error");
-        } finally {
-          el.saveBtn.disabled = false;
-          el.saveBtn.classList.remove("opacity-80","pointer-events-none");
+          await createUser(identity);
+          $("newEmail").value = "";
+          $("newName").value = "";
+          $("newParentMA").value = "";
+          // optionally reload users
+          // await loadUsers(identity);
+        }catch(e){
+          showAlert(e?.message || "Create user failed.", "error");
+        }finally{
+          btn.disabled = false; btn.textContent = old;
         }
       });
 
-      // Logout
-      async function doLogout(){
-        await identity.logout();
-        window.location.href = "master-agent-auth.html";
-      }
-      el.logoutBtn.addEventListener("click", doLogout);
-      el.logoutTop.addEventListener("click", doLogout);
+      $("btnLoadPayout").addEventListener("click", async ()=>{
+        hideAlert();
+        try{ await loadPayout(identity); }
+        catch(e){ showAlert(e?.message || "Load payout failed.", "error"); $("payStatus").textContent="—"; }
+      });
+
+      $("btnCreatePayoutBatch").addEventListener("click", async ()=>{
+        hideAlert();
+        const btn = $("btnCreatePayoutBatch");
+        const old = btn.textContent;
+        btn.disabled = true; btn.textContent = "Creating...";
+        try{ await createPayoutBatch(identity); }
+        catch(e){ showAlert(e?.message || "Create payout batch failed.", "error"); }
+        finally{ btn.disabled = false; btn.textContent = old; }
+      });
+
+      // initial
+      renderEarningsChartPlaceholder();
+      await loadAnalytics(identity);
     }
 
     init();
