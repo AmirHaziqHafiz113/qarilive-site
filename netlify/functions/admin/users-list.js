@@ -20,13 +20,10 @@ function getBearerToken(event) {
 }
 
 function isAdmin(token) {
-  try {
-    const decoded = jwt.decode(token);
-    const roles = decoded?.app_metadata?.roles || [];
-    return Array.isArray(roles) && roles.includes("admin");
-  } catch {
-    return false;
-  }
+  const decoded = jwt.decode(token);
+  const roles = decoded?.app_metadata?.roles || [];
+  const metaRole = decoded?.user_metadata?.role;
+  return (Array.isArray(roles) && roles.includes("admin")) || metaRole === "admin";
 }
 
 function parseNextLink(linkHeader) {
@@ -37,21 +34,6 @@ function parseNextLink(linkHeader) {
     if (m) return m[1];
   }
   return null;
-}
-
-function inferRole(u) {
-  // Prefer user_metadata.role if you’re using that convention
-  const metaRole = (u?.user_metadata?.role || "").toLowerCase().trim();
-  if (metaRole) return metaRole;
-
-  // Fallback: app_metadata.roles
-  const roles = u?.app_metadata?.roles || [];
-  if (Array.isArray(roles)) {
-    if (roles.includes("master_agent")) return "master_agent";
-    if (roles.includes("agent")) return "agent";
-    if (roles.includes("admin")) return "admin";
-  }
-  return "unknown";
 }
 
 export async function handler(event) {
@@ -77,38 +59,27 @@ export async function handler(event) {
       const txt = await res.text().catch(() => "");
       if (!res.ok) return json(res.status, { ok: false, error: "Failed to fetch users", detail: txt });
 
-      const page = JSON.parse(txt || "[]");
-      allUsers.push(...page);
+      const users = JSON.parse(txt || "[]");
+      allUsers.push(...users);
 
       const link = res.headers.get("link") || res.headers.get("Link") || "";
       url = parseNextLink(link);
     }
 
-    const users = allUsers.map((u) => {
+    // map to lightweight objects for UI
+    const mapped = allUsers.map((u) => {
       const meta = u.user_metadata || {};
-      const role = inferRole(u);
-
-      const parent =
-        String(
-          meta.parent_ma_code ||
-          meta.ma_code ||
-          meta.ma_ref ||
-          meta.parent_ma_ref ||
-          ""
-        )
-          .trim()
-          .toUpperCase() || "";
-
+      const role = String(meta.role || (u.app_metadata?.roles?.[0] || "")).toLowerCase();
       return {
         id: u.id,
-        email: u.email || "",
-        name: meta.full_name || meta.name || "",
-        role,
-        parent_ma: parent || "",
+        email: u.email,
+        role: role || "—",
+        name: meta.full_name || meta.name || "—",
+        parent_ma: meta.parent_ma_code || meta.ma_code || meta.ma_ref || "",
       };
     });
 
-    return json(200, { ok: true, users });
+    return json(200, { ok: true, users: mapped });
   } catch (err) {
     console.error("admin-users-list error:", err);
     return json(500, { ok: false, error: err?.message || "Server error" });

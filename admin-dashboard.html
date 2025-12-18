@@ -9,7 +9,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
-  <!-- Charts (CDN, no build step) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <script>
@@ -27,14 +26,8 @@
   <style>
     body { background: radial-gradient(circle at top, #121212, #000 70%); }
     .soft-border { border: 1px solid rgba(255,255,255,.10); }
-    .focus-gold:focus {
-      outline: none;
-      border-color: rgba(201,161,74,.65);
-      box-shadow: 0 0 0 4px rgba(201,161,74,.12);
-    }
+    .focus-gold:focus { outline:none; border-color: rgba(201,161,74,.65); box-shadow: 0 0 0 4px rgba(201,161,74,.12); }
     .glass { background: rgba(0,0,0,.30); border: 1px solid rgba(201,161,74,.15); }
-    th.sortable { cursor:pointer; user-select:none; }
-    th.sortable:hover { background: rgba(0,0,0,.35); }
     canvas { background: rgba(0,0,0,.12); border-radius: 16px; }
   </style>
 </head>
@@ -43,12 +36,10 @@
 
   <header class="sticky top-0 z-50 backdrop-blur bg-black/55 border-b border-gold/15">
     <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <a href="index.html" class="no-underline flex items-center gap-2 min-w-0">
-          <span class="font-playfair text-gold-soft text-lg md:text-xl whitespace-nowrap">QariLive™</span>
-          <span class="hidden sm:inline-block text-xs text-white/45 truncate">Admin Dashboard</span>
-        </a>
-      </div>
+      <a href="index.html" class="no-underline flex items-center gap-2 min-w-0">
+        <span class="font-playfair text-gold-soft text-lg md:text-xl whitespace-nowrap">QariLive™</span>
+        <span class="hidden sm:inline-block text-xs text-white/45 truncate">Admin Dashboard</span>
+      </a>
 
       <div class="flex items-center gap-2">
         <div class="hidden md:block text-xs text-white/45">
@@ -65,29 +56,23 @@
   <main class="flex-1">
     <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-6">
 
-      <!-- ALERT -->
       <div id="alertBox" class="hidden rounded-2xl border border-gold/20 bg-black/30 p-4 text-sm text-white/80"></div>
 
-      <!-- KPI CARDS -->
       <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="rounded-2xl glass p-5">
           <div class="text-[11px] text-white/45 uppercase tracking-wider">Total Users (Identity)</div>
           <div id="kpiTotalUsers" class="mt-2 text-3xl font-semibold text-gold-soft">—</div>
-          <div class="mt-1 text-xs text-white/45">From Identity Admin API</div>
         </div>
         <div class="rounded-2xl glass p-5">
           <div class="text-[11px] text-white/45 uppercase tracking-wider">Total Agents</div>
           <div id="kpiTotalAgents" class="mt-2 text-3xl font-semibold text-gold-soft">—</div>
-          <div class="mt-1 text-xs text-white/45">From Identity role=agent</div>
         </div>
         <div class="rounded-2xl glass p-5">
           <div class="text-[11px] text-white/45 uppercase tracking-wider">Top Master Agent</div>
           <div id="kpiTopMA" class="mt-2 text-xl font-semibold text-gold-soft">—</div>
-          <div class="mt-1 text-xs text-white/45">Highest agent count</div>
         </div>
       </section>
 
-      <!-- CHARTS -->
       <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="rounded-2xl glass p-5">
           <div class="flex items-center justify-between gap-3">
@@ -105,40 +90,29 @@
 
         <div class="rounded-2xl glass p-5">
           <h2 class="font-playfair text-gold-soft text-xl">Earnings Overview</h2>
-          <p class="mt-1 text-sm text-white/60">
-            This chart will work after you implement <span class="text-white/80">admin-earnings-summary</span>.
-          </p>
+          <p class="mt-1 text-sm text-white/60">Placeholder (optional next step).</p>
           <div class="mt-4">
             <canvas id="chartEarnings" height="240"></canvas>
           </div>
-          <div class="mt-3 text-sm text-white/55" id="earningsStatus">Waiting for API…</div>
+          <div class="mt-3 text-sm text-white/55" id="earningsStatus">—</div>
         </div>
       </section>
 
-      <!-- MANAGEMENT -->
       <section class="rounded-2xl glass p-6">
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
-            <h2 class="font-playfair text-gold-soft text-2xl">Manage Master Agents & Agents</h2>
-            <p class="mt-1 text-sm text-white/60">
-              Add / disable / delete users (Admin-only). For safety, prefer “disable” over delete.
-            </p>
+            <h2 class="font-playfair text-gold-soft text-2xl">Manage Users</h2>
+            <p class="mt-1 text-sm text-white/60">Create / disable / delete Identity users.</p>
           </div>
-          <div class="flex flex-wrap gap-2">
-            <button id="btnLoadUsers"
-              class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
-              Load Users
-            </button>
-          </div>
+          <button id="btnLoadUsers"
+            class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+            Load Users
+          </button>
         </div>
 
         <div class="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <!-- Create user -->
           <div class="rounded-2xl border border-gold/15 bg-black/20 p-5">
             <div class="text-sm font-semibold text-gold-soft">Create New User</div>
-            <p class="mt-1 text-xs text-white/55">
-              No public registration. Admin creates accounts.
-            </p>
 
             <div class="mt-4 space-y-3">
               <div>
@@ -167,7 +141,7 @@
                 <label class="text-xs text-white/60">Parent Master Agent REF (for agent)</label>
                 <input id="newParentMA" type="text"
                   class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-                  placeholder="e.g. A15261 / MA897 (your format)" />
+                  placeholder="e.g. A15261" />
               </div>
 
               <button id="btnCreateUser"
@@ -176,18 +150,17 @@
               </button>
 
               <div class="text-[11px] text-white/45">
-                Needs API: <span class="text-white/80">/.netlify/functions/admin-user-create</span>
+                API: <span class="text-white/80">/.netlify/functions/admin-user-create</span>
               </div>
             </div>
           </div>
 
-          <!-- Users list -->
           <div class="lg:col-span-2 rounded-2xl border border-gold/15 bg-black/20 p-5 overflow-x-auto">
             <div class="flex items-center justify-between gap-3">
               <div class="text-sm font-semibold text-gold-soft">Users</div>
               <input id="userSearch"
                 class="w-[260px] max-w-full px-4 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30 text-sm"
-                placeholder="Search email / role / name..." />
+                placeholder="Search..." />
             </div>
 
             <table class="mt-4 min-w-full text-sm soft-border rounded-xl overflow-hidden">
@@ -206,22 +179,14 @@
             </table>
 
             <div class="mt-3 text-xs text-white/45">
-              Needs API: <span class="text-white/80">admin-users-list</span>, <span class="text-white/80">admin-user-disable</span>, <span class="text-white/80">admin-user-delete</span>
+              API: <span class="text-white/80">admin-users-list</span>, <span class="text-white/80">admin-user-disable</span>, <span class="text-white/80">admin-user-delete</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- PAYOUTS -->
       <section class="rounded-2xl glass p-6">
-        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div>
-            <h2 class="font-playfair text-gold-soft text-2xl">Payouts & Bank Details</h2>
-            <p class="mt-1 text-sm text-white/60">
-              Select a Master Agent or Agent → see earnings + bank details → generate payout batch.
-            </p>
-          </div>
-        </div>
+        <h2 class="font-playfair text-gold-soft text-2xl">Payouts & Bank Details</h2>
 
         <div class="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div class="rounded-2xl border border-gold/15 bg-black/20 p-5">
@@ -240,20 +205,13 @@
                 <label class="text-xs text-white/60">Identifier</label>
                 <input id="payId" type="text"
                   class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-                  placeholder="Master Agent REF or Agent user_id" />
-                <div class="mt-1 text-[11px] text-white/45">
-                  Master Agent: lookup by <span class="text-white/80">ma_code</span> or <span class="text-white/80">user_id</span> (your DB supports both).
-                </div>
+                  placeholder="Master Agent REF (A15261) or Agent user_id" />
               </div>
 
               <button id="btnLoadPayout"
                 class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
                 Load Earnings + Bank
               </button>
-
-              <div class="text-[11px] text-white/45">
-                Needs API: <span class="text-white/80">admin-earnings-one</span>, <span class="text-white/80">admin-bank-one</span>
-              </div>
             </div>
           </div>
 
@@ -265,19 +223,15 @@
 
             <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="rounded-2xl soft-border bg-black/20 p-4">
-                <div class="text-[11px] text-white/45 uppercase tracking-wider">Earnings (Calculated)</div>
+                <div class="text-[11px] text-white/45 uppercase tracking-wider">Sales Total (Approved)</div>
                 <div id="earnedTotal" class="mt-2 text-2xl font-semibold text-gold-soft">—</div>
-                <div class="mt-1 text-xs text-white/45">Based on approved submissions × commission %.</div>
               </div>
 
               <div class="rounded-2xl soft-border bg-black/20 p-4">
                 <div class="text-[11px] text-white/45 uppercase tracking-wider">Commission %</div>
-                <div class="mt-2 flex items-center gap-2">
-                  <input id="commissionPct" type="number" min="0" max="100" step="0.1"
-                    class="w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-                    placeholder="e.g. 10" />
-                </div>
-                <div class="mt-1 text-xs text-white/45">Admin sets or overrides payout percent.</div>
+                <input id="commissionPct" type="number" min="0" max="100" step="0.1"
+                  class="mt-2 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="e.g. 10" />
               </div>
 
               <div class="md:col-span-2 rounded-2xl soft-border bg-black/20 p-4">
@@ -286,21 +240,20 @@
                   <div><span class="text-white/45">Bank:</span> <span id="bankBank">—</span></div>
                   <div><span class="text-white/45">Account Name:</span> <span id="bankName">—</span></div>
                   <div><span class="text-white/45">Account Number:</span> <span id="bankAcc">—</span></div>
-                  <div class="mt-2 text-[11px] text-white/45">
-                    Master Agent bank is stored in <span class="text-white/80">ma_payout</span>.
-                    Agent bank is stored in <span class="text-white/80">agent_payout_details</span>.
-                  </div>
                 </div>
               </div>
 
               <div class="md:col-span-2">
                 <button id="btnCreatePayoutBatch"
                   class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-                  Create Payout Batch (Lock + Export)
+                  Create Payout Batch (Export)
                 </button>
-                <div class="mt-2 text-[11px] text-white/45">
-                  Needs API: <span class="text-white/80">admin-payout-batch-create</span>
-                </div>
+              </div>
+
+              <div class="md:col-span-2">
+                <textarea id="payoutCsv" rows="6" readonly
+                  class="w-full px-4 py-3 rounded-xl bg-black/25 soft-border text-white/80 text-xs"
+                  placeholder="CSV will appear here..."></textarea>
               </div>
 
             </div>
@@ -318,7 +271,7 @@
   </footer>
 
   <script>
-    const $ = (id) => document.getElementById(id);
+    const $ = (id)=>document.getElementById(id);
 
     const alertBox = $("alertBox");
     function showAlert(msg, type="info"){
@@ -332,17 +285,17 @@
 
     function waitForIdentity(){
       return new Promise((resolve)=>{
-        const t=()=>window.netlifyIdentity?resolve(window.netlifyIdentity):setTimeout(t,50);
+        const t=()=>window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(t,50);
         t();
       });
     }
 
-    // ✅ Correct role check: Netlify Identity roles live in JWT app_metadata.roles
     function isAdminFromJwt(token){
       try{
         const payload = JSON.parse(atob(token.split(".")[1]));
         const roles = payload?.app_metadata?.roles || [];
-        return Array.isArray(roles) && roles.includes("admin");
+        const metaRole = payload?.user_metadata?.role;
+        return (Array.isArray(roles) && roles.includes("admin")) || metaRole === "admin";
       }catch{
         return false;
       }
@@ -351,12 +304,12 @@
     async function requireAdmin(identity){
       identity.init();
       const u = identity.currentUser();
-      if (!u) return (window.location.href = "admin-auth.html");
+      if (!u) { window.location.href = "admin-login.html"; return null; }
 
       const token = await u.jwt();
       if (!isAdminFromJwt(token)){
         await identity.logout();
-        window.location.href = "admin-auth.html";
+        window.location.href = "admin-login.html";
         return null;
       }
 
@@ -371,86 +324,70 @@
       return { "Authorization": "Bearer " + token };
     }
 
-    // --- Charts ---
+    async function fetchJson(identity, url, opts={}){
+      const res = await fetch(url, {
+        ...opts,
+        headers: { ...(opts.headers||{}), ...(await authHeader(identity)) }
+      });
+      const out = await res.json().catch(()=>({}));
+      if (!res.ok || !out.ok){
+        const detail = out?.error ? (" — " + out.error) : "";
+        throw new Error(`API failed: ${url} (HTTP ${res.status})${detail}`);
+      }
+      return out;
+    }
+
+    // Charts
     let chartAgentsByMA = null;
     let chartEarnings = null;
 
     function renderAgentsByMAChart(items){
-      const labels = (items || []).map(x => x.ma_code);
-      const values = (items || []).map(x => Number(x.agent_count || 0));
-
+      const labels = (items||[]).map(x=>x.ma_code);
+      const values = (items||[]).map(x=>Number(x.agent_count||0));
       const ctx = $("chartAgentsByMA").getContext("2d");
       if (chartAgentsByMA) chartAgentsByMA.destroy();
       chartAgentsByMA = new Chart(ctx, {
-        type: "bar",
-        data: { labels, datasets: [{ label: "Agents", data: values }] },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: true } },
-          scales: {
-            x: { ticks: { color: "rgba(255,255,255,.65)" } },
-            y: { ticks: { color: "rgba(255,255,255,.65)" }, beginAtZero: true }
-          }
-        }
+        type:"bar",
+        data:{ labels, datasets:[{ label:"Agents", data: values }] },
+        options:{ responsive:true }
       });
     }
 
-    function renderEarningsChartPlaceholder(){
+    function renderEarningsPlaceholder(){
       const ctx = $("chartEarnings").getContext("2d");
       if (chartEarnings) chartEarnings.destroy();
       chartEarnings = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: ["Pending API"],
-          datasets: [{ label: "Earnings (RM)", data: [0] }]
-        },
-        options: { responsive: true }
+        type:"line",
+        data:{ labels:[""], datasets:[{ label:"(placeholder)", data:[0] }] },
+        options:{ responsive:true }
       });
     }
 
-    // --- Analytics (uses your existing function: admin-agent-stats.js) ---
     async function loadAnalytics(identity){
-      try{
-        $("analyticsStatus").textContent = "Loading...";
-        const res = await fetch("/.netlify/functions/admin-agent-stats?t=" + Date.now(), {
-          method: "GET",
-          headers: { ...(await authHeader(identity)) }
-        });
-        const out = await res.json().catch(()=>({}));
-        if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
+      $("analyticsStatus").textContent = "Loading...";
+      const out = await fetchJson(identity, "/.netlify/functions/admin-agent-stats?t=" + Date.now());
+      $("kpiTotalUsers").textContent = String(out.totalUsers ?? "—");
+      $("kpiTotalAgents").textContent = String(out.totalAgents ?? "—");
 
-        $("kpiTotalUsers").textContent = String(out.totalUsers ?? "—");
-        $("kpiTotalAgents").textContent = String(out.totalAgents ?? "—");
+      const top = (out.byMasterAgent||[])[0];
+      $("kpiTopMA").textContent = top ? `${top.ma_code} (${top.agent_count})` : "—";
 
-        const top = (out.byMasterAgent || [])[0];
-        $("kpiTopMA").textContent = top ? (top.ma_code + " (" + top.agent_count + ")") : "—";
-
-        renderAgentsByMAChart(out.byMasterAgent || []);
-        $("analyticsStatus").textContent = "Updated: " + new Date().toLocaleTimeString();
-      }catch(e){
-        console.error(e);
-        $("analyticsStatus").textContent = "Failed to load analytics.";
-        showAlert(e?.message || "Failed to load analytics.", "error");
-      }
+      renderAgentsByMAChart(out.byMasterAgent || []);
+      $("analyticsStatus").textContent = "Updated: " + new Date().toLocaleTimeString();
     }
 
-    // --- User management UI (placeholder APIs) ---
+    // User Management
     function escapeHtml(s){
-      return String(s || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+      return String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
 
     let cachedUsers = [];
 
     function renderUsersTable(list){
-      const q = String($("userSearch").value || "").trim().toLowerCase();
-      const rows = (list || []).filter(u=>{
+      const q = String($("userSearch").value||"").trim().toLowerCase();
+      const rows = (list||[]).filter(u=>{
         if (!q) return true;
-        const hay = (u.role+" "+u.email+" "+u.name+" "+(u.parent_ma||"")).toLowerCase();
+        const hay = `${u.role||""} ${u.email||""} ${u.name||""} ${u.parent_ma||""}`.toLowerCase();
         return hay.includes(q);
       });
 
@@ -461,12 +398,11 @@
       }
 
       tbody.innerHTML = rows.map(u=>{
-        const role = escapeHtml(u.role || "—");
-        const email = escapeHtml(u.email || "—");
-        const name = escapeHtml(u.name || "—");
-        const parent = escapeHtml(u.parent_ma || "—");
-        const id = escapeHtml(u.id || "");
-
+        const role = escapeHtml(u.role||"—");
+        const email = escapeHtml(u.email||"—");
+        const name = escapeHtml(u.name||"—");
+        const parent = escapeHtml(u.parent_ma||"—");
+        const id = escapeHtml(u.id||"");
         return `
           <tr>
             <td class="px-4 py-3 text-white/80">${role}</td>
@@ -475,86 +411,74 @@
             <td class="px-4 py-3 text-white/60">${parent}</td>
             <td class="px-4 py-3 text-white/75">
               <div class="flex flex-wrap gap-2">
-                <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm"
-                  onclick="window.__disableUser('${id}')">Disable</button>
-                <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm"
-                  onclick="window.__deleteUser('${id}')">Delete</button>
+                <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm" data-disable="${id}">Disable</button>
+                <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm" data-delete="${id}">Delete</button>
               </div>
             </td>
           </tr>
         `;
       }).join("");
+
+      // wire actions
+      tbody.querySelectorAll("[data-disable]").forEach(btn=>{
+        btn.addEventListener("click", ()=>disableUser(window.__identity, btn.getAttribute("data-disable")));
+      });
+      tbody.querySelectorAll("[data-delete]").forEach(btn=>{
+        btn.addEventListener("click", ()=>deleteUser(window.__identity, btn.getAttribute("data-delete")));
+      });
     }
 
     async function loadUsers(identity){
-      const res = await fetch("/.netlify/functions/admin-users-list?t=" + Date.now(), {
-        headers: { ...(await authHeader(identity)) }
-      });
-      const out = await res.json().catch(()=>({}));
-      if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
-
+      const out = await fetchJson(identity, "/.netlify/functions/admin-users-list?t=" + Date.now());
       cachedUsers = out.users || [];
       renderUsersTable(cachedUsers);
     }
 
     async function createUser(identity){
-      const role = ($("newRole").value || "").trim();
-      const email = ($("newEmail").value || "").trim().toLowerCase();
-      const name = ($("newName").value || "").trim();
-      const parent = ($("newParentMA").value || "").trim().toUpperCase();
+      const role = ($("newRole").value||"").trim();
+      const email = ($("newEmail").value||"").trim().toLowerCase();
+      const name = ($("newName").value||"").trim();
+      const parent = ($("newParentMA").value||"").trim().toUpperCase();
 
       if (!email || !name) throw new Error("Email and name are required.");
       if (role === "agent" && !parent) throw new Error("Agent requires Parent Master Agent REF.");
 
-      const payload = { role, email, name, parent_ma: parent };
-
-      const res = await fetch("/.netlify/functions/admin-user-create", {
-        method: "POST",
-        headers: { "Content-Type":"application/json", ...(await authHeader(identity)) },
-        body: JSON.stringify(payload)
+      await fetchJson(identity, "/.netlify/functions/admin-user-create", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ role, email, name, parent_ma: parent })
       });
 
-      const out = await res.json().catch(()=>({}));
-      if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
-
-      showAlert("✅ User created (invite should be sent by server).");
+      showAlert("✅ User invited. They must set password from invite email.");
+      $("newEmail").value=""; $("newName").value=""; $("newParentMA").value="";
+      await loadUsers(identity);
     }
 
-    window.__disableUser = async (id)=>{
-      try{
-        const identity = window.__identity;
-        const res = await fetch("/.netlify/functions/admin-user-disable", {
-          method:"POST",
-          headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
-          body: JSON.stringify({ id })
-        });
-        const out = await res.json().catch(()=>({}));
-        if (!res.ok || !out.ok) throw new Error(out.error || "Disable failed.");
-        showAlert("✅ User disabled.");
-        await loadUsers(identity);
-      }catch(e){ showAlert(e?.message || "Disable failed.", "error"); }
-    };
+    async function disableUser(identity, id){
+      await fetchJson(identity, "/.netlify/functions/admin-user-disable", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ id })
+      });
+      showAlert("✅ User disabled.");
+      await loadUsers(identity);
+    }
 
-    window.__deleteUser = async (id)=>{
-      try{
-        const identity = window.__identity;
-        if (!confirm("Delete user permanently? (Better to disable)")) return;
-        const res = await fetch("/.netlify/functions/admin-user-delete", {
-          method:"POST",
-          headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
-          body: JSON.stringify({ id })
-        });
-        const out = await res.json().catch(()=>({}));
-        if (!res.ok || !out.ok) throw new Error(out.error || "Delete failed.");
-        showAlert("✅ User deleted.");
-        await loadUsers(identity);
-      }catch(e){ showAlert(e?.message || "Delete failed.", "error"); }
-    };
+    async function deleteUser(identity, id){
+      if (!confirm("Delete user permanently? (Better to disable)")) return;
+      await fetchJson(identity, "/.netlify/functions/admin-user-delete", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ id })
+      });
+      showAlert("✅ User deleted.");
+      await loadUsers(identity);
+    }
 
-    // --- Payout lookup (placeholder APIs) ---
+    // Payouts
     async function loadPayout(identity){
-      const type = ($("payType").value || "").trim();
-      const id = ($("payId").value || "").trim();
+      const type = ($("payType").value||"").trim();
+      const id = ($("payId").value||"").trim();
       if (!id) throw new Error("Identifier is required.");
 
       $("payStatus").textContent = "Loading...";
@@ -562,21 +486,13 @@
       $("bankBank").textContent = "—";
       $("bankName").textContent = "—";
       $("bankAcc").textContent = "—";
+      $("payoutCsv").value = "";
 
-      const eRes = await fetch("/.netlify/functions/admin-earnings-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
-        headers: { ...(await authHeader(identity)) }
-      });
-      const eOut = await eRes.json().catch(()=>({}));
-      if (!eRes.ok || !eOut.ok) throw new Error(eOut.error || "Failed to load earnings.");
+      const eOut = await fetchJson(identity, "/.netlify/functions/admin-earnings-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id));
+      const bOut = await fetchJson(identity, "/.netlify/functions/admin-bank-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id));
 
-      const bRes = await fetch("/.netlify/functions/admin-bank-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
-        headers: { ...(await authHeader(identity)) }
-      });
-      const bOut = await bRes.json().catch(()=>({}));
-      if (!bRes.ok || !bOut.ok) throw new Error(bOut.error || "Failed to load bank details.");
-
-      $("earnedTotal").textContent = "RM " + Number(eOut.total_rm || 0).toLocaleString("en-MY");
-      $("commissionPct").value = String(eOut.commission_pct ?? "");
+      $("earnedTotal").textContent = "RM " + Number(eOut.total_rm||0).toLocaleString("en-MY");
+      $("commissionPct").value = "";
 
       $("bankBank").textContent = bOut.bank?.bank_name || "—";
       $("bankName").textContent = bOut.bank?.bank_account_name || "—";
@@ -586,25 +502,21 @@
     }
 
     async function createPayoutBatch(identity){
-      const type = ($("payType").value || "").trim();
-      const id = ($("payId").value || "").trim();
-      const pct = Number($("commissionPct").value || 0);
+      const type = ($("payType").value||"").trim();
+      const id = ($("payId").value||"").trim();
+      const pct = Number($("commissionPct").value||0);
 
       if (!id) throw new Error("Identifier is required.");
       if (Number.isNaN(pct) || pct < 0 || pct > 100) throw new Error("Commission % must be between 0 and 100.");
 
-      const payload = { type, id, commission_pct: pct };
-
-      const res = await fetch("/.netlify/functions/admin-payout-batch-create", {
+      const out = await fetchJson(identity, "/.netlify/functions/admin-payout-batch-create", {
         method:"POST",
-        headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
-        body: JSON.stringify(payload)
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ type, id, commission_pct: pct })
       });
 
-      const out = await res.json().catch(()=>({}));
-      if (!res.ok || !out.ok) throw new Error(out.error || "Failed to create payout batch.");
-
-      showAlert("✅ Payout batch created. Batch ID: " + (out.batch_id || "—"));
+      showAlert("✅ Payout batch created: " + (out.batch_id || "—"));
+      $("payoutCsv").value = out.csv || "";
     }
 
     async function init(){
@@ -615,21 +527,25 @@
       if (!u) return;
 
       $("btnLogout").addEventListener("click", async ()=>{
-        try{ await identity.logout(); }finally{ window.location.href = "admin-auth.html"; }
+        try{ await identity.logout(); }finally{ window.location.href = "admin-login.html"; }
       });
 
-      $("btnRefreshAnalytics").addEventListener("click", ()=>loadAnalytics(identity));
+      $("btnRefreshAnalytics").addEventListener("click", async ()=>{
+        hideAlert();
+        try{ await loadAnalytics(identity); }
+        catch(e){ showAlert(e.message, "error"); }
+      });
+
       $("btnLoadUsers").addEventListener("click", async ()=>{
         hideAlert();
         try{ await loadUsers(identity); }
-        catch(e){ showAlert(e?.message || "Failed to load users.", "error"); }
+        catch(e){ showAlert(e.message, "error"); }
       });
 
       $("userSearch").addEventListener("input", ()=>renderUsersTable(cachedUsers));
 
       $("newRole").addEventListener("change", ()=>{
-        const role = $("newRole").value;
-        $("newParentWrap").style.display = (role === "agent") ? "block" : "none";
+        $("newParentWrap").style.display = ($("newRole").value === "agent") ? "block" : "none";
       });
       $("newRole").dispatchEvent(new Event("change"));
 
@@ -638,22 +554,15 @@
         const btn = $("btnCreateUser");
         const old = btn.textContent;
         btn.disabled = true; btn.textContent = "Creating...";
-        try{
-          await createUser(identity);
-          $("newEmail").value = "";
-          $("newName").value = "";
-          $("newParentMA").value = "";
-        }catch(e){
-          showAlert(e?.message || "Create user failed.", "error");
-        }finally{
-          btn.disabled = false; btn.textContent = old;
-        }
+        try{ await createUser(identity); }
+        catch(e){ showAlert(e.message, "error"); }
+        finally{ btn.disabled = false; btn.textContent = old; }
       });
 
       $("btnLoadPayout").addEventListener("click", async ()=>{
         hideAlert();
         try{ await loadPayout(identity); }
-        catch(e){ showAlert(e?.message || "Load payout failed.", "error"); $("payStatus").textContent="—"; }
+        catch(e){ showAlert(e.message, "error"); $("payStatus").textContent="—"; }
       });
 
       $("btnCreatePayoutBatch").addEventListener("click", async ()=>{
@@ -662,12 +571,13 @@
         const old = btn.textContent;
         btn.disabled = true; btn.textContent = "Creating...";
         try{ await createPayoutBatch(identity); }
-        catch(e){ showAlert(e?.message || "Create payout batch failed.", "error"); }
+        catch(e){ showAlert(e.message, "error"); }
         finally{ btn.disabled = false; btn.textContent = old; }
       });
 
-      renderEarningsChartPlaceholder();
-      await loadAnalytics(identity);
+      renderEarningsPlaceholder();
+      try{ await loadAnalytics(identity); }
+      catch(e){ showAlert(e.message, "error"); }
     }
 
     init();
