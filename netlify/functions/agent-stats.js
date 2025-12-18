@@ -78,9 +78,17 @@ export async function handler(event, context) {
           detail: txt,
         });
       }
+      const parsed = JSON.parse(txt || "[]");
 
-      const users = JSON.parse(txt || "[]");
-      allUsers.push(...users);
+      // GoTrue may return either an array OR an object like { users: [...] }
+      const usersArr = Array.isArray(parsed)
+        ? parsed
+        : Array.isArray(parsed?.users)
+          ? parsed.users
+          : [];
+
+      allUsers.push(...usersArr);
+
 
       const link = res.headers.get("link") || res.headers.get("Link") || "";
       url = parseNextLink(link);

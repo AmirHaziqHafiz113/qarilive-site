@@ -73,8 +73,16 @@ export async function handler(event, context) {
         return json(res.status, { ok: false, error: "Failed to fetch users (GoTrue admin)", attempted: url, detail: txt });
       }
 
-      const users = JSON.parse(txt || "[]");
-      allUsers.push(...users);
+      const parsed = JSON.parse(txt || "[]");
+
+      // GoTrue may return either an array OR an object like { users: [...] }
+      const usersArr = Array.isArray(parsed)
+        ? parsed
+        : Array.isArray(parsed?.users)
+          ? parsed.users
+          : [];
+
+      allUsers.push(...usersArr);
 
       const link = res.headers.get("link") || res.headers.get("Link") || "";
       url = parseNextLink(link);

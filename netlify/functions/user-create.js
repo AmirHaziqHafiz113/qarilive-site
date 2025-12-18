@@ -53,7 +53,17 @@ async function findUserIdByEmail({ base, token, email }) {
     const txt = await res.text().catch(() => "");
     if (!res.ok) throw new Error(`List users failed: ${res.status} ${txt}`);
 
-    const users = JSON.parse(txt || "[]");
+    const parsed = JSON.parse(txt || "[]");
+
+    // GoTrue may return either an array OR an object like { users: [...] }
+    const usersArr = Array.isArray(parsed)
+      ? parsed
+      : Array.isArray(parsed?.users)
+        ? parsed.users
+        : [];
+
+    allUsers.push(...usersArr);
+
     const hit = users.find((u) => String(u.email || "").toLowerCase() === String(email).toLowerCase());
     if (hit?.id) return hit.id;
 
@@ -114,7 +124,7 @@ export async function handler(event, context) {
     try {
       const invited = JSON.parse(inviteTxt || "{}");
       userId = invited?.id || null;
-    } catch (_) {}
+    } catch (_) { }
 
     // If invite response didn't include ID, find by email.
     if (!userId) {
