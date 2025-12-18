@@ -1,4 +1,3 @@
-// netlify/functions/admin/users-list.js
 import jwt from "jsonwebtoken";
 
 function json(statusCode, body) {
@@ -8,6 +7,8 @@ function json(statusCode, body) {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
       "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+      "Access-Control-Allow-Methods": "GET,OPTIONS",
     },
     body: JSON.stringify(body),
   };
@@ -36,28 +37,41 @@ function parseNextLink(linkHeader) {
   return null;
 }
 
-export async function handler(event) {
+function getGoTrueAdmin(context) {
+  const identity = context?.clientContext?.identity;
+  if (!identity?.url || !identity?.token) return null;
+  const base = String(identity.url).replace(/\/$/, ""); // .../.netlify/identity
+  return { base, token: identity.token };
+}
+
+export async function handler(event, context) {
   try {
+    if (event.httpMethod === "OPTIONS") return json(200, { ok: true });
     if (event.httpMethod !== "GET") return json(405, { ok: false, error: "Method not allowed" });
 
     const token = getBearerToken(event);
     if (!token) return json(401, { ok: false, error: "Unauthorized" });
     if (!isAdmin(token)) return json(403, { ok: false, error: "Forbidden (admin only)" });
 
-    const SITE_ID = process.env.NETLIFY_SITE_ID;
-    const IDENTITY_TOKEN = process.env.NETLIFY_IDENTITY_TOKEN;
-    if (!SITE_ID || !IDENTITY_TOKEN) {
-      return json(500, { ok: false, error: "Missing NETLIFY_SITE_ID or NETLIFY_IDENTITY_TOKEN" });
+    const gt = getGoTrueAdmin(context);
+    if (!gt) {
+      return json(500, {
+        ok: false,
+        error:
+          "Identity admin token not available in function context. Ensure Identity is enabled on THIS site and redeploy.",
+      });
     }
 
-    let url = `https://api.netlify.com/api/v1/sites/${SITE_ID}/identity/users?per_page=100`;
-    const headers = { Authorization: `Bearer ${IDENTITY_TOKEN}` };
+    let url = `${gt.base}/admin/users?per_page=100`;
+    const headers = { Authorization: `Bearer ${gt.token}` };
 
     const allUsers = [];
     while (url) {
       const res = await fetch(url, { headers });
       const txt = await res.text().catch(() => "");
-      if (!res.ok) return json(res.status, { ok: false, error: "Failed to fetch users", detail: txt });
+      if (!res.ok) {
+        return json(res.status, { ok: false, error: "Failed to fetch users (GoTrue admin)", attempted: url, detail: txt });
+      }
 
       const users = JSON.parse(txt || "[]");
       allUsers.push(...users);
@@ -66,7 +80,6 @@ export async function handler(event) {
       url = parseNextLink(link);
     }
 
-    // map to lightweight objects for UI
     const mapped = allUsers.map((u) => {
       const meta = u.user_metadata || {};
       const role = String(meta.role || (u.app_metadata?.roles?.[0] || "")).toLowerCase();
@@ -81,7 +94,7 @@ export async function handler(event) {
 
     return json(200, { ok: true, users: mapped });
   } catch (err) {
-    console.error("admin-users-list error:", err);
+    console.error("users-list error:", err);
     return json(500, { ok: false, error: err?.message || "Server error" });
   }
 }

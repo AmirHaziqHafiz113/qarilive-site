@@ -1,4 +1,3 @@
-// netlify/functions/admin/user-create.js
 import jwt from "jsonwebtoken";
 
 function json(statusCode, body) {
@@ -8,6 +7,8 @@ function json(statusCode, body) {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
       "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+      "Access-Control-Allow-Methods": "POST,OPTIONS",
     },
     body: JSON.stringify(body),
   };
@@ -22,21 +23,62 @@ function getBearerToken(event) {
 function isAdmin(token) {
   const decoded = jwt.decode(token);
   const roles = decoded?.app_metadata?.roles || [];
-  return Array.isArray(roles) && roles.includes("admin");
+  const metaRole = decoded?.user_metadata?.role;
+  return (Array.isArray(roles) && roles.includes("admin")) || metaRole === "admin";
 }
 
-export async function handler(event) {
+function parseNextLink(linkHeader) {
+  if (!linkHeader) return null;
+  const parts = linkHeader.split(",");
+  for (const p of parts) {
+    const m = p.match(/<([^>]+)>;\s*rel="next"/);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function getGoTrueAdmin(context) {
+  const identity = context?.clientContext?.identity;
+  if (!identity?.url || !identity?.token) return null;
+  const base = String(identity.url).replace(/\/$/, "");
+  return { base, token: identity.token };
+}
+
+async function findUserIdByEmail({ base, token, email }) {
+  let url = `${base}/admin/users?per_page=100`;
+  const headers = { Authorization: `Bearer ${token}` };
+
+  while (url) {
+    const res = await fetch(url, { headers });
+    const txt = await res.text().catch(() => "");
+    if (!res.ok) throw new Error(`List users failed: ${res.status} ${txt}`);
+
+    const users = JSON.parse(txt || "[]");
+    const hit = users.find((u) => String(u.email || "").toLowerCase() === String(email).toLowerCase());
+    if (hit?.id) return hit.id;
+
+    const link = res.headers.get("link") || res.headers.get("Link") || "";
+    url = parseNextLink(link);
+  }
+  return null;
+}
+
+export async function handler(event, context) {
   try {
+    if (event.httpMethod === "OPTIONS") return json(200, { ok: true });
     if (event.httpMethod !== "POST") return json(405, { ok: false, error: "Method not allowed" });
 
     const token = getBearerToken(event);
     if (!token) return json(401, { ok: false, error: "Unauthorized" });
     if (!isAdmin(token)) return json(403, { ok: false, error: "Forbidden (admin only)" });
 
-    const SITE_ID = process.env.NETLIFY_SITE_ID;
-    const IDENTITY_TOKEN = process.env.NETLIFY_IDENTITY_TOKEN;
-    if (!SITE_ID || !IDENTITY_TOKEN) {
-      return json(500, { ok: false, error: "Missing NETLIFY_SITE_ID or NETLIFY_IDENTITY_TOKEN" });
+    const gt = getGoTrueAdmin(context);
+    if (!gt) {
+      return json(500, {
+        ok: false,
+        error:
+          "Identity admin token not available in function context. Ensure Identity is enabled on THIS site and redeploy.",
+      });
     }
 
     const body = JSON.parse(event.body || "{}");
@@ -50,55 +92,70 @@ export async function handler(event) {
     if (role === "agent" && !parent_ma) return json(400, { ok: false, error: "Agent requires parent_ma" });
 
     const headers = {
-      Authorization: `Bearer ${IDENTITY_TOKEN}`,
+      Authorization: `Bearer ${gt.token}`,
       "Content-Type": "application/json",
     };
 
-    // 1) Invite user (they set password themselves)
-    const inviteRes = await fetch(
-      `https://api.netlify.com/api/v1/sites/${SITE_ID}/identity/users/invite`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ email }),
-      }
-    );
+    // 1) Invite user (they set password via email)
+    const inviteUrl = `${gt.base}/admin/users/invite`;
+    const inviteRes = await fetch(inviteUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ email }),
+    });
+
     const inviteTxt = await inviteRes.text().catch(() => "");
     if (!inviteRes.ok) {
-      return json(inviteRes.status, { ok: false, error: "Invite failed", detail: inviteTxt });
+      return json(inviteRes.status, { ok: false, error: "Invite failed", attempted: inviteUrl, detail: inviteTxt });
     }
-    const invitedUser = JSON.parse(inviteTxt || "{}");
-    const userId = invitedUser?.id;
-    if (!userId) return json(500, { ok: false, error: "Invite succeeded but missing user id" });
 
-    // 2) Update metadata + roles
+    // Some deployments return the user object; some return a message.
+    let userId = null;
+    try {
+      const invited = JSON.parse(inviteTxt || "{}");
+      userId = invited?.id || null;
+    } catch (_) {}
+
+    // If invite response didn't include ID, find by email.
+    if (!userId) {
+      userId = await findUserIdByEmail({ base: gt.base, token: gt.token, email });
+    }
+    if (!userId) return json(500, { ok: false, error: "Invite succeeded but could not locate created user id" });
+
+    // 2) GET user so we can merge metadata safely
+    const getUrl = `${gt.base}/admin/users/${userId}`;
+    const getRes = await fetch(getUrl, { headers: { Authorization: `Bearer ${gt.token}` } });
+    const getTxt = await getRes.text().catch(() => "");
+    if (!getRes.ok) return json(getRes.status, { ok: false, error: "Get user failed", attempted: getUrl, detail: getTxt });
+
+    const user = JSON.parse(getTxt || "{}");
+
+    // 3) Update metadata + roles
     const user_metadata = {
-      ...(invitedUser.user_metadata || {}),
+      ...(user.user_metadata || {}),
       full_name: name,
       role,
       ...(role === "agent" ? { parent_ma_code: parent_ma } : {}),
     };
 
     const app_metadata = {
-      ...(invitedUser.app_metadata || {}),
+      ...(user.app_metadata || {}),
       roles: [role],
     };
 
-    const updRes = await fetch(
-      `https://api.netlify.com/api/v1/sites/${SITE_ID}/identity/users/${userId}`,
-      {
-        method: "PUT",
-        headers,
-        body: JSON.stringify({ user_metadata, app_metadata }),
-      }
-    );
+    const putUrl = `${gt.base}/admin/users/${userId}`;
+    const putRes = await fetch(putUrl, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({ user_metadata, app_metadata }),
+    });
 
-    const updTxt = await updRes.text().catch(() => "");
-    if (!updRes.ok) return json(updRes.status, { ok: false, error: "Update user failed", detail: updTxt });
+    const putTxt = await putRes.text().catch(() => "");
+    if (!putRes.ok) return json(putRes.status, { ok: false, error: "Update user failed", attempted: putUrl, detail: putTxt });
 
     return json(200, { ok: true, id: userId, email, role });
   } catch (err) {
-    console.error("admin-user-create error:", err);
+    console.error("user-create error:", err);
     return json(500, { ok: false, error: err?.message || "Server error" });
   }
 }

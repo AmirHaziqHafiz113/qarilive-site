@@ -7,6 +7,8 @@ function json(statusCode, body) {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
       "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+      "Access-Control-Allow-Methods": "GET,OPTIONS",
     },
     body: JSON.stringify(body),
   };
@@ -35,46 +37,33 @@ function parseNextLink(linkHeader) {
   return null;
 }
 
-export async function handler(event) {
+export async function handler(event, context) {
   try {
+    // CORS preflight
+    if (event.httpMethod === "OPTIONS") return json(200, { ok: true });
+
     if (event.httpMethod !== "GET") return json(405, { ok: false, error: "Method not allowed" });
 
+    // Must be logged in + admin (based on the caller's JWT)
     const token = getBearerToken(event);
     if (!token) return json(401, { ok: false, error: "Unauthorized" });
     if (!isAdmin(token)) return json(403, { ok: false, error: "Forbidden (admin only)" });
 
-    const SITE_ID = process.env.NETLIFY_SITE_ID;
-    const IDENTITY_TOKEN = process.env.NETLIFY_IDENTITY_TOKEN;
-
-    if (!SITE_ID || !IDENTITY_TOKEN) {
+    // Netlify injects Identity admin info here (GoTrue admin token + url)
+    const identity = context?.clientContext?.identity;
+    if (!identity?.url || !identity?.token) {
       return json(500, {
         ok: false,
-        error: "Missing env vars",
-        hasSiteId: !!SITE_ID,
-        hasIdentityToken: !!IDENTITY_TOKEN,
+        error:
+          "Identity admin token not available in function context. Check: Identity enabled on THIS site + redeploy.",
+        hasIdentityUrl: !!identity?.url,
+        hasIdentityToken: !!identity?.token,
       });
     }
 
-    const siteIdMasked = String(SITE_ID).slice(0, 8) + "...";
-
-    // Quick sanity check: can this token see this site at all?
-    const siteCheckUrl = `https://api.netlify.com/api/v1/sites/${SITE_ID}`;
-    {
-      const r = await fetch(siteCheckUrl, { headers: { Authorization: `Bearer ${IDENTITY_TOKEN}` } });
-      const t = await r.text().catch(() => "");
-      if (!r.ok) {
-        return json(r.status, {
-          ok: false,
-          error: "Netlify token/site check failed",
-          siteIdMasked,
-          attempted: siteCheckUrl,
-          detail: t,
-        });
-      }
-    }
-
-    let url = `https://api.netlify.com/api/v1/sites/${SITE_ID}/identity/users?per_page=100`;
-    const headers = { Authorization: `Bearer ${IDENTITY_TOKEN}` };
+    const base = String(identity.url).replace(/\/$/, ""); // e.g. https://<site>/.netlify/identity
+    let url = `${base}/admin/users?per_page=100`;
+    const headers = { Authorization: `Bearer ${identity.token}` };
 
     const allUsers = [];
     while (url) {
@@ -84,8 +73,7 @@ export async function handler(event) {
       if (!res.ok) {
         return json(res.status, {
           ok: false,
-          error: "Failed to fetch users",
-          siteIdMasked,
+          error: "Failed to fetch users (GoTrue admin)",
           attempted: url,
           detail: txt,
         });
@@ -98,7 +86,7 @@ export async function handler(event) {
       url = parseNextLink(link);
     }
 
-    // ... your existing aggregation logic
+    // your existing aggregation logic (kept)
     const counts = {};
     let totalAgents = 0;
 
