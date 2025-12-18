@@ -319,7 +319,6 @@
       const u = identity.currentUser();
       if (!u) { window.location.href = "admin-login.html"; return null; }
 
-      // accept either user_metadata.role or app_metadata.roles
       const metaRole = String(u.user_metadata?.role || "").toLowerCase();
       const appRoles = u.app_metadata?.roles || [];
       const isAdmin = metaRole === "admin" || (Array.isArray(appRoles) && appRoles.includes("admin"));
@@ -372,16 +371,16 @@
     async function loadAnalytics(identity){
       try{
         $("analyticsStatus").textContent = "Loading...";
-
-        // ✅ IMPORTANT: You said you don't want /admin folder for functions
-        // So the endpoint must be the file name: netlify/functions/agent-stats.js
         const res = await fetch("/.netlify/functions/agent-stats?t=" + Date.now(), {
           method: "GET",
           headers: { ...(await authHeader(identity)) }
         });
-
         const out = await res.json().catch(()=>({}));
-        if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
+
+        if (!res.ok || !out.ok) {
+          const detail = out?.detail ? (" | detail: " + out.detail) : "";
+          throw new Error((out.error || ("HTTP " + res.status)) + detail);
+        }
 
         $("kpiTotalUsers").textContent = String(out.totalUsers ?? "—");
         $("kpiTotalAgents").textContent = String(out.totalAgents ?? "—");
@@ -455,7 +454,10 @@
         headers: { ...(await authHeader(identity)) }
       });
       const out = await res.json().catch(()=>({}));
-      if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
+      if (!res.ok || !out.ok) {
+        const detail = out?.detail ? (" | detail: " + out.detail) : "";
+        throw new Error((out.error || ("HTTP " + res.status)) + detail);
+      }
 
       cachedUsers = out.users || [];
       renderUsersTable(cachedUsers);
@@ -477,7 +479,11 @@
       });
 
       const out = await res.json().catch(()=>({}));
-      if (!res.ok || !out.ok) throw new Error(out.error || ("HTTP " + res.status));
+      if (!res.ok || !out.ok) {
+        const detail = out?.detail ? (" | detail: " + out.detail) : "";
+        throw new Error((out.error || ("HTTP " + res.status)) + detail);
+      }
+
       showAlert("✅ Invite sent. User will set password via email invite link.");
     }
 
@@ -490,7 +496,10 @@
           body: JSON.stringify({ id })
         });
         const out = await res.json().catch(()=>({}));
-        if (!res.ok || !out.ok) throw new Error(out.error || "Disable failed.");
+        if (!res.ok || !out.ok) {
+          const detail = out?.detail ? (" | detail: " + out.detail) : "";
+          throw new Error((out.error || "Disable failed.") + detail);
+        }
         showAlert("✅ User disabled.");
         await loadUsers(identity);
       }catch(e){ showAlert(e?.message || "Disable failed.", "error"); }
@@ -506,7 +515,10 @@
           body: JSON.stringify({ id })
         });
         const out = await res.json().catch(()=>({}));
-        if (!res.ok || !out.ok) throw new Error(out.error || "Delete failed.");
+        if (!res.ok || !out.ok) {
+          const detail = out?.detail ? (" | detail: " + out.detail) : "";
+          throw new Error((out.error || "Delete failed.") + detail);
+        }
         showAlert("✅ User deleted.");
         await loadUsers(identity);
       }catch(e){ showAlert(e?.message || "Delete failed.", "error"); }
@@ -524,17 +536,17 @@
       $("bankName").textContent = "—";
       $("bankAcc").textContent = "—";
 
-      const eRes = await fetch("/.netlify/functions/aearnings-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
+      const eRes = await fetch("/.netlify/functions/earnings-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
         headers: { ...(await authHeader(identity)) }
       });
       const eOut = await eRes.json().catch(()=>({}));
-      if (!eRes.ok || !eOut.ok) throw new Error(eOut.error || "Failed to load earnings.");
+      if (!eRes.ok || !eOut.ok) throw new Error((eOut.error || "Failed to load earnings.") + (eOut.detail ? (" | detail: " + eOut.detail) : ""));
 
       const bRes = await fetch("/.netlify/functions/bank-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
         headers: { ...(await authHeader(identity)) }
       });
       const bOut = await bRes.json().catch(()=>({}));
-      if (!bRes.ok || !bOut.ok) throw new Error(bOut.error || "Failed to load bank details.");
+      if (!bRes.ok || !bOut.ok) throw new Error((bOut.error || "Failed to load bank details.") + (bOut.detail ? (" | detail: " + bOut.detail) : ""));
 
       $("earnedTotal").textContent = "RM " + Number(eOut.total_rm || 0).toLocaleString("en-MY");
       $("commissionPct").value = "";
@@ -561,10 +573,12 @@
       });
 
       const out = await res.json().catch(()=>({}));
-      if (!res.ok || !out.ok) throw new Error(out.error || "Failed to create payout batch.");
+      if (!res.ok || !out.ok) {
+        const detail = out?.detail ? (" | detail: " + out.detail) : "";
+        throw new Error((out.error || "Failed to create payout batch.") + detail);
+      }
 
       showAlert("✅ Payout batch created. Batch ID: " + (out.batch_id || "—"));
-      // optional: console.log(out.csv)
     }
 
     async function init(){
