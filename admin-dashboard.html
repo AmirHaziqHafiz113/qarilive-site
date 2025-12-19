@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard | QariLive</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
@@ -19,38 +16,20 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: { gold: '#c9a14a', 'gold-soft': '#f5e6b3', blackish: '#050505', darkish: '#0b0b0b' },
-          fontFamily: { inter: ['Inter', 'sans-serif'], playfair: ['Playfair Display', 'serif'] },
-          boxShadow: { goldGlow: '0 0 34px rgba(201,161,74,.22)' }
+          colors: { gold:'#c9a14a', 'gold-soft':'#f5e6b3', blackish:'#050505', darkish:'#0b0b0b' },
+          fontFamily: { inter:['Inter','sans-serif'], playfair:['Playfair Display','serif'] },
+          boxShadow: { goldGlow:'0 0 34px rgba(201,161,74,.22)' }
         }
       }
     }
   </script>
 
   <style>
-    body {
-      background: radial-gradient(circle at top, #121212, #000 70%);
-    }
-
-    .soft-border {
-      border: 1px solid rgba(255, 255, 255, .10);
-    }
-
-    .focus-gold:focus {
-      outline: none;
-      border-color: rgba(201, 161, 74, .65);
-      box-shadow: 0 0 0 4px rgba(201, 161, 74, .12);
-    }
-
-    .glass {
-      background: rgba(0, 0, 0, .30);
-      border: 1px solid rgba(201, 161, 74, .15);
-    }
-
-    canvas {
-      background: rgba(0, 0, 0, .12);
-      border-radius: 16px;
-    }
+    body { background: radial-gradient(circle at top, #121212, #000 70%); }
+    .soft-border { border: 1px solid rgba(255,255,255,.10); }
+    .focus-gold:focus { outline: none; border-color: rgba(201,161,74,.65); box-shadow: 0 0 0 4px rgba(201,161,74,.12); }
+    .glass { background: rgba(0,0,0,.30); border: 1px solid rgba(201,161,74,.15); }
+    canvas { background: rgba(0,0,0,.12); border-radius: 16px; }
   </style>
 </head>
 
@@ -129,22 +108,25 @@
         </div>
       </section>
 
-      <!-- USERS (VERTICAL) -->
+      <!-- USERS (VERTICAL + PAGINATION) -->
       <section class="rounded-2xl glass p-6">
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
             <h2 class="font-playfair text-gold-soft text-2xl">Manage Master Agents & Agents</h2>
             <p class="mt-1 text-sm text-white/60">Create / disable / delete Identity users (Admin-only).</p>
           </div>
-          <div class="text-xs text-white/45">
-            Auto-loading users…
+          <div class="flex flex-wrap gap-2">
+            <button id="btnLoadUsers"
+              class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+              Load Users
+            </button>
           </div>
         </div>
 
-        <!-- Vertical stack -->
+        <!-- vertical stack -->
         <div class="mt-5 space-y-4">
 
-          <!-- Create user (full width) -->
+          <!-- Create -->
           <div class="rounded-2xl border border-gold/15 bg-black/20 p-5">
             <div class="text-sm font-semibold text-gold-soft">Create New User</div>
             <p class="mt-1 text-xs text-white/55">Admin creates accounts (no public registration).</p>
@@ -152,18 +134,10 @@
             <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label class="text-xs text-white/60">Role</label>
-                <select id="newRole"
-                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85">
+                <select id="newRole" class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85">
                   <option value="master_agent">master_agent</option>
                   <option value="agent">agent</option>
                 </select>
-              </div>
-
-              <div id="newParentWrap">
-                <label class="text-xs text-white/60">Parent Master Agent REF (for agent)</label>
-                <input id="newParentMA" type="text"
-                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
-                  placeholder="e.g. A15261" />
               </div>
 
               <div>
@@ -179,79 +153,86 @@
                   class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
                   placeholder="Full name" />
               </div>
-            </div>
 
-            <button id="btnCreateUser"
-              class="mt-4 w-full md:w-auto px-6 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-              Create User (Invite)
-            </button>
+              <div id="newParentWrap">
+                <label class="text-xs text-white/60">Parent Master Agent REF (for agent)</label>
+                <input id="newParentMA" type="text"
+                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
+                  placeholder="e.g. A15261" />
+              </div>
+
+              <div class="md:col-span-2">
+                <button id="btnCreateUser"
+                  class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                  Create User (Invite)
+                </button>
+                <div class="mt-2 text-[11px] text-white/45">
+                  Uses: <span class="text-white/80">/.netlify/functions/user-create</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Users list (full width) -->
+          <!-- Table -->
           <div class="rounded-2xl border border-gold/15 bg-black/20 p-5 overflow-x-auto">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
               <div class="text-sm font-semibold text-gold-soft">Users</div>
 
-              <div class="flex flex-wrap gap-2 items-center">
+              <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
                 <input id="userSearch"
-                  class="w-[260px] max-w-full px-4 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30 text-sm"
+                  class="w-full sm:w-[320px] px-4 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30 text-sm"
                   placeholder="Search email / role / name..." />
 
-                <select id="usersPageSize"
-                  class="px-3 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white/85 text-sm">
-                  <option value="5">5 / page</option>
-                  <option value="10" selected>10 / page</option>
-                  <option value="20">20 / page</option>
-                  <option value="50">50 / page</option>
-                </select>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-white/45">Rows</span>
+                  <select id="userPageSize"
+                    class="px-3 py-2 rounded-xl bg-black/25 soft-border focus-gold text-white/85 text-sm">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                  </select>
+                </div>
               </div>
             </div>
 
             <table class="mt-4 min-w-full text-sm soft-border rounded-xl overflow-hidden">
               <thead class="bg-black/30">
-                <tr class="text-left select-none">
-                  <th class="px-4 py-3 text-white/70 font-semibold cursor-pointer" data-sort="role">
-                    Role <span class="text-white/35" id="sortRole">↕</span>
-                  </th>
-                  <th class="px-4 py-3 text-white/70 font-semibold cursor-pointer" data-sort="email">
-                    Email <span class="text-white/35" id="sortEmail">↕</span>
-                  </th>
-                  <th class="px-4 py-3 text-white/70 font-semibold cursor-pointer" data-sort="name">
-                    Name <span class="text-white/35" id="sortName">↕</span>
-                  </th>
-                  <th class="px-4 py-3 text-white/70 font-semibold cursor-pointer" data-sort="parent_ma">
-                    Parent MA <span class="text-white/35" id="sortParent">↕</span>
-                  </th>
+                <tr class="text-left">
+                  <th class="px-4 py-3 text-white/70 font-semibold">Role</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Email</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Name</th>
+                  <th class="px-4 py-3 text-white/70 font-semibold">Parent MA</th>
                   <th class="px-4 py-3 text-white/70 font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody id="tblUsers" class="divide-y divide-white/10 bg-black/15">
-                <tr>
-                  <td class="px-4 py-4 text-white/60" colspan="5">Loading…</td>
-                </tr>
+                <tr><td class="px-4 py-4 text-white/60" colspan="5">Not loaded yet.</td></tr>
               </tbody>
             </table>
 
-            <!-- Pagination -->
-            <div class="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div class="text-xs text-white/45" id="usersCount">—</div>
-
+            <!-- Pagination controls -->
+            <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div id="userPageInfo" class="text-xs text-white/55">—</div>
               <div class="flex items-center gap-2">
-                <button id="usersPrev"
-                  class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm disabled:opacity-40 disabled:hover:border-white/10">
+                <button id="btnUserPrev"
+                  class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
                   Prev
                 </button>
-                <div class="text-sm text-white/70" id="usersPageInfo">—</div>
-                <button id="usersNext"
-                  class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm disabled:opacity-40 disabled:hover:border-white/10">
+                <button id="btnUserNext"
+                  class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
                   Next
                 </button>
               </div>
+            </div>
+
+            <div class="mt-3 text-xs text-white/45">
+              Uses: <span class="text-white/80">users-list</span>, <span class="text-white/80">user-disable</span>, <span class="text-white/80">user-delete</span>
             </div>
           </div>
 
         </div>
       </section>
+
       <!-- PAYOUT (VERTICAL) -->
       <section class="rounded-2xl glass p-6">
         <div>
@@ -259,18 +240,16 @@
           <p class="mt-1 text-sm text-white/60">Lookup → earnings + bank → generate payout batch.</p>
         </div>
 
-        <!-- Vertical stack -->
+        <!-- vertical stack -->
         <div class="mt-5 space-y-4">
-
-          <!-- Lookup (full width) -->
+          <!-- Lookup -->
           <div class="rounded-2xl border border-gold/15 bg-black/20 p-5">
             <div class="text-sm font-semibold text-gold-soft">Lookup</div>
 
             <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label class="text-xs text-white/60">Type</label>
-                <select id="payType"
-                  class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85">
+                <select id="payType" class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85">
                   <option value="master_agent">Master Agent</option>
                   <option value="agent">Agent</option>
                 </select>
@@ -282,23 +261,24 @@
                   class="mt-1 w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30"
                   placeholder="Master Agent REF or Agent user_id" />
                 <div class="mt-1 text-[11px] text-white/45">
-                  Master Agent: use <span class="text-white/80">ma_code</span> (e.g. A15261).
-                  Agent: use <span class="text-white/80">agent_user_id</span>.
+                  Master Agent: use <span class="text-white/80">ma_code</span> (e.g. A15261). Agent: use <span class="text-white/80">agent_user_id</span>.
+                </div>
+              </div>
+
+              <div class="md:col-span-2">
+                <button id="btnLoadPayout"
+                  class="w-full px-4 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
+                  Load Earnings + Bank
+                </button>
+
+                <div class="mt-2 text-[11px] text-white/45">
+                  Uses: <span class="text-white/80">earnings-one</span>, <span class="text-white/80">bank-one</span>
                 </div>
               </div>
             </div>
-
-            <button id="btnLoadPayout"
-              class="mt-4 w-full md:w-auto px-6 py-3 rounded-xl font-semibold text-black bg-[linear-gradient(135deg,#c9a14a,#f5e6b3)] shadow-goldGlow hover:opacity-90 transition">
-              Load Earnings + Bank
-            </button>
-
-            <div class="mt-2 text-[11px] text-white/45">
-              Uses: <span class="text-white/80">earnings-one</span>, <span class="text-white/80">bank-one</span>
-            </div>
           </div>
 
-          <!-- Details (full width) -->
+          <!-- Details -->
           <div class="rounded-2xl border border-gold/15 bg-black/20 p-5">
             <div class="flex items-center justify-between gap-3">
               <div class="text-sm font-semibold text-gold-soft">Details</div>
@@ -338,9 +318,9 @@
                   Uses: <span class="text-white/80">payout-batch-create</span>
                 </div>
               </div>
+
             </div>
           </div>
-
         </div>
       </section>
 
@@ -357,23 +337,23 @@
     const $ = (id) => document.getElementById(id);
 
     const alertBox = $("alertBox");
-    function showAlert(msg, type = "info") {
+    function showAlert(msg, type="info"){
       alertBox.classList.remove("hidden");
       alertBox.textContent = msg;
-      alertBox.classList.remove("border-red-500/25", "bg-red-500/10", "border-gold/20", "bg-black/30");
-      if (type === "error") alertBox.classList.add("border-red-500/25", "bg-red-500/10");
-      else alertBox.classList.add("border-gold/20", "bg-black/30");
+      alertBox.classList.remove("border-red-500/25","bg-red-500/10","border-gold/20","bg-black/30");
+      if (type==="error") alertBox.classList.add("border-red-500/25","bg-red-500/10");
+      else alertBox.classList.add("border-gold/20","bg-black/30");
     }
-    function hideAlert() { alertBox.classList.add("hidden"); alertBox.textContent = ""; }
+    function hideAlert(){ alertBox.classList.add("hidden"); alertBox.textContent=""; }
 
-    function waitForIdentity() {
-      return new Promise((resolve) => {
-        const t = () => window.netlifyIdentity ? resolve(window.netlifyIdentity) : setTimeout(t, 50);
+    function waitForIdentity(){
+      return new Promise((resolve)=>{
+        const t=()=>window.netlifyIdentity?resolve(window.netlifyIdentity):setTimeout(t,50);
         t();
       });
     }
 
-    async function requireAdmin(identity) {
+    async function requireAdmin(identity){
       identity.init();
       const u = identity.currentUser();
       if (!u) { window.location.href = "admin-login.html"; return null; }
@@ -382,7 +362,7 @@
       const appRoles = u.app_metadata?.roles || [];
       const isAdmin = metaRole === "admin" || (Array.isArray(appRoles) && appRoles.includes("admin"));
 
-      if (!isAdmin) {
+      if (!isAdmin){
         await identity.logout();
         window.location.href = "admin-login.html";
         return null;
@@ -392,7 +372,7 @@
       return u;
     }
 
-    async function authHeader(identity) {
+    async function authHeader(identity){
       const u = identity.currentUser();
       if (!u) return {};
       const token = await u.jwt();
@@ -403,7 +383,7 @@
     let chartAgentsByMA = null;
     let chartEarnings = null;
 
-    function renderAgentsByMAChart(items) {
+    function renderAgentsByMAChart(items){
       const labels = (items || []).map(x => x.ma_code);
       const values = (items || []).map(x => Number(x.agent_count || 0));
 
@@ -416,25 +396,25 @@
       });
     }
 
-    function renderEarningsPlaceholder() {
+    function renderEarningsPlaceholder(){
       const ctx = $("chartEarnings").getContext("2d");
       if (chartEarnings) chartEarnings.destroy();
       chartEarnings = new Chart(ctx, {
         type: "line",
-        data: { labels: ["—"], datasets: [{ label: "Earnings (RM)", data: [0] }] },
+        data: { labels:["—"], datasets:[{ label:"Earnings (RM)", data:[0]}] },
         options: { responsive: true }
       });
       $("earningsStatus").textContent = "Placeholder";
     }
 
-    async function loadAnalytics(identity) {
-      try {
+    async function loadAnalytics(identity){
+      try{
         $("analyticsStatus").textContent = "Loading...";
         const res = await fetch("/.netlify/functions/agent-stats?t=" + Date.now(), {
           method: "GET",
           headers: { ...(await authHeader(identity)) }
         });
-        const out = await res.json().catch(() => ({}));
+        const out = await res.json().catch(()=>({}));
 
         if (!res.ok || !out.ok) {
           const detail = out?.detail ? (" | detail: " + out.detail) : "";
@@ -449,7 +429,7 @@
 
         renderAgentsByMAChart(out.byMasterAgent || []);
         $("analyticsStatus").textContent = "Updated: " + new Date().toLocaleTimeString();
-      } catch (e) {
+      }catch(e){
         console.error(e);
         $("analyticsStatus").textContent = "Failed to load analytics.";
         showAlert(e?.message || "Failed to load analytics.", "error");
@@ -457,72 +437,103 @@
     }
 
     // Users
-    function escapeHtml(s) {
+    function escapeHtml(s){
       return String(s || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
     let cachedUsers = [];
 
-    function renderUsersTable(list) {
+    // Pagination state
+    let userPage = 1;
+    let userPageSize = 10;
+
+    function getFilteredUsers(list){
       const q = String($("userSearch").value || "").trim().toLowerCase();
-      const rows = (list || []).filter(u => {
+      return (list || []).filter(u=>{
         if (!q) return true;
-        const hay = (u.role + " " + u.email + " " + u.name + " " + (u.parent_ma || "")).toLowerCase();
+        const hay = (u.role+" "+u.email+" "+u.name+" "+(u.parent_ma||"")).toLowerCase();
         return hay.includes(q);
       });
-
-      const tbody = $("tblUsers");
-      if (!rows.length) {
-        tbody.innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="5">No users.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = rows.map(u => {
-        const role = escapeHtml(u.role || "—");
-        const email = escapeHtml(u.email || "—");
-        const name = escapeHtml(u.name || "—");
-        const parent = escapeHtml(u.parent_ma || "—");
-        const id = escapeHtml(u.id || "");
-
-        return `
-          <tr>
-            <td class="px-4 py-3 text-white/80">${role}</td>
-            <td class="px-4 py-3 text-white/75">${email}</td>
-            <td class="px-4 py-3 text-white/75">${name}</td>
-            <td class="px-4 py-3 text-white/60">${parent}</td>
-            <td class="px-4 py-3 text-white/75">
-              <div class="flex flex-wrap gap-2">
-                <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm"
-                  onclick="window.__disableUser('${id}')">Disable</button>
-                <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm"
-                  onclick="window.__deleteUser('${id}')">Delete</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join("");
     }
 
-    async function loadUsers(identity) {
+    function renderUsersTable(list){
+      const tbody = $("tblUsers");
+      const filtered = getFilteredUsers(list);
+
+      userPageSize = Number($("userPageSize").value || 10) || 10;
+
+      const total = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(total / userPageSize));
+      if (userPage > totalPages) userPage = totalPages;
+      if (userPage < 1) userPage = 1;
+
+      const start = (userPage - 1) * userPageSize;
+      const end = start + userPageSize;
+      const rows = filtered.slice(start, end);
+
+      if (!rows.length){
+        tbody.innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="5">No users.</td></tr>`;
+      } else {
+        tbody.innerHTML = rows.map(u=>{
+          const role = escapeHtml(u.role || "—");
+          const email = escapeHtml(u.email || "—");
+          const name = escapeHtml(u.name || "—");
+          const parent = escapeHtml(u.parent_ma || "—");
+          const id = escapeHtml(u.id || "");
+
+          return `
+            <tr>
+              <td class="px-4 py-3 text-white/80">${role}</td>
+              <td class="px-4 py-3 text-white/75">${email}</td>
+              <td class="px-4 py-3 text-white/75">${name}</td>
+              <td class="px-4 py-3 text-white/60">${parent}</td>
+              <td class="px-4 py-3 text-white/75">
+                <div class="flex flex-wrap gap-2">
+                  <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm"
+                    onclick="window.__disableUser('${id}')">Disable</button>
+                  <button class="px-3 py-2 rounded-xl soft-border bg-black/20 hover:border-gold/60 text-sm"
+                    onclick="window.__deleteUser('${id}')">Delete</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      const shownStart = total === 0 ? 0 : (start + 1);
+      const shownEnd = Math.min(end, total);
+
+      $("userPageInfo").textContent =
+        `Showing ${shownStart}-${shownEnd} of ${total} • Page ${userPage}/${totalPages}`;
+
+      $("btnUserPrev").disabled = userPage <= 1;
+      $("btnUserNext").disabled = userPage >= totalPages;
+
+      $("btnUserPrev").classList.toggle("opacity-50", $("btnUserPrev").disabled);
+      $("btnUserNext").classList.toggle("opacity-50", $("btnUserNext").disabled);
+    }
+
+    async function loadUsers(identity){
       const res = await fetch("/.netlify/functions/users-list?t=" + Date.now(), {
         headers: { ...(await authHeader(identity)) }
       });
-      const out = await res.json().catch(() => ({}));
+      const out = await res.json().catch(()=>({}));
       if (!res.ok || !out.ok) {
         const detail = out?.detail ? (" | detail: " + out.detail) : "";
         throw new Error((out.error || ("HTTP " + res.status)) + detail);
       }
 
       cachedUsers = out.users || [];
+      userPage = 1; // reset on reload
       renderUsersTable(cachedUsers);
     }
 
-    async function createUser(identity) {
+    async function createUser(identity){
       const role = ($("newRole").value || "").trim();
       const email = ($("newEmail").value || "").trim().toLowerCase();
       const name = ($("newName").value || "").trim();
@@ -533,11 +544,11 @@
 
       const res = await fetch("/.netlify/functions/user-create", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(await authHeader(identity)) },
+        headers: { "Content-Type":"application/json", ...(await authHeader(identity)) },
         body: JSON.stringify({ role, email, name, parent_ma: parent })
       });
 
-      const out = await res.json().catch(() => ({}));
+      const out = await res.json().catch(()=>({}));
       if (!res.ok || !out.ok) {
         const detail = out?.detail ? (" | detail: " + out.detail) : "";
         throw new Error((out.error || ("HTTP " + res.status)) + detail);
@@ -546,45 +557,45 @@
       showAlert("✅ Invite sent. User will set password via email invite link.");
     }
 
-    window.__disableUser = async (id) => {
-      try {
+    window.__disableUser = async (id)=>{
+      try{
         const identity = window.__identity;
         const res = await fetch("/.netlify/functions/user-disable", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...(await authHeader(identity)) },
+          method:"POST",
+          headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
           body: JSON.stringify({ id })
         });
-        const out = await res.json().catch(() => ({}));
+        const out = await res.json().catch(()=>({}));
         if (!res.ok || !out.ok) {
           const detail = out?.detail ? (" | detail: " + out.detail) : "";
           throw new Error((out.error || "Disable failed.") + detail);
         }
         showAlert("✅ User disabled.");
         await loadUsers(identity);
-      } catch (e) { showAlert(e?.message || "Disable failed.", "error"); }
+      }catch(e){ showAlert(e?.message || "Disable failed.", "error"); }
     };
 
-    window.__deleteUser = async (id) => {
-      try {
+    window.__deleteUser = async (id)=>{
+      try{
         const identity = window.__identity;
         if (!confirm("Delete user permanently? (Better to disable)")) return;
         const res = await fetch("/.netlify/functions/user-delete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...(await authHeader(identity)) },
+          method:"POST",
+          headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
           body: JSON.stringify({ id })
         });
-        const out = await res.json().catch(() => ({}));
+        const out = await res.json().catch(()=>({}));
         if (!res.ok || !out.ok) {
           const detail = out?.detail ? (" | detail: " + out.detail) : "";
           throw new Error((out.error || "Delete failed.") + detail);
         }
         showAlert("✅ User deleted.");
         await loadUsers(identity);
-      } catch (e) { showAlert(e?.message || "Delete failed.", "error"); }
+      }catch(e){ showAlert(e?.message || "Delete failed.", "error"); }
     };
 
     // Payout lookup
-    async function loadPayout(identity) {
+    async function loadPayout(identity){
       const type = ($("payType").value || "").trim();
       const id = ($("payId").value || "").trim();
       if (!id) throw new Error("Identifier is required.");
@@ -598,13 +609,13 @@
       const eRes = await fetch("/.netlify/functions/earnings-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
         headers: { ...(await authHeader(identity)) }
       });
-      const eOut = await eRes.json().catch(() => ({}));
+      const eOut = await eRes.json().catch(()=>({}));
       if (!eRes.ok || !eOut.ok) throw new Error((eOut.error || "Failed to load earnings.") + (eOut.detail ? (" | detail: " + eOut.detail) : ""));
 
       const bRes = await fetch("/.netlify/functions/bank-one?type=" + encodeURIComponent(type) + "&id=" + encodeURIComponent(id), {
         headers: { ...(await authHeader(identity)) }
       });
-      const bOut = await bRes.json().catch(() => ({}));
+      const bOut = await bRes.json().catch(()=>({}));
       if (!bRes.ok || !bOut.ok) throw new Error((bOut.error || "Failed to load bank details.") + (bOut.detail ? (" | detail: " + bOut.detail) : ""));
 
       $("earnedTotal").textContent = "RM " + Number(eOut.total_rm || 0).toLocaleString("en-MY");
@@ -617,7 +628,7 @@
       $("payStatus").textContent = "Loaded.";
     }
 
-    async function createPayoutBatch(identity) {
+    async function createPayoutBatch(identity){
       const type = ($("payType").value || "").trim();
       const id = ($("payId").value || "").trim();
       const pct = Number($("commissionPct").value || 0);
@@ -626,12 +637,12 @@
       if (Number.isNaN(pct) || pct < 0 || pct > 100) throw new Error("Commission % must be between 0 and 100.");
 
       const res = await fetch("/.netlify/functions/payout-batch-create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...(await authHeader(identity)) },
+        method:"POST",
+        headers:{ "Content-Type":"application/json", ...(await authHeader(identity)) },
         body: JSON.stringify({ type, id, commission_pct: pct })
       });
 
-      const out = await res.json().catch(() => ({}));
+      const out = await res.json().catch(()=>({}));
       if (!res.ok || !out.ok) {
         const detail = out?.detail ? (" | detail: " + out.detail) : "";
         throw new Error((out.error || "Failed to create payout batch.") + detail);
@@ -640,63 +651,81 @@
       showAlert("✅ Payout batch created. Batch ID: " + (out.batch_id || "—"));
     }
 
-    async function init() {
+    async function init(){
       const identity = await waitForIdentity();
       window.__identity = identity;
 
       const u = await requireAdmin(identity);
       if (!u) return;
 
-      $("btnLogout").addEventListener("click", async () => {
-        try { await identity.logout(); } finally { window.location.href = "admin-login.html"; }
+      $("btnLogout").addEventListener("click", async ()=>{
+        try{ await identity.logout(); } finally { window.location.href = "admin-login.html"; }
       });
 
-      $("btnRefreshAnalytics").addEventListener("click", () => loadAnalytics(identity));
-      $("btnLoadUsers").addEventListener("click", async () => {
+      $("btnRefreshAnalytics").addEventListener("click", ()=>loadAnalytics(identity));
+
+      $("btnLoadUsers").addEventListener("click", async ()=>{
         hideAlert();
-        try { await loadUsers(identity); }
-        catch (e) { showAlert(e?.message || "Failed to load users.", "error"); }
+        try{ await loadUsers(identity); }
+        catch(e){ showAlert(e?.message || "Failed to load users.", "error"); }
       });
 
-      $("userSearch").addEventListener("input", () => renderUsersTable(cachedUsers));
+      // Pagination controls
+      $("btnUserPrev").addEventListener("click", ()=>{
+        if (userPage > 1) userPage--;
+        renderUsersTable(cachedUsers);
+      });
+      $("btnUserNext").addEventListener("click", ()=>{
+        userPage++;
+        renderUsersTable(cachedUsers);
+      });
+      $("userPageSize").addEventListener("change", ()=>{
+        userPage = 1;
+        renderUsersTable(cachedUsers);
+      });
 
-      $("newRole").addEventListener("change", () => {
+      $("userSearch").addEventListener("input", ()=>{
+        userPage = 1;
+        renderUsersTable(cachedUsers);
+      });
+
+      $("newRole").addEventListener("change", ()=>{
         const role = $("newRole").value;
         $("newParentWrap").style.display = (role === "agent") ? "block" : "none";
       });
       $("newRole").dispatchEvent(new Event("change"));
 
-      $("btnCreateUser").addEventListener("click", async () => {
+      $("btnCreateUser").addEventListener("click", async ()=>{
         hideAlert();
         const btn = $("btnCreateUser");
         const old = btn.textContent;
         btn.disabled = true; btn.textContent = "Creating...";
-        try {
+        try{
           await createUser(identity);
           $("newEmail").value = "";
           $("newName").value = "";
           $("newParentMA").value = "";
-        } catch (e) {
+        }catch(e){
           showAlert(e?.message || "Create user failed.", "error");
-        } finally {
+        }finally{
           btn.disabled = false; btn.textContent = old;
         }
       });
 
-      $("btnLoadPayout").addEventListener("click", async () => {
+      $("btnLoadPayout").addEventListener("click", async ()=>{
         hideAlert();
-        try { await loadPayout(identity); }
-        catch (e) { showAlert(e?.message || "Load payout failed.", "error"); $("payStatus").textContent = "—"; }
+        try{ await loadPayout(identity); }
+        catch(e){ showAlert(e?.message || "Load payout failed.", "error"); $("payStatus").textContent="—"; }
       });
 
-      $("btnCreatePayoutBatch").addEventListener("click", async () => {
+      $("btnCreatePayoutBatch").addEventListener("click", async ()=>{
         hideAlert();
         const btn = $("btnCreatePayoutBatch");
         const old = btn.textContent;
         btn.disabled = true; btn.textContent = "Creating...";
-        try { await createPayoutBatch(identity); }
-        catch (e) { showAlert(e?.message || "Create payout batch failed.", "error"); }
-        finally { btn.disabled = false; btn.textContent = old; }
+        try{ await createPayoutBatch(identity); }
+        catch(e){ showAlert(e?.message || "Create payout batch failed.", "error"); }
+        finally{ btn.disabled = false; btn.textContent = old; }
       });
 
       renderEarningsPlaceholder();
@@ -706,5 +735,4 @@
     init();
   </script>
 </body>
-
 </html>
