@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <title>QariLive – Pendaftaran Qari & Hafiz/Hafizah</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'bg-dark': '#050509',
+            'card-dark': '#101018',
+            'accent-gold': '#d4af37',
+            'accent-gold-soft': '#f0e2aa',
+            'text-light': '#f8f8ff',
+            'text-muted': '#b0b0c0',
+            'danger': '#ff4d4f',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Hanya untuk buang marker default <details> di FAQ (Tailwind tak handle pseudo ini) */
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-[radial-gradient(circle_at_top,_#161621_0,_#050509_55%)] text-text-light leading-relaxed">
+  <div class="max-w-[1080px] mx-auto px-4 sm:px-3 pt-6 pb-10">
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <div class="flex items-center gap-3">
+        <img src="qarilive-gold.png" alt="QariLive Logo"
+             class="w-[42px] h-[42px] rounded-xl shadow-[0_0_18px_rgba(212,175,55,0.55)] object-cover" />
+        <div class="font-semibold tracking-[0.18em] text-xs uppercase text-accent-gold-soft">
+          QariLive
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 justify-between md:justify-end">
+        <div
+          class="px-3 py-1 rounded-full border border-[rgba(212,175,55,0.25)] text-[0.8rem] text-accent-gold-soft bg-gradient-to-r from-[rgba(212,175,55,0.15)] to-transparent">
+          Program Pendaftaran Qari &amp; Hafiz/Hafizah
+        </div>
+        <a href="#daftar"
+           class="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-[0.9rem] font-semibold text-[#2b1a08] bg-gradient-to-br from-[#f5e3b8] via-accent-gold to-[#a07216] shadow-[0_10px_25px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_35px_rgba(0,0,0,0.65)] hover:brightness-105 transition">
+          Daftar Sekarang
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="grid gap-7 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-center mb-8">
+        <!-- Left -->
+        <div>
+          <div
+            class="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full border border-[rgba(212,175,55,0.4)] bg-gradient-to-r from-[rgba(212,175,55,0.25)] to-[rgba(0,0,0,0.3)] text-[0.78rem]">
+            <span class="uppercase tracking-[0.18em] text-[0.7rem] opacity-90">Baru</span>
+            <span>QariLive • Bacaan al-Quran secara LIVE ke seluruh dunia</span>
+          </div>
+
+          <h1 class="text-[2.1rem] sm:text-[2.4rem] lg:text-[2.8rem] leading-tight font-semibold mb-3">
+            Sertai QariLive &mdash; Baca al-Quran Secara Online, Raih Ganjaran Harian.
+          </h1>
+
+          <p class="text-[0.95rem] text-text-muted mb-4 max-w-xl">
+            Kami sedang mencari Qari, Hafiz &amp; Hafizah yang mempunyai bacaan yang baik
+            untuk disiarkan melalui ekosistem jam azan digital QariLive ke rumah, sekolah dan masjid di seluruh dunia.
+          </p>
+
+          <div class="flex flex-wrap gap-2 mb-4">
+            <div class="px-3 py-1 rounded-full border border-white/10 text-[0.75rem] text-text-muted">
+              Saguhati sehingga USD $10 / 1 jam bacaan
+            </div>
+            <div class="px-3 py-1 rounded-full border border-white/10 text-[0.75rem] text-text-muted">
+              Baca dari rumah &mdash; jadual fleksibel
+            </div>
+            <div class="px-3 py-1 rounded-full border border-white/10 text-[0.75rem] text-text-muted">
+              Peluang penonton global
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 mb-2">
+            <a href="#daftar"
+               class="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-[0.9rem] font-semibold text-[#2b1a08] bg-gradient-to-br from-[#f5e3b8] via-accent-gold to-[#a07216] shadow-[0_10px_25px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_35px_rgba(0,0,0,0.65)] hover:brightness-105 transition">
+              Daftar Sebagai Qari
+            </a>
+            <span class="text-[0.8rem] text-text-muted">
+              Ambil masa &plusmn; 3–5 minit sahaja.
+            </span>
+          </div>
+
+          <p class="text-[0.8rem] text-text-muted">
+            Terbuka kepada Qari/Qariah, Hafiz/Hafizah, pelajar tahfiz &amp; individu yang mempunyai bacaan bertajwid.
+          </p>
+        </div>
+
+        <!-- Right -->
+        <div
+          class="relative overflow-hidden rounded-3xl border border-[rgba(212,175,55,0.3)] bg-[radial-gradient(circle_at_top,_#2e2210,_#0a0a10)] p-4 shadow-[0_20px_40px_rgba(0,0,0,0.7)]">
+          <div
+            class="absolute inset-[-40%] bg-[radial-gradient(circle_at_20%_0,_rgba(255,255,255,0.16),_transparent_60%)] opacity-70 pointer-events-none">
+          </div>
+          <div class="relative">
+            <div class="rounded-2xl border border-black/70 bg-black p-1.5 mb-3">
+              <div
+                class="relative h-[170px] rounded-xl flex items-end justify-start px-4 py-3 bg-[radial-gradient(circle_at_50%_0,_#fefefe_0,_#f3f0e0_16%,_#c49b2f_40%,_#2a1a08_100%)] overflow-hidden">
+                <div class="space-y-1">
+                  <div class="text-[1.1rem] font-semibold text-[#fff7dc] drop-shadow-[0_0_12px_rgba(0,0,0,0.8)]">
+                    “Dan bacalah al-Quran itu dengan tartil.”
+                  </div>
+                  <div class="text-[0.75rem] text-[#f8eecd] opacity-85">
+                    QariLive menghubungkan bacaan anda ke ribuan rumah &amp; masjid.
+                  </div>
+                </div>
+                <div
+                  class="absolute top-2.5 left-2.5 text-[0.7rem] rounded-full px-3 py-1 bg-black/75 text-[#fffae6]">
+                  LIVE • QariLive Stream
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-3 text-[0.78rem] text-text-muted">
+              <span>Disiarkan melalui Jam Azan QariLive &amp; platform digital.</span>
+              <div class="flex gap-[3px]">
+                <div class="w-[6px] h-[6px] rounded-full bg-accent-gold"></div>
+                <div class="w-[6px] h-[6px] rounded-full bg-white/15"></div>
+                <div class="w-[6px] h-[6px] rounded-full bg-white/15"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT & BENEFITS -->
+      <section class="mb-7">
+        <h2 class="text-[1.3rem] font-semibold mb-1">Mengapa Sertai QariLive?</h2>
+        <p class="text-[0.9rem] text-text-muted mb-3">
+          QariLive ialah platform bacaan al-Quran secara langsung yang menghubungkan Qari dengan komuniti Muslim global.
+        </p>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <div
+            class="rounded-2xl border border-white/5 bg-[rgba(7,7,12,0.85)] px-4 py-3.5">
+            <h3 class="text-[1rem] mb-2 text-accent-gold-soft font-semibold">Faedah &amp; Ganjaran</h3>
+            <ul class="list-none text-[0.88rem] text-text-muted space-y-1.5">
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Saguhati harian sehingga <strong class="text-accent-gold-soft font-semibold">USD $5–$10</strong> untuk sesi bacaan 1 jam.
+              </li>
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Peluang bacaan anda didengari oleh pendengar antarabangsa.
+              </li>
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Baca dari rumah atau studio anda sendiri.
+              </li>
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Slot khas untuk Hafiz/Hafizah dengan bacaan 30 juzuk.
+              </li>
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Berpotensi dijemput untuk slot khas Ramadhan &amp; program istimewa.
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="rounded-2xl border border-white/5 bg-[rgba(7,7,12,0.85)] px-4 py-3.5">
+            <h3 class="text-[1rem] mb-2 text-accent-gold-soft font-semibold">Siapa yang Kami Cari?</h3>
+            <ul class="list-none text-[0.88rem] text-text-muted space-y-1.5">
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Hafiz/Hafizah atau pelajar tahfiz yang aktif.
+              </li>
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Qari/Qariah yang mempunyai bacaan tartil &amp; tajwid yang baik.
+              </li>
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Individu yang selesa membaca di hadapan kamera/mikrofon.
+              </li>
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Mempunyai talian internet yang stabil.
+              </li>
+              <li class="relative pl-4">
+                <span class="absolute left-0 text-accent-gold">•</span>
+                Sanggup menghantar rakaman pendek bacaan sebagai penilaian awal.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS -->
+      <section class="mb-7">
+        <h2 class="text-[1.3rem] font-semibold mb-1">Bagaimana Prosesnya?</h2>
+        <p class="text-[0.9rem] text-text-muted mb-3">
+          Proses pendaftaran adalah ringkas dan teratur untuk menjaga kualiti bacaan di QariLive.
+        </p>
+        <div
+          class="rounded-2xl border border-white/5 bg-[rgba(7,7,12,0.85)] px-4 py-3.5 text-[0.88rem] text-text-muted">
+          <ul class="list-none space-y-1.5">
+            <li class="relative pl-4">
+              <span class="absolute left-0 text-accent-gold">•</span>
+              Isi borang pendaftaran di bawah beserta maklumat asas anda.
+            </li>
+            <li class="relative pl-4">
+              <span class="absolute left-0 text-accent-gold">•</span>
+              Muat naik rakaman pendek bacaan al-Quran untuk semakan.
+            </li>
+            <li class="relative pl-4">
+              <span class="absolute left-0 text-accent-gold">•</span>
+              Pihak QariLive akan menilai bacaan dari sudut tajwid, suara &amp; adab bacaan.
+            </li>
+            <li class="relative pl-4">
+              <span class="absolute left-0 text-accent-gold">•</span>
+              Sesi online ringkas (temuduga suara) akan diatur jika anda terpilih.
+            </li>
+            <li class="relative pl-4">
+              <span class="absolute left-0 text-accent-gold">•</span>
+              Jika diluluskan, nama anda dimasukkan ke dalam jadual bacaan QariLive.
+            </li>
+            <li class="relative pl-4">
+              <span class="absolute left-0 text-accent-gold">•</span>
+              Bacaan anda akan disiarkan mengikut jadual yang dipersetujui &amp; saguhati dibayar mengikut terma.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- FORM SECTION -->
+      <section id="daftar" class="mb-10">
+        <div
+          class="rounded-[22px] border border-[rgba(212,175,55,0.4)] bg-gradient-to-br from-[rgba(14,13,20,0.95)] to-bg-dark px-4 sm:px-5 py-5 sm:py-6 shadow-[0_18px_40px_rgba(0,0,0,0.85)]">
+          <h2 class="text-[1.4rem] font-semibold mb-1">Daftar Sebagai Qari QariLive</h2>
+          <p class="text-[0.9rem] text-text-muted mb-4">
+            Sila isikan borang di bawah dengan lengkap. Pihak kami akan menghubungi anda melalui WhatsApp atau email selepas semakan.
+          </p>
+
+          <form
+            id="qarilive-form"
+            name="qarilive-qari"
+            method="POST"
+            data-netlify="true"
+            netlify-honeypot="bot-field"
+            enctype="multipart/form-data"
+            class="grid gap-3"
+          >
+            <!-- Netlify hidden -->
+            <input type="hidden" name="form-name" value="qarilive-qari" />
+            <p hidden>
+              <label>Jangan isi jika anda manusia: <input name="bot-field" /></label>
+            </p>
+
+            <!-- Maklumat Peribadi -->
+            <div class="text-[0.78rem] uppercase tracking-[0.16em] text-accent-gold-soft opacity-90 mt-1">
+              Maklumat Peribadi
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="flex flex-col gap-1">
+                <label for="nama" class="text-[0.82rem] text-text-muted">
+                  Nama Penuh <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="nama"
+                  name="nama"
+                  required
+                  placeholder="Contoh: Ahmad bin Ali"
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label for="umur" class="text-[0.82rem] text-text-muted">
+                  Umur <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  id="umur"
+                  name="umur"
+                  min="10"
+                  max="90"
+                  required
+                  placeholder="Contoh: 25"
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                />
+              </div>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="flex flex-col gap-1">
+                <label for="jantina" class="text-[0.82rem] text-text-muted">
+                  Jantina <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="jantina"
+                  name="jantina"
+                  required
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                >
+                  <option value="">Sila pilih</option>
+                  <option value="Lelaki">Lelaki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label for="telefon" class="text-[0.82rem] text-text-muted">
+                  No. Telefon (WhatsApp) <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="telefon"
+                  name="telefon"
+                  required
+                  placeholder="Contoh: +60 12-345 6789"
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                />
+              </div>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="flex flex-col gap-1">
+                <label for="email" class="text-[0.82rem] text-text-muted">
+                  Email <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="nama@contoh.com"
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label for="negara" class="text-[0.82rem] text-text-muted">
+                  Negara &amp; Negeri/Kawasan <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="negara"
+                  name="negara"
+                  required
+                  placeholder="Contoh: Malaysia, Selangor / Indonesia, Jawa Barat"
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                />
+              </div>
+            </div>
+
+            <!-- OKU Checkbox -->
+            <div class="flex flex-col gap-1">
+              <span class="text-[0.82rem] text-text-muted">Status OKU</span>
+              <div class="flex flex-wrap gap-3 text-[0.8rem]">
+                <label class="inline-flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="status-oku"
+                    value="OKU"
+                    class="w-4 h-4 accent-accent-gold"
+                  />
+                  <span>Saya adalah OKU (Orang Kurang Upaya)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Latar Belakang Bacaan -->
+            <div class="text-[0.78rem] uppercase tracking-[0.16em] text-accent-gold-soft opacity-90 mt-2">
+              Latar Belakang Bacaan
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="flex flex-col gap-1">
+                <label for="status" class="text-[0.82rem] text-text-muted">
+                  Status (Pilih paling sesuai) <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="status"
+                  name="status"
+                  required
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                >
+                  <option value="">Sila pilih</option>
+                  <option value="Hafiz">Hafiz</option>
+                  <option value="Hafizah">Hafizah</option>
+                  <option value="Qari">Qari</option>
+                  <option value="Qariah">Qariah</option>
+                  <option value="Pelajar Tahfiz">Pelajar Tahfiz</option>
+                  <option value="Lain-lain">Lain-lain</option>
+                </select>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label for="pengalaman" class="text-[0.82rem] text-text-muted">
+                  Pengalaman Mengajar / Membaca Al-Quran di Khalayak
+                </label>
+                <select
+                  id="pengalaman"
+                  name="pengalaman"
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                >
+                  <option value="">Sila pilih</option>
+                  <option value="Tiada">Tiada</option>
+                  <option value="1-3 tahun">1–3 tahun</option>
+                  <option value="3-5 tahun">3–5 tahun</option>
+                  <option value="5+ tahun">5+ tahun</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="flex flex-col gap-1">
+                <label for="tajwid" class="text-[0.82rem] text-text-muted">
+                  Tahap Kemahiran Tajwid (Penilaian Diri) <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="tajwid"
+                  name="tajwid"
+                  required
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                >
+                  <option value="">Sila pilih</option>
+                  <option value="Asas">Asas</option>
+                  <option value="Sederhana">Sederhana</option>
+                  <option value="Tinggi">Tinggi</option>
+                  <option value="Sangat Tinggi">Sangat Tinggi</option>
+                </select>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label for="qiraat" class="text-[0.82rem] text-text-muted">
+                  Qiraat yang Diamalkan
+                </label>
+                <select
+                  id="qiraat"
+                  name="qiraat"
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                >
+                  <option value="">Sila pilih</option>
+                  <option value="Hafs 'an 'Asim">Hafs ‘an ‘Asim</option>
+                  <option value="Warsh">Warsh</option>
+                  <option value="Lain-lain">Lain-lain / Gabungan</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label for="latar-belakang" class="text-[0.82rem] text-text-muted">
+                Ringkasan Latar Belakang Bacaan / Pendidikan Agama
+              </label>
+              <textarea
+                id="latar-belakang"
+                name="latar-belakang"
+                placeholder="Contoh: Latar belakang hafazan, guru, pertandingan tilawah, madrasah/tahfiz, dan lain-lain."
+                class="w-full rounded-xl border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none resize-y min-h-[70px] transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+              ></textarea>
+            </div>
+
+            <!-- Sampel Bacaan -->
+            <div class="text-[0.78rem] uppercase tracking-[0.16em] text-accent-gold-soft opacity-90 mt-2">
+              Sampel Bacaan
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label for="rakaman" class="text-[0.82rem] text-text-muted">
+                Upload Rakaman Audio Bacaan (1–2 minit)
+              </label>
+              <input
+                type="file"
+                id="rakaman"
+                name="rakaman"
+                accept="audio/*"
+                class="text-[0.8rem] text-text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent-gold file:px-3 file:py-1.5 file:text-[0.78rem] file:font-semibold file:text-[#2b1a08] file:cursor-pointer"
+              />
+              <p class="text-[0.76rem] text-text-muted">
+                Had saiz fail maksimum: <span class="font-semibold text-accent-gold-soft">8MB</span>.
+                Jika fail anda lebih besar, sila gunakan pilihan link rakaman di bawah.
+              </p>
+              <p class="text-[0.76rem] text-text-muted">
+                Anda hanya perlu pilih <span class="font-semibold">satu</span>: sama ada muat naik fail audio
+                <span class="italic">atau</span> berikan link rakaman.
+              </p>
+              <p id="rakaman-error" class="hidden text-[0.76rem] text-danger mt-1"></p>
+              <p class="text-[0.76rem] text-text-muted mt-1">
+                Cadangan: Surah al-Fatihah &amp; 3–5 ayat dari mana-mana surah. Format: MP3, M4A, WAV atau audio WhatsApp yang dimuat turun.
+              </p>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label for="link-rakaman" class="text-[0.82rem] text-text-muted">
+                Atau Link Rakaman (YouTube/Drive/WhatsApp, dll)
+              </label>
+              <input
+                type="url"
+                id="link-rakaman"
+                name="link-rakaman"
+                placeholder="Contoh: https://drive.google.com/..."
+                class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+              />
+              <p class="text-[0.76rem] text-text-muted">
+                Sekurang-kurangnya salah satu diperlukan: muat naik fail audio <strong>atau</strong> link rakaman.
+              </p>
+              <p id="link-error" class="hidden text-[0.76rem] text-danger mt-1"></p>
+            </div>
+
+            <!-- Peralatan & Internet -->
+            <div class="text-[0.78rem] uppercase tracking-[0.16em] text-accent-gold-soft opacity-90 mt-2">
+              Peralatan &amp; Sambungan Internet
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-[0.82rem] text-text-muted">
+                Peranti / Peralatan Yang Anda Gunakan
+              </label>
+              <div class="flex flex-wrap gap-3 text-[0.8rem]">
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="peranti[]" value="Telefon Pintar" class="w-4 h-4 accent-accent-gold" />
+                  <span>Telefon pintar</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="peranti[]" value="Laptop/PC" class="w-4 h-4 accent-accent-gold" />
+                  <span>Laptop / PC</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="peranti[]" value="Mikrofon USB" class="w-4 h-4 accent-accent-gold" />
+                  <span>Mikrofon USB</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="peranti[]" value="Headset" class="w-4 h-4 accent-accent-gold" />
+                  <span>Headset</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="peranti[]" value="Studio Mic" class="w-4 h-4 accent-accent-gold" />
+                  <span>Studio microphone</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label for="internet" class="text-[0.82rem] text-text-muted">
+                Kualiti Internet di Rumah
+              </label>
+              <select
+                id="internet"
+                name="internet"
+                class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+              >
+                <option value="">Sila pilih</option>
+                <option value="Lemah">Lemah</option>
+                <option value="Sederhana">Sederhana</option>
+                <option value="Stabil">Stabil</option>
+                <option value="Sangat Stabil (Fiber)">Sangat Stabil (Fiber)</option>
+              </select>
+            </div>
+
+            <!-- Ketersediaan Masa -->
+            <div class="text-[0.78rem] uppercase tracking-[0.16em] text-accent-gold-soft opacity-90 mt-2">
+              Ketersediaan Masa
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-[0.82rem] text-text-muted">
+                Masa yang Sesuai untuk Anda Buat Bacaan (boleh pilih lebih dari satu)
+              </label>
+              <div class="flex flex-wrap gap-3 text-[0.8rem]">
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="masa[]" value="Pagi" class="w-4 h-4 accent-accent-gold" />
+                  <span>Pagi</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="masa[]" value="Tengah hari" class="w-4 h-4 accent-accent-gold" />
+                  <span>Tengah hari</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="masa[]" value="Petang" class="w-4 h-4 accent-accent-gold" />
+                  <span>Petang</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="masa[]" value="Malam" class="w-4 h-4 accent-accent-gold" />
+                  <span>Malam</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="masa[]" value="Hujung minggu sahaja" class="w-4 h-4 accent-accent-gold" />
+                  <span>Hujung minggu sahaja</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="checkbox" name="masa[]" value="Fleksibel" class="w-4 h-4 accent-accent-gold" />
+                  <span>Fleksibel</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label for="jam-seminggu" class="text-[0.82rem] text-text-muted">
+                Anggaran jumlah jam seminggu yang anda boleh komited
+              </label>
+              <input
+                type="text"
+                id="jam-seminggu"
+                name="jam-seminggu"
+                placeholder="Contoh: 3–5 jam seminggu"
+                class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+              />
+            </div>
+
+            <!-- Maklumat Pembayaran -->
+            <div class="text-[0.78rem] uppercase tracking-[0.16em] text-accent-gold-soft opacity-90 mt-2">
+              Maklumat Pembayaran
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="flex flex-col gap-1">
+                <label for="nama-akaun" class="text-[0.82rem] text-text-muted">
+                  Nama Pemilik Akaun
+                </label>
+                <input
+                  type="text"
+                  id="nama-akaun"
+                  name="nama-akaun"
+                  placeholder="Nama seperti dalam akaun bank / e-wallet"
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label for="bank" class="text-[0.82rem] text-text-muted">
+                  Bank / Platform Pembayaran
+                </label>
+                <input
+                  type="text"
+                  id="bank"
+                  name="bank"
+                  placeholder="Contoh: Maybank, Bank Islam, Wise, PayPal, dll"
+                  class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label for="no-akaun" class="text-[0.82rem] text-text-muted">
+                Nombor Akaun / ID Pembayaran
+              </label>
+              <input
+                type="text"
+                id="no-akaun"
+                name="no-akaun"
+                placeholder="No. akaun bank atau email PayPal/Wise"
+                class="w-full rounded-full border border-white/10 bg-bg-dark px-3 py-2 text-[0.85rem] text-text-light outline-none transition focus:border-accent-gold focus:ring-1 focus:ring-[rgba(212,175,55,0.3)] focus:bg-[#080812]"
+              />
+            </div>
+
+            <!-- Pengesahan -->
+            <div class="text-[0.78rem] uppercase tracking-[0.16em] text-accent-gold-soft opacity-90 mt-2">
+              Pengesahan
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <div class="flex flex-wrap gap-3 text-[0.8rem]">
+                <label class="inline-flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    name="sah-maklumat"
+                    value="Ya"
+                    required
+                    class="mt-[3px] w-4 h-4 accent-accent-gold"
+                  />
+                  <span>Saya mengesahkan semua maklumat di atas adalah benar mengikut pengetahuan saya.</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <div class="flex flex-wrap gap-3 text-[0.8rem]">
+                <label class="inline-flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    name="setuju-terma"
+                    value="Ya"
+                    required
+                    class="mt-[3px] w-4 h-4 accent-accent-gold"
+                  />
+                  <span>Saya bersetuju dengan terma asas QariLive &amp; memahami proses tapisan kualiti bacaan.</span>
+                </label>
+              </div>
+              <p class="text-[0.75rem] text-text-muted mt-1">
+                Terma penuh dan penjelasan kadar saguhati akan dikongsi kepada calon yang berjaya ke peringkat seterusnya.
+              </p>
+            </div>
+
+            <div class="mt-3 flex flex-col gap-1 items-start">
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-[0.9rem] font-semibold text-[#2b1a08] bg-gradient-to-br from-[#f5e3b8] via-accent-gold to-[#a07216] shadow-[0_10px_25px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_35px_rgba(0,0,0,0.65)] hover:brightness-105 transition">
+                Hantar Permohonan
+              </button>
+              <p class="text-[0.75rem] text-text-muted">
+                Selepas menghantar borang, sila tunggu mesej daripada pasukan QariLive melalui WhatsApp atau email untuk langkah seterusnya.
+              </p>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- FAQ SECTION -->
+      <section
+        class="mt-10 rounded-[24px] px-5 sm:px-7 py-8 sm:py-10 bg-gradient-to-br from-[#101018] to-[#151524] shadow-[0_18px_45px_rgba(0,0,0,0.55)] border border-[rgba(212,175,55,0.28)]">
+        <h2 class="text-[1.4rem] sm:text-[1.6rem] font-bold text-accent-gold-soft mb-4">
+          Soalan &amp; Jawapan – Isu Mengambil Saguhati Baca Al-Quran di QariLive
+        </h2>
+        <p class="text-[0.95rem] text-text-muted mb-5 leading-relaxed">
+          QariLive mematuhi panduan syariah dengan menekankan bahawa bayaran
+          yang diberikan adalah atas khidmat, masa dan kepakaran bacaan – bukan
+          bayaran untuk “pahala bacaan”.
+        </p>
+
+        <div class="flex flex-col gap-2.5">
+          <!-- 1 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 1. Bukankah haram ambil saguhati untuk baca Al-Quran?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                Tidak haram, tetapi bergantung pada niat dan tujuan.
+                Ulama membenarkan saguhati untuk khidmat berkaitan Al-Quran,
+                seperti mengajar, merakam suara, atau membaca dalam
+                majlis rasmi — selagi bukan saguhati kerana “jual pahala”.
+                Di QariLive, qari dibayar atas masa, suara dan khidmat
+                rakaman profesional.
+              </p>
+            </div>
+          </details>
+
+          <!-- 2 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 2. Bukankah membaca Al-Quran itu ibadah, tak patut diambil bayaran?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                Benar, Al-Quran ialah ibadah. Tetapi mengajar dan
+                menyampaikan Al-Quran juga satu khidmat. Dalam Islam,
+                guru Al-Quran, imam dan qari TV/Radio – semua
+                dibenarkan menerima saguhati atas khidmat mereka, bukan
+                atas pahala.
+              </p>
+            </div>
+          </details>
+
+          <!-- 3 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 3. Adakah QariLive menjual pahala bacaan kepada orang lain?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                Tidak. Kami tidak menjual pahala. Kami menyediakan
+                platform bacaan Al-Quran secara langsung, rakaman
+                dan pendidikan, dengan ganjaran atas usaha qari,
+                bukan atas “pahala untuk si mati”. Kami elakkan
+                istilah seperti “saguhati pahala” atau “tahlil berbayar”.
+              </p>
+            </div>
+          </details>
+
+          <!-- 4 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 4. Kenapa QariLive beri bayaran kepada Qari?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                Bayaran ini adalah bentuk saguhati dan saguhati khidmat
+                suara serta rakaman, seperti yang dibenarkan dalam
+                amalan masjid, tilawah dan sekolah tahfiz. QariLive
+                menyusun rakaman, siaran dan sesi pengajian — ini
+                satu kerja digital Islamik yang profesional.
+              </p>
+            </div>
+          </details>
+
+          <!-- 5 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 5. Apa beza QariLive dengan tahlil komersial atau “saguhati Yasin”?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                QariLive tidak menawarkan pembacaan berbayar untuk
+                orang mati. Fokus kami ialah bacaan al-Quran secara
+                live atau rakaman untuk tujuan pengajaran, dakwah dan
+                hiburan Islamik. Setiap sesi 10–15 minit juga
+                mengandungi tazkirah ringkas atau terjemahan ayat.
+              </p>
+            </div>
+          </details>
+
+          <!-- 6 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 6. Adakah Majlis Fatwa membenarkan ambil saguhati Al-Quran?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                Para mufti di Malaysia menjelaskan bahawa secara
+                umumnya harus mengambil saguhati untuk mengajar Al-Quran,
+                membaca dalam majlis, atau memberikan khidmat suara – 
+                selagi tidak diniatkan menjual pahala. Ini sejalan
+                dengan hadith:
+              </p>
+              <p class="mt-1">
+                “Saguhati paling berhak diambil adalah atas Kitab Allah.”
+                (Riwayat al-Bukhari)
+              </p>
+            </div>
+          </details>
+
+          <!-- 7 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 7. Adakah QariLive akan merosakkan keikhlasan membaca Al-Quran?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                Tidak. Bahkan ia membuka peluang rezeki halal dan
+                dakwah kepada ramai qari dan hafiz/hafizah di seluruh
+                dunia. Bacaan mereka memberi manfaat dan ilmu kepada
+                ramai pendengar. Mereka tetap ikhlas — dan pada masa
+                yang sama, kita menghargai masa dan suara mereka.
+              </p>
+            </div>
+          </details>
+
+          <!-- 8 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 8. Adakah semua Qari dibayar secara tetap?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                Qari dibayar mengikut sesi yang disiarkan atau
+                direkodkan, bukan secara kontrak tetap. Setiap sesi
+                dinilai dari segi:
+              </p>
+              <ul class="mt-2 ml-4 list-disc space-y-0.5">
+                <li>kualiti suara,</li>
+                <li>adab bacaan,</li>
+                <li>interaksi pengajian (terjemahan atau tazkirah pendek).</li>
+              </ul>
+              <p class="mt-1">
+                Semua ini menepati ciri “khidmat Islamik digital”.
+              </p>
+            </div>
+          </details>
+
+          <!-- 9 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 9. Adakah ini seperti menjual agama?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                Tidak. Ini seperti guru mengajar agama, imam
+                mengetuai solat, atau ustaz memberi kuliah — semua itu
+                dibenarkan saguhatinya. QariLive ialah platform yang
+                menyambungkan qari dengan masyarakat, dan disampaikan
+                secara sopan dan penuh adab.
+              </p>
+            </div>
+          </details>
+
+          <!-- 10 -->
+          <details
+            class="rounded-[14px] border border-white/10 bg-black/25 px-4 py-2.5 text-[0.95rem]">
+            <summary class="cursor-pointer font-semibold text-text-light flex items-center">
+              <span>❓ 10. Apa nilai tambah QariLive kepada masyarakat?</span>
+              <span class="ml-auto text-sm opacity-70">+</span>
+            </summary>
+            <div class="mt-2 text-[0.9rem] text-text-muted leading-relaxed">
+              <p>
+                <span class="text-accent-gold-soft font-semibold">✅ Jawapan:</span>
+                QariLive bukan hanya tempat qari baca Al-Quran,
+                tetapi juga:
+              </p>
+              <ul class="mt-2 ml-4 list-disc space-y-0.5">
+                <li>menyampaikan terjemahan dan tadabbur,</li>
+                <li>membuka peluang rezeki kepada hafiz/hafizah,</li>
+                <li>menyebar bacaan al-Quran yang indah ke seluruh dunia,</li>
+                <li>memperkenalkan bakat Islamik tempatan ke platform digital.</li>
+              </ul>
+              <p class="mt-1">
+                Inilah bentuk dakwah moden – berhikmah, beradab dan
+                bermanfaat.
+              </p>
+            </div>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <!-- MAIN FOOTER -->
+    <footer class="mt-6 text-center text-[0.75rem] text-text-muted opacity-75">
+      © <span id="year"></span> QariLive. Platform bacaan al-Quran secara LIVE untuk dunia Muslim.
+    </footer>
+  </div>
+
+  <!-- Footer Brand Logos -->
+  <footer
+    class="mt-6 pt-10 pb-12 px-4 text-center bg-gradient-to-b from-[#12121c] to-bg-dark border-t border-[rgba(212,175,55,0.3)]">
+    <h3 class="text-[1rem] font-semibold text-accent-gold-soft tracking-wide mb-6">
+      Dikuasakan oleh
+    </h3>
+
+    <div
+      class="inline-flex flex-wrap items-center justify-center gap-8 sm:gap-10 px-6 py-3 rounded-full bg-[radial-gradient(circle_at_top,_#262637,_#111119)] shadow-[0_14px_35px_rgba(0,0,0,0.75)]">
+      <img
+        class="h-[55px] sm:h-[70px] rounded-2xl object-contain"
+        src="qarilive-gold1.png"
+        alt="QariLive Logo"
+      />
+      <img
+        class="h-[55px] sm:h-[70px] object-contain brightness-0 invert contrast-110"
+        src="ITPLogo.png"
+        alt="IT People Sdn Bhd Logo"
+      />
+      <img
+        class="h-[55px] sm:h-[70px] object-contain brightness-0 invert contrast-110"
+        src="MDlogo.png"
+        alt="Malaysia Digital Status Logo"
+      />
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    (function () {
+      const MAX_SIZE = 8 * 1024 * 1024; // 8MB
+      const form = document.getElementById("qarilive-form");
+      if (!form) return;
+
+      const fileInput = document.getElementById("rakaman");
+      const linkInput = document.getElementById("link-rakaman");
+      const fileError = document.getElementById("rakaman-error");
+      const linkError = document.getElementById("link-error");
+
+      function clearErrors() {
+        if (fileError) {
+          fileError.textContent = "";
+          fileError.classList.add("hidden");
+        }
+        if (linkError) {
+          linkError.textContent = "";
+          linkError.classList.add("hidden");
+        }
+      }
+
+      if (fileInput) {
+        fileInput.addEventListener("change", function () {
+          clearErrors();
+          if (fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            if (file.size > MAX_SIZE) {
+              fileInput.value = "";
+              if (fileError) {
+                fileError.textContent =
+                  "Saiz maksimum fail ialah 8MB. Sila muat naik fail yang lebih kecil atau gunakan link rakaman di bawah.";
+                fileError.classList.remove("hidden");
+              }
+            }
+          }
+        });
+      }
+
+      form.addEventListener("submit", function (e) {
+        clearErrors();
+
+        const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+        const hasLink = linkInput && linkInput.value.trim() !== "";
+        let valid = true;
+
+        // Check 8MB limit again on submit (in case user bypassed change event)
+        if (hasFile && fileInput.files[0].size > MAX_SIZE) {
+          valid = false;
+          if (fileError) {
+            fileError.textContent =
+              "Saiz maksimum fail ialah 8MB. Sila muat naik fail yang lebih kecil atau gunakan link rakaman.";
+            fileError.classList.remove("hidden");
+          }
+        }
+
+        // Require at least one: file OR link
+        if (!hasFile && !hasLink) {
+          valid = false;
+          const msg = "Sila muat naik fail audio ATAU berikan link rakaman (sekurang-kurangnya satu diperlukan).";
+          if (fileError) {
+            fileError.textContent = msg;
+            fileError.classList.remove("hidden");
+          }
+          if (linkError) {
+            linkError.textContent = msg;
+            linkError.classList.remove("hidden");
+          }
+        }
+
+        if (!valid) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

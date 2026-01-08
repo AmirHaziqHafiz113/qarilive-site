@@ -22,14 +22,14 @@ function normalizeWhatsapp(input) {
 
 export async function handler(event) {
   try {
-    const ref = (event.queryStringParameters?.ref || "").trim();
+    const ref = (event.queryStringParameters?.ref || "").trim().toUpperCase();
     if (!ref) return json(400, { ok: false, error: "Missing ref" });
 
     const sql = neon();
 
-    // ✅ lookup by ma_code first (MA897), fallback to user_id
+    // ✅ include checkout_url from DB
     const rows = await sql`
-      SELECT user_id, ma_code, full_name, whatsapp
+      SELECT user_id, ma_code, full_name, whatsapp, checkout_url
       FROM public.ma_payout
       WHERE ma_code = ${ref} OR user_id = ${ref}
       LIMIT 1;
@@ -45,7 +45,8 @@ export async function handler(event) {
         full_name: row.full_name || "Master Agent",
         ma_code: row.ma_code || row.user_id,
         whatsapp: normalizeWhatsapp(row.whatsapp),
-        checkout_url: "https://checkout.xendit.co/od/qarilivelite"
+        // ✅ DB-driven (per MA)
+        checkout_url: (row.checkout_url || "").trim()
       }
     });
   } catch (err) {

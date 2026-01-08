@@ -30,11 +30,12 @@ export async function handler(event) {
     const sql = neon();
 
     const rows = await sql`
-      SELECT user_id, full_name, whatsapp, bank_name, bank_account_name, bank_account_number, updated_at
-      FROM ma_payout
-      WHERE user_id = ${userId}
-      LIMIT 1;
-    `;
+  SELECT user_id, full_name, whatsapp, bank_name, bank_account_name, bank_account_number, checkout_url, updated_at
+  FROM ma_payout
+  WHERE user_id = ${userId}
+  LIMIT 1;
+`;
+
 
     return json(200, { ok: true, data: rows[0] || null });
   } catch (err) {
