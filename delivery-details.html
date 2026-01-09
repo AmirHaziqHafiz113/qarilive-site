@@ -6,11 +6,12 @@
   <title>Delivery Details - QariLive</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
   <div class="w-full max-w-xl bg-white rounded-2xl shadow p-6">
     <h1 class="text-2xl font-semibold text-gray-900">Delivery Details</h1>
     <p class="text-gray-600 mt-1">
-      Please fill in your details so we can proceed with delivery.
+      Please fill in your delivery information so we can proceed.
     </p>
 
     <div class="mt-4 text-sm text-gray-500">
@@ -18,22 +19,47 @@
       <span id="externalId" class="font-mono text-gray-900"></span>
     </div>
 
-    <form id="form" class="mt-6 space-y-4">
-      <input type="text" id="name" placeholder="Full Name" required
-        class="w-full border rounded-xl px-4 py-3" />
+    <!-- Status notice -->
+    <div id="statusBox"
+      class="mt-4 rounded-xl px-4 py-3 text-sm bg-yellow-100 text-yellow-800">
+      Checking payment status…
+    </div>
 
-      <input type="tel" id="phone" placeholder="Phone Number" required
-        class="w-full border rounded-xl px-4 py-3" />
+    <!-- Delivery Form -->
+    <form id="form" class="mt-6 space-y-4 opacity-50 pointer-events-none">
+      <input
+        id="name"
+        type="text"
+        placeholder="Full Name"
+        required
+        class="w-full border rounded-xl px-4 py-3"
+      />
 
-      <textarea id="address" placeholder="Full Delivery Address" required
-        class="w-full border rounded-xl px-4 py-3 h-28"></textarea>
+      <input
+        id="phone"
+        type="tel"
+        placeholder="Phone Number"
+        required
+        class="w-full border rounded-xl px-4 py-3"
+      />
 
-      <textarea id="notes" placeholder="Notes (optional)"
-        class="w-full border rounded-xl px-4 py-3 h-20"></textarea>
+      <textarea
+        id="address"
+        placeholder="Full Delivery Address"
+        required
+        class="w-full border rounded-xl px-4 py-3 h-28"
+      ></textarea>
+
+      <textarea
+        id="notes"
+        placeholder="Notes (optional)"
+        class="w-full border rounded-xl px-4 py-3 h-20"
+      ></textarea>
 
       <button
         type="submit"
-        class="w-full bg-green-600 text-white rounded-xl py-3 font-semibold hover:bg-green-700">
+        class="w-full bg-green-600 text-white rounded-xl py-3 font-semibold hover:bg-green-700"
+      >
         Submit Delivery Details
       </button>
     </form>
@@ -46,12 +72,59 @@
     const externalId = params.get("external_id");
     document.getElementById("externalId").textContent = externalId || "-";
 
+    const form = document.getElementById("form");
     const msg = document.getElementById("msg");
+    const statusBox = document.getElementById("statusBox");
 
-    document.getElementById("form").addEventListener("submit", async (e) => {
+    function lockForm(message, color = "yellow") {
+      form.classList.add("opacity-50", "pointer-events-none");
+      statusBox.className =
+        `mt-4 rounded-xl px-4 py-3 text-sm bg-${color}-100 text-${color}-800`;
+      statusBox.textContent = message;
+    }
+
+    function unlockForm(message) {
+      form.classList.remove("opacity-50", "pointer-events-none");
+      statusBox.className =
+        "mt-4 rounded-xl px-4 py-3 text-sm bg-green-100 text-green-800";
+      statusBox.textContent = message;
+    }
+
+    async function checkPaymentStatus() {
+      if (!externalId) {
+        lockForm("Missing reference. Please return to the payment page.", "red");
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `/.netlify/functions/purchase-status?external_id=${encodeURIComponent(externalId)}`
+        );
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed");
+
+        const status = String(data.status).toUpperCase();
+
+        if (status === "PAID") {
+          unlockForm("Payment confirmed. You may submit delivery details now.");
+        } else if (status === "PENDING") {
+          lockForm("Payment is still being confirmed. Please wait.", "yellow");
+        } else {
+          lockForm(
+            "Payment is not completed. Please complete payment before submitting delivery.",
+            "red"
+          );
+        }
+      } catch (e) {
+        lockForm("Unable to verify payment status. Please refresh.", "red");
+      }
+    }
+
+    // Submit handler
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      msg.textContent = "Submitting...";
+      msg.textContent = "Submitting…";
       msg.className = "mt-4 text-sm text-gray-500";
 
       const payload = {
@@ -72,13 +145,23 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed");
 
-        msg.textContent = "✅ Delivery details saved. Our team will contact you shortly.";
+        msg.textContent =
+          "✅ Delivery details saved successfully. Our team will contact you soon.";
         msg.className = "mt-4 text-sm text-green-600";
       } catch (err) {
         msg.textContent = "❌ " + err.message;
         msg.className = "mt-4 text-sm text-red-600";
       }
     });
+
+    // Initial check + retry a few times
+    checkPaymentStatus();
+    let tries = 0;
+    const timer = setInterval(async () => {
+      tries++;
+      await checkPaymentStatus();
+      if (tries >= 6) clearInterval(timer);
+    }, 5000);
   </script>
 </body>
 </html>
