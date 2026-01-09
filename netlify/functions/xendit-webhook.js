@@ -1,4 +1,5 @@
-import { neon } from "@netlify/neon";
+// netlify/functions/xendit-webhook.js
+const { neon } = require("@netlify/neon");
 
 function json(statusCode, body) {
   return {
@@ -9,58 +10,52 @@ function json(statusCode, body) {
 }
 
 /**
- * Optional security:
- * Add a secret token in Xendit webhook settings, then verify header here.
- * If you haven't set it yet, you can temporarily disable verification.
+ * Xendit sends: X-CALLBACK-TOKEN
+ * We verify it using env var: XENDIT_WEBHOOK_TOKEN
+ * (If env var not set, we skip verification)
  */
-function verifyCallbackToken(event) {
+function verifyCallbackToken(headers) {
   const expected = process.env.XENDIT_WEBHOOK_TOKEN;
-  if (!expected) return true; // if you didn't set token, skip verification
+  if (!expected) return true;
 
-  // Common header name used by many systems:
   const got =
-    event.headers["x-callback-token"] ||
-    event.headers["X-CALLBACK-TOKEN"] ||
-    event.headers["X-Callback-Token"];
+    headers["x-callback-token"] ||
+    headers["X-CALLBACK-TOKEN"] ||
+    headers["x-callback-token".toLowerCase()] ||
+    headers["x-callback-token".toUpperCase()];
 
   return (got || "").trim() === expected.trim();
 }
 
-function mapStatus(xenditStatus) {
-  const s = (xenditStatus || "").toUpperCase();
-
-  // Common statuses for invoice flow
+function mapStatus(raw) {
+  const s = (raw || "").toUpperCase();
   if (s === "PAID" || s === "SETTLED") return "PAID";
   if (s === "EXPIRED") return "EXPIRED";
   if (s === "PENDING") return "PENDING";
   if (s === "FAILED") return "FAILED";
-
-  // keep raw if unknown
   return s || "UNKNOWN";
 }
 
-export async function handler(event) {
+exports.handler = async (event) => {
   try {
     if (event.httpMethod !== "POST") {
       return json(405, { ok: false, error: "Method not allowed" });
     }
 
-    // ✅ (Recommended) security check
-    if (!verifyCallbackToken(event)) {
+    // ✅ verify webhook token (recommended)
+    if (!verifyCallbackToken(event.headers || {})) {
       return json(401, { ok: false, error: "Invalid webhook token" });
     }
 
     const payload = JSON.parse(event.body || "{}");
 
-    // Xendit invoice callbacks usually include these fields:
+    // Xendit invoice callback fields
     const external_id = payload.external_id || payload.data?.external_id;
-    const rawStatus = payload.status || payload.data?.status;
-    const status = mapStatus(rawStatus);
+    const status = mapStatus(payload.status || payload.data?.status);
 
-    const amount = payload.amount ?? payload.data?.amount;
-    const invoice_id = payload.id || payload.data?.id || payload.invoice_id;
+    const amount = payload.amount ?? payload.data?.amount ?? null;
+    const invoice_id = payload.id || payload.data?.id || payload.invoice_id || null;
 
-    // payer fields might vary; store if present
     const payer_email =
       payload.payer_email ||
       payload.data?.payer_email ||
@@ -73,14 +68,17 @@ export async function handler(event) {
       payload.customer?.name ||
       null;
 
+    const paid_at = payload.paid_at || payload.data?.paid_at || null;
+
     if (!external_id) {
       return json(400, { ok: false, error: "Missing external_id" });
     }
 
     const sql = neon();
 
-    // Update record - idempotent (safe if webhook repeats)
-    // Only set paid_at when status is PAID
+    // Update record (idempotent)
+    // - Always update status
+    // - If PAID, set paid_at if not already set
     await sql`
       UPDATE public.ma_purchases
       SET
@@ -90,7 +88,7 @@ export async function handler(event) {
         payer_email = COALESCE(${payer_email}, payer_email),
         payer_name = COALESCE(${payer_name}, payer_name),
         paid_at = CASE
-          WHEN ${status} = 'PAID' THEN COALESCE(paid_at, NOW())
+          WHEN ${status} = 'PAID' THEN COALESCE(paid_at, ${paid_at}::timestamptz, NOW())
           ELSE paid_at
         END
       WHERE external_id = ${external_id};
@@ -98,7 +96,7 @@ export async function handler(event) {
 
     return json(200, { ok: true });
   } catch (e) {
-    console.error(e);
+    console.error("xendit-webhook error:", e);
     return json(500, { ok: false, error: "Server error" });
   }
-}
+};
