@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Failed - QariLive</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-xl bg-white rounded-2xl shadow p-6">
+    <div class="flex items-start gap-3">
+      <div class="mt-1 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+        <span class="text-red-700 text-xl">!</span>
+      </div>
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Payment not completed</h1>
+        <p class="text-gray-600 mt-1">
+          It looks like your payment was cancelled, failed, or not finished.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-5 border rounded-xl p-4 bg-gray-50">
+      <div class="text-sm text-gray-500">Reference</div>
+      <div id="externalId" class="font-mono text-sm text-gray-900 mt-1 break-all">-</div>
+      <p class="text-xs text-gray-500 mt-2">
+        If you believe payment went through, contact support and share this reference.
+      </p>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <a href="/master-agent-landing.html"
+         class="w-full inline-flex items-center justify-center rounded-xl bg-blue-600 text-white py-3 font-semibold hover:bg-blue-700">
+        Try Again
+      </a>
+
+      <a id="waBtn"
+         href="#"
+         class="w-full inline-flex items-center justify-center rounded-xl border border-gray-300 py-3 font-semibold text-gray-800 hover:bg-gray-50">
+        Contact Support
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const externalId = params.get("external_id") || "";
+    document.getElementById("externalId").textContent = externalId || "-";
+
+    const WA_NUMBER = "60123456789"; // <-- CHANGE THIS (no +)
+    const waMsg = `Hi QariLive, my payment did not complete. Reference: ${externalId}. Can you help?`;
+    document.getElementById("waBtn").href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+  </script>
+</body>
+</html>
