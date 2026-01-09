@@ -531,13 +531,18 @@
       return u;
     }
 
+    
     async function authHeader(identity) {
       const u = identity.currentUser();
       if (!u) return {};
       const token = await u.jwt();
       return { "Authorization": "Bearer " + token };
+    }
 
     // Tabs (right navigation)
+    let __usersLoaded = false;
+    let __ordersLoaded = false;
+
     function setActiveTab(tab) {
       const panels = document.querySelectorAll(".tab-panel");
       const btns = document.querySelectorAll(".tab-btn");
@@ -557,6 +562,27 @@
         }
       } catch (_) {}
 
+      // Lazy-load data per tab (prevents "nothing loads" after tab UI)
+      const identity = window.__identity;
+      if (identity) {
+        if (tab === "analytics") {
+          // Always refresh analytics when opened (you can change to load once if you want)
+          loadAnalytics(identity);
+        } else if (tab === "users") {
+          if (!__usersLoaded) {
+            __usersLoaded = true;
+            loadUsers(identity).catch(e => showAlert(e?.message || "Failed to load users.", "error"));
+          }
+        } else if (tab === "orders") {
+          if (!__ordersLoaded) {
+            __ordersLoaded = true;
+            // reset pagination on first open
+            ordersOffset = 0;
+            loadOrders(identity).catch(e => showAlert(e?.message || "Failed to load orders.", "error"));
+          }
+        }
+      }
+
       localStorage.setItem("ql_admin_tab", tab);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -568,9 +594,8 @@
       setActiveTab(saved);
     }
 
-    }
-
     // Charts
+
     let chartAgentsByMA = null;
     let chartEarnings = null;
 
