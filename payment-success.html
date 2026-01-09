@@ -1,126 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Successful - QariLive</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Successful - QariLive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
-  <div class="w-full max-w-xl bg-white rounded-2xl shadow p-6">
-    <div class="flex items-start gap-3">
-      <div class="mt-1 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-        <span class="text-green-700 text-xl">✓</span>
-      </div>
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Payment received</h1>
-        <p class="text-gray-600 mt-1">
-          Thank you! We’re confirming your payment and preparing the next steps.
-        </p>
-      </div>
-    </div>
-
-    <div class="mt-5 border rounded-xl p-4 bg-gray-50">
-      <div class="text-sm text-gray-500">Reference</div>
-      <div id="externalId" class="font-mono text-sm text-gray-900 mt-1 break-all">-</div>
-
-      <div class="mt-4">
-        <div class="text-sm text-gray-500">Status</div>
-        <div id="statusBadge" class="inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
-          Confirming payment…
+    <div class="w-full max-w-xl bg-white rounded-2xl shadow p-6">
+        <div class="flex items-start gap-3">
+            <div class="mt-1 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                <span class="text-green-700 text-xl">✓</span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Payment received</h1>
+                <p class="text-gray-600 mt-1">
+                    Thank you! We’re confirming your payment and preparing the next steps.
+                </p>
+            </div>
         </div>
-        <p id="statusNote" class="text-xs text-gray-500 mt-2">
-          If this page stays on “Confirming” for more than 1–2 minutes, contact our team and share the reference above.
-        </p>
-      </div>
+
+        <div class="mt-5 border rounded-xl p-4 bg-gray-50">
+            <div class="text-sm text-gray-500">Reference</div>
+            <div id="externalId" class="font-mono text-sm text-gray-900 mt-1 break-all">-</div>
+
+            <div class="mt-4">
+                <div class="text-sm text-gray-500">Status</div>
+                <div id="statusBadge"
+                    class="inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+                    Confirming payment…
+                </div>
+                <p id="statusNote" class="text-xs text-gray-500 mt-2">
+                    If this page stays on “Confirming” for more than 1–2 minutes, contact our team and share the
+                    reference above.
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <h2 class="text-lg font-semibold text-gray-900">Next steps</h2>
+            <ol class="list-decimal ml-5 mt-2 text-gray-700 space-y-1">
+                <li>Save your reference (above).</li>
+                <li>Click WhatsApp to share your delivery details and confirm order.</li>
+                <li>We’ll update you on delivery / setup instructions.</li>
+            </ol>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a id="waBtn" href="#"
+                class="w-full inline-flex items-center justify-center rounded-xl bg-green-600 text-white py-3 font-semibold hover:bg-green-700">
+                WhatsApp Support
+            </a>
+
+            <a href="/"
+                class="w-full inline-flex items-center justify-center rounded-xl border border-gray-300 py-3 font-semibold text-gray-800 hover:bg-gray-50">
+                Back to Home
+            </a>
+        </div>
+
+        <div class="mt-4 text-xs text-gray-400">
+            Note: This page confirms redirection. Final status is confirmed when our system receives the payment
+            notification.
+        </div>
     </div>
 
-    <div class="mt-6">
-      <h2 class="text-lg font-semibold text-gray-900">Next steps</h2>
-      <ol class="list-decimal ml-5 mt-2 text-gray-700 space-y-1">
-        <li>Save your reference (above).</li>
-        <li>Click WhatsApp to share your delivery details and confirm order.</li>
-        <li>We’ll update you on delivery / setup instructions.</li>
-      </ol>
-    </div>
+    <a href="/delivery-details.html?external_id=YOUR_EXTERNAL_ID"
+        class="w-full inline-flex items-center justify-center rounded-xl bg-blue-600 text-white py-3 font-semibold hover:bg-blue-700">
+        Submit Delivery Details
+    </a>
 
-    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <a id="waBtn"
-         href="#"
-         class="w-full inline-flex items-center justify-center rounded-xl bg-green-600 text-white py-3 font-semibold hover:bg-green-700">
-        WhatsApp Support
-      </a>
 
-      <a href="/"
-         class="w-full inline-flex items-center justify-center rounded-xl border border-gray-300 py-3 font-semibold text-gray-800 hover:bg-gray-50">
-        Back to Home
-      </a>
-    </div>
+    <script>
+        // Read external_id from URL
+        const params = new URLSearchParams(window.location.search);
+        const externalId = params.get("external_id") || "";
+        document.getElementById("externalId").textContent = externalId || "-";
 
-    <div class="mt-4 text-xs text-gray-400">
-      Note: This page confirms redirection. Final status is confirmed when our system receives the payment notification.
-    </div>
-  </div>
+        // WhatsApp link (change to your number)
+        const WA_NUMBER = "60123456789"; // <-- CHANGE THIS (no +)
+        const waMsg = `Hi QariLive, I have made a payment. Reference: ${externalId}. I want to confirm my order and delivery details.`;
+        document.getElementById("waBtn").href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 
-  <script>
-    // Read external_id from URL
-    const params = new URLSearchParams(window.location.search);
-    const externalId = params.get("external_id") || "";
-    document.getElementById("externalId").textContent = externalId || "-";
+        // OPTIONAL: Poll a status endpoint if you create it later (Step 3)
+        // If endpoint doesn't exist yet, this will fail gracefully and keep "Confirming…"
+        async function checkStatus() {
+            if (!externalId) return;
 
-    // WhatsApp link (change to your number)
-    const WA_NUMBER = "60123456789"; // <-- CHANGE THIS (no +)
-    const waMsg = `Hi QariLive, I have made a payment. Reference: ${externalId}. I want to confirm my order and delivery details.`;
-    document.getElementById("waBtn").href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+            try {
+                const res = await fetch(`/.netlify/functions/purchase-status?external_id=${encodeURIComponent(externalId)}`);
+                if (!res.ok) throw new Error("status endpoint not ready");
 
-    // OPTIONAL: Poll a status endpoint if you create it later (Step 3)
-    // If endpoint doesn't exist yet, this will fail gracefully and keep "Confirming…"
-    async function checkStatus() {
-      if (!externalId) return;
-
-      try {
-        const res = await fetch(`/.netlify/functions/purchase-status?external_id=${encodeURIComponent(externalId)}`);
-        if (!res.ok) throw new Error("status endpoint not ready");
-
-        const data = await res.json();
-        if (data && data.status) {
-          setBadge(data.status);
+                const data = await res.json();
+                if (data && data.status) {
+                    setBadge(data.status);
+                }
+            } catch (e) {
+                // do nothing (still confirming)
+            }
         }
-      } catch (e) {
-        // do nothing (still confirming)
-      }
-    }
 
-    function setBadge(status) {
-      const badge = document.getElementById("statusBadge");
-      const note = document.getElementById("statusNote");
-      const s = String(status).toUpperCase();
+        function setBadge(status) {
+            const badge = document.getElementById("statusBadge");
+            const note = document.getElementById("statusNote");
+            const s = String(status).toUpperCase();
 
-      if (s === "PAID") {
-        badge.className = "inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-green-100 text-green-800";
-        badge.textContent = "PAID (Confirmed)";
-        note.textContent = "Payment confirmed. Our team will proceed with fulfillment.";
-      } else if (s === "PENDING") {
-        badge.className = "inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800";
-        badge.textContent = "PENDING (Confirming…)";
-      } else if (s === "EXPIRED" || s === "FAILED") {
-        badge.className = "inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-red-100 text-red-800";
-        badge.textContent = `${s}`;
-        note.textContent = "It looks like payment was not completed. You can try again or contact support.";
-      } else {
-        badge.className = "inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800";
-        badge.textContent = s;
-      }
-    }
+            if (s === "PAID") {
+                badge.className = "inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-green-100 text-green-800";
+                badge.textContent = "PAID (Confirmed)";
+                note.textContent = "Payment confirmed. Our team will proceed with fulfillment.";
+            } else if (s === "PENDING") {
+                badge.className = "inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800";
+                badge.textContent = "PENDING (Confirming…)";
+            } else if (s === "EXPIRED" || s === "FAILED") {
+                badge.className = "inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-red-100 text-red-800";
+                badge.textContent = `${s}`;
+                note.textContent = "It looks like payment was not completed. You can try again or contact support.";
+            } else {
+                badge.className = "inline-flex items-center mt-1 px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800";
+                badge.textContent = s;
+            }
+        }
 
-    // Poll a few times (if Step 3 is done later, this will start working automatically)
-    checkStatus();
-    let tries = 0;
-    const timer = setInterval(async () => {
-      tries++;
-      await checkStatus();
-      if (tries >= 10) clearInterval(timer); // stop after ~50s
-    }, 5000);
-  </script>
+        // Poll a few times (if Step 3 is done later, this will start working automatically)
+        checkStatus();
+        let tries = 0;
+        const timer = setInterval(async () => {
+            tries++;
+            await checkStatus();
+            if (tries >= 10) clearInterval(timer); // stop after ~50s
+        }, 5000);
+    </script>
 </body>
+
 </html>

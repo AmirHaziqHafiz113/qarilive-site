@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delivery Details - QariLive</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-xl bg-white rounded-2xl shadow p-6">
+    <h1 class="text-2xl font-semibold text-gray-900">Delivery Details</h1>
+    <p class="text-gray-600 mt-1">
+      Please fill in your details so we can proceed with delivery.
+    </p>
+
+    <div class="mt-4 text-sm text-gray-500">
+      Reference:
+      <span id="externalId" class="font-mono text-gray-900"></span>
+    </div>
+
+    <form id="form" class="mt-6 space-y-4">
+      <input type="text" id="name" placeholder="Full Name" required
+        class="w-full border rounded-xl px-4 py-3" />
+
+      <input type="tel" id="phone" placeholder="Phone Number" required
+        class="w-full border rounded-xl px-4 py-3" />
+
+      <textarea id="address" placeholder="Full Delivery Address" required
+        class="w-full border rounded-xl px-4 py-3 h-28"></textarea>
+
+      <textarea id="notes" placeholder="Notes (optional)"
+        class="w-full border rounded-xl px-4 py-3 h-20"></textarea>
+
+      <button
+        type="submit"
+        class="w-full bg-green-600 text-white rounded-xl py-3 font-semibold hover:bg-green-700">
+        Submit Delivery Details
+      </button>
+    </form>
+
+    <div id="msg" class="mt-4 text-sm"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const externalId = params.get("external_id");
+    document.getElementById("externalId").textContent = externalId || "-";
+
+    const msg = document.getElementById("msg");
+
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      msg.textContent = "Submitting...";
+      msg.className = "mt-4 text-sm text-gray-500";
+
+      const payload = {
+        external_id: externalId,
+        customer_name: document.getElementById("name").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        address: document.getElementById("address").value.trim(),
+        notes: document.getElementById("notes").value.trim(),
+      };
+
+      try {
+        const res = await fetch("/.netlify/functions/delivery-set", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed");
+
+        msg.textContent = "✅ Delivery details saved. Our team will contact you shortly.";
+        msg.className = "mt-4 text-sm text-green-600";
+      } catch (err) {
+        msg.textContent = "❌ " + err.message;
+        msg.className = "mt-4 text-sm text-red-600";
+      }
+    });
+  </script>
+</body>
+</html>

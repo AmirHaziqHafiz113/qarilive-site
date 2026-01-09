@@ -258,6 +258,98 @@
         </div>
       </section>
 
+
+
+<!-- ORDERS & DELIVERY -->
+<section class="rounded-2xl glass p-6">
+  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div>
+      <h2 class="font-playfair text-gold-soft text-2xl">Orders & Delivery</h2>
+      <p class="mt-1 text-sm text-white/60">Paid orders + delivery details linked by external_id.</p>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <button id="btnLoadOrders"
+        class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+        Load Orders
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+    <input id="ordersSearch"
+      class="w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30 text-sm"
+      placeholder="Search external_id / MA / name / phone / address" />
+
+    <select id="ordersStatus"
+      class="w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85 text-sm">
+      <option value="">All statuses</option>
+      <option value="PAID">PAID</option>
+      <option value="PENDING">PENDING</option>
+      <option value="EXPIRED">EXPIRED</option>
+      <option value="FAILED">FAILED</option>
+    </select>
+
+    <input id="ordersMaCode"
+      class="w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white placeholder:text-white/30 text-sm"
+      placeholder="Filter MA code (e.g. MA9946YSEI)" />
+
+    <select id="ordersLimit"
+      class="w-full px-4 py-3 rounded-xl bg-black/25 soft-border focus-gold text-white/85 text-sm">
+      <option value="25">25 rows</option>
+      <option value="50" selected>50 rows</option>
+      <option value="100">100 rows</option>
+      <option value="200">200 rows</option>
+    </select>
+  </div>
+
+  <div class="mt-4 rounded-2xl border border-gold/15 bg-black/20 p-5 overflow-x-auto">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="text-sm font-semibold text-gold-soft">Order List</div>
+      <div id="ordersStatusText" class="text-sm text-white/55">—</div>
+    </div>
+
+    <table class="mt-4 min-w-full text-sm soft-border rounded-xl overflow-hidden">
+      <thead class="bg-black/30">
+        <tr class="text-left">
+          <th class="px-4 py-3 text-white/70 font-semibold">external_id</th>
+          <th class="px-4 py-3 text-white/70 font-semibold">MA</th>
+          <th class="px-4 py-3 text-white/70 font-semibold">Amount</th>
+          <th class="px-4 py-3 text-white/70 font-semibold">Status</th>
+          <th class="px-4 py-3 text-white/70 font-semibold">Paid At</th>
+          <th class="px-4 py-3 text-white/70 font-semibold">Customer</th>
+          <th class="px-4 py-3 text-white/70 font-semibold">Phone</th>
+          <th class="px-4 py-3 text-white/70 font-semibold">Address</th>
+          <th class="px-4 py-3 text-white/70 font-semibold">Notes</th>
+        </tr>
+      </thead>
+      <tbody id="tblOrders" class="divide-y divide-white/10 bg-black/15">
+        <tr>
+          <td class="px-4 py-4 text-white/60" colspan="9">Not loaded yet.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div id="ordersPageInfo" class="text-xs text-white/55">—</div>
+      <div class="flex items-center gap-2">
+        <button id="btnOrdersPrev"
+          class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+          Prev
+        </button>
+        <button id="btnOrdersNext"
+          class="px-4 py-2 rounded-xl soft-border text-white/85 bg-black/20 hover:border-gold/60 hover:bg-black/40 transition text-sm font-semibold">
+          Next
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-3 text-xs text-white/45">
+      Uses: <span class="text-white/80">/.netlify/functions/orders-list</span>
+    </div>
+  </div>
+</section>
+
       <!-- PAYOUT (VERTICAL) -->
       <section class="rounded-2xl glass p-6">
         <div>
@@ -625,6 +717,96 @@
       } catch (e) { showAlert(e?.message || "Delete failed.", "error"); }
     };
 
+
+// Orders & Delivery
+let ordersOffset = 0;
+let ordersTotal = 0;
+
+function fmtDate(val) {
+  if (!val) return "—";
+  try { return new Date(val).toLocaleString(); } catch { return String(val); }
+}
+
+function badge(status) {
+  const s = String(status || "").toUpperCase();
+  if (s === "PAID") return `<span class="px-2 py-1 rounded-full text-xs bg-green-500/15 text-green-200 border border-green-500/25">${escapeHtml(s)}</span>`;
+  if (s === "PENDING") return `<span class="px-2 py-1 rounded-full text-xs bg-yellow-500/15 text-yellow-200 border border-yellow-500/25">${escapeHtml(s)}</span>`;
+  if (s === "FAILED" || s === "EXPIRED") return `<span class="px-2 py-1 rounded-full text-xs bg-red-500/15 text-red-200 border border-red-500/25">${escapeHtml(s)}</span>`;
+  return `<span class="px-2 py-1 rounded-full text-xs bg-white/10 text-white/70 border border-white/10">${escapeHtml(s || "—")}</span>`;
+}
+
+async function loadOrders(identity) {
+  const q = String($("ordersSearch").value || "").trim();
+  const status = String($("ordersStatus").value || "").trim();
+  const ma_code = String($("ordersMaCode").value || "").trim().toUpperCase();
+  const limit = Number($("ordersLimit").value || 50) || 50;
+
+  $("ordersStatusText").textContent = "Loading...";
+
+  const url = new URL("/.netlify/functions/orders-list", window.location.origin);
+  if (q) url.searchParams.set("q", q);
+  if (status) url.searchParams.set("status", status);
+  if (ma_code) url.searchParams.set("ma_code", ma_code);
+  url.searchParams.set("limit", String(limit));
+  url.searchParams.set("offset", String(ordersOffset));
+  url.searchParams.set("t", String(Date.now()));
+
+  const res = await fetch(url.toString(), { headers: { ...(await authHeader(identity)) } });
+  const out = await res.json().catch(() => ({}));
+  if (!res.ok || !out.ok) {
+    const detail = out?.detail ? (" | detail: " + out.detail) : "";
+    throw new Error((out.error || ("HTTP " + res.status)) + detail);
+  }
+
+  ordersTotal = Number(out.total || 0) || 0;
+  renderOrdersTable(out.orders || [], limit);
+
+  $("ordersStatusText").textContent = "Updated: " + new Date().toLocaleTimeString();
+}
+
+function renderOrdersTable(list, limit) {
+  const tbody = $("tblOrders");
+  if (!Array.isArray(list) || list.length === 0) {
+    tbody.innerHTML = `<tr><td class="px-4 py-4 text-white/60" colspan="9">No orders found.</td></tr>`;
+  } else {
+    tbody.innerHTML = list.map(o => {
+      const external_id = escapeHtml(o.external_id || "—");
+      const ma = escapeHtml(o.ma_code || "—");
+      const amount = (o.amount == null) ? "—" : ("RM " + Number(o.amount).toLocaleString("en-MY"));
+      const status = badge(o.status);
+      const paidAt = escapeHtml(fmtDate(o.paid_at));
+      const cust = escapeHtml(o.customer_name || "—");
+      const phone = escapeHtml(o.phone || "—");
+      const addr = escapeHtml(o.address || "—");
+      const notes = escapeHtml(o.notes || "—");
+
+      return `
+        <tr>
+          <td class="px-4 py-3 text-white/80 font-mono text-xs">${external_id}</td>
+          <td class="px-4 py-3 text-white/75">${ma}</td>
+          <td class="px-4 py-3 text-white/75">${amount}</td>
+          <td class="px-4 py-3">${status}</td>
+          <td class="px-4 py-3 text-white/70">${paidAt}</td>
+          <td class="px-4 py-3 text-white/75">${cust}</td>
+          <td class="px-4 py-3 text-white/70">${phone}</td>
+          <td class="px-4 py-3 text-white/70 max-w-[360px]">${addr}</td>
+          <td class="px-4 py-3 text-white/60 max-w-[240px]">${notes}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  const shownStart = ordersTotal === 0 ? 0 : (ordersOffset + 1);
+  const shownEnd = Math.min(ordersOffset + (Array.isArray(list) ? list.length : 0), ordersTotal);
+  $("ordersPageInfo").textContent = `Showing ${shownStart}-${shownEnd} of ${ordersTotal}`;
+
+  $("btnOrdersPrev").disabled = ordersOffset <= 0;
+  $("btnOrdersNext").disabled = (ordersOffset + limit) >= ordersTotal;
+
+  $("btnOrdersPrev").classList.toggle("opacity-50", $("btnOrdersPrev").disabled);
+  $("btnOrdersNext").classList.toggle("opacity-50", $("btnOrdersNext").disabled);
+}
+
     // Payout lookup
     async function loadPayout(identity) {
       const type = ($("payType").value || "").trim();
@@ -700,6 +882,45 @@
         try { await loadUsers(identity); }
         catch (e) { showAlert(e?.message || "Failed to load users.", "error"); }
       });
+
+// Orders & Delivery
+$("btnLoadOrders").addEventListener("click", async () => {
+  hideAlert();
+  ordersOffset = 0;
+  try { await loadOrders(identity); }
+  catch (e) { showAlert(e?.message || "Failed to load orders.", "error"); $("ordersStatusText").textContent = "—"; }
+});
+
+const ordersReload = async () => {
+  hideAlert();
+  ordersOffset = 0;
+  try { await loadOrders(identity); }
+  catch (e) { showAlert(e?.message || "Failed to load orders.", "error"); $("ordersStatusText").textContent = "—"; }
+};
+
+$("ordersSearch").addEventListener("input", () => {
+  clearTimeout(window.__ordersT);
+  window.__ordersT = setTimeout(ordersReload, 350);
+});
+$("ordersStatus").addEventListener("change", ordersReload);
+$("ordersMaCode").addEventListener("input", () => {
+  clearTimeout(window.__ordersT2);
+  window.__ordersT2 = setTimeout(ordersReload, 350);
+});
+$("ordersLimit").addEventListener("change", ordersReload);
+
+$("btnOrdersPrev").addEventListener("click", async () => {
+  const limit = Number($("ordersLimit").value || 50) || 50;
+  ordersOffset = Math.max(0, ordersOffset - limit);
+  try { await loadOrders(identity); } catch (e) { showAlert(e?.message || "Failed.", "error"); }
+});
+$("btnOrdersNext").addEventListener("click", async () => {
+  const limit = Number($("ordersLimit").value || 50) || 50;
+  ordersOffset = ordersOffset + limit;
+  try { await loadOrders(identity); } catch (e) { showAlert(e?.message || "Failed.", "error"); }
+});
+
+
 
       // Pagination controls
       $("btnUserPrev").addEventListener("click", () => {
